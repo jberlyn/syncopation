@@ -8,10 +8,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - joplin-data:/app/data
+      - ./data:/app/data
     environment:
       - PORT=8080
       - DB_PATH=/app/data/joplin.sqlite3
-
-volumes:
-  joplin-data:
