@@ -1,4 +1,12 @@
-.PHONY: run seed build docker-up docker-down
+.PHONY: run seed build test test-cov docker-up docker-down
+
+# Run all tests
+test:
+	go test -v ./...
+
+# Run all tests with coverage analysis
+test-cov:
+	go test -cover ./...
 
 # Run the server locally using go run
 run:
