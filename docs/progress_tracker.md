@@ -108,11 +108,11 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ## 🚀 Current Focus
 
-### [ ] Slice 8.3: Discovery - User Data Lifecycle & Deletion
-- [ ] Review official Joplin Server codebase regarding user deletion logic.
-- [ ] Determine how to handle orphaned data (notes, files, shares) when an account is deleted.
-- [ ] Choose between soft deletion, cascade deletion, or background garbage collection.
-- [ ] Draft approach in a design document or ADR to be implemented in a subsequent slice.
+### [x] Slice 8.3: Discovery - User Data Lifecycle & Deletion
+- [x] Review official Joplin Server codebase regarding user deletion logic.
+- [x] Determine how to handle orphaned data (notes, files, shares) when an account is deleted.
+- [x] Choose between soft deletion, cascade deletion, or background garbage collection.
+- [x] Draft approach in a design document or ADR to be implemented in a subsequent slice.
 
 ---
 
