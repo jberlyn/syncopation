@@ -100,6 +100,16 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ## 🚀 Current Focus
 
+### [ ] Slice 8.2: Phase 2 Implementation - Admin Dashboard (User Management & Statistics)
+- [ ] Implement user list view in the admin dashboard.
+- [ ] Implement user creation and deletion functionality for the admin.
+- [ ] Implement basic instance statistics on the admin dashboard (e.g., total items, total active sessions).
+- [ ] Ensure HTMX is utilized for dynamic interactions without full page reloads.
+
+---
+
+## ⏳ Upcoming Slices
+
 ### [ ] Slice 9: CI/CD & Image Building
 - [ ] Implement a `.github/workflows/docker-publish.yml` file.
 - [ ] Trigger workflow on Git version tags (e.g., `v*.*.*`).
