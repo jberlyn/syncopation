@@ -359,6 +359,33 @@ Please help me design:
 
 Guide me through the trade-offs, ask any necessary clarifying questions, and help me decide. Once we align, record our choices in an Architectural Decision Record file (adr_phase2_admin_sharing.md).
 ```
+
+---
+
+### Slice 8.5: Database Schema Modernization
+
+- **Goal**: Clean up historical database schema technical debt, removing the 1:1 legacy namings copied from Joplin Server (e.g. `changes_2`) in favor of clean, idiomatic names.
+- **Scope**:
+  - Rename tables (`changes_2` -> `delta_events`, `items` -> `sync_items`, etc.).
+  - Rename columns (`created_time` -> `created_at`, `jop_id` -> `joplin_id`).
+  - Refactor `db/queries.sql` and regenerate `sqlc` bindings.
+  - Update Go handlers to map new internal field names back to the original JSON structures expected by the Joplin clients.
+- **Deliverables**: A SQL migration for renaming, updated `queries.sql`, and refactored Go codebase.
+- **Acceptance Criteria**: Sync endpoints still function perfectly with Joplin clients, but the underlying database is modernized.
+
+#### 📋 Session Handoff Prompt (Slice 8.5)
+```text
+We are starting Slice 8.5 of the custom Joplin Sync Server project.
+Please refer to @adr_database_schema_naming.md for the planned schema changes.
+
+Our goal for this session is to modernize the database schema:
+1. Write a SQL migration to rename tables (e.g., changes_2 to delta_events) and columns (e.g., created_time to created_at).
+2. Update `db/queries.sql` to use the new names and run `sqlc generate`.
+3. Update the Go codebase to use the newly generated types.
+4. Crucially, ensure that our JSON responses to Joplin clients remain exactly the same as before by explicitly using struct tags (e.g., `json:"updated_time"`).
+
+Let's begin step-by-step.
+```
 ---
 
 ### Slice 9: CI/CD & Image Building

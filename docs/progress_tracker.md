@@ -124,6 +124,12 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ## ⏳ Upcoming Slices
 
+### [ ] Slice 8.5: Database Schema Modernization
+- [ ] Rename tables to idiomatic names (e.g., `changes_2` to `delta_events`, `items` to `sync_items`).
+- [ ] Rename columns (e.g., `created_time` to `created_at`, `jop_id` to `joplin_id`).
+- [ ] Refactor `db/queries.sql` and run `sqlc generate`.
+- [ ] Update Go codebase and ensure strict JSON response compatibility with Joplin clients.
+
 ### [ ] Slice 9: CI/CD & Image Building
 - [ ] Implement a `.github/workflows/docker-publish.yml` file.
 - [ ] Trigger workflow on Git version tags (e.g., `v*.*.*`).
