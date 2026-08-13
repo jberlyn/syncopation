@@ -1,8 +1,8 @@
 # AI Assistant Context & Guidelines
 
 ## Tech Stack & Storage
-- **Language & Framework**: Go 1.21+ using Standard Library (`net/http`) and `sqlc` for type-safe database queries.
-- **Database Engine**: SQLite with Write-Ahead Logging (WAL) enabled (`PRAGMA journal_mode=WAL;`).
+- **Language & Framework**: Go 1.25+ using Standard Library (`net/http`) and `sqlc` for type-safe database queries.
+- **Database Engine**: SQLite with Write-Ahead Logging (WAL) enabled (`PRAGMA journal_mode=WAL;`). Uses the pure-Go `modernc.org/sqlite` driver (CGO is not required).
 - **Storage Backend**: Local Filesystem for item payloads. Metadata in SQLite, raw content as files.
 - **Admin UI**: Go Server-Side Rendering (`html/template`) + HTMX, served under `/admin`.
 
