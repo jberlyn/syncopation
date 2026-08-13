@@ -17,8 +17,8 @@ import (
 	"github.com/jberlyn/syncopation/config"
 	"github.com/jberlyn/syncopation/db"
 	"github.com/jberlyn/syncopation/storage"
-	_ "modernc.org/sqlite"
 	"golang.org/x/crypto/bcrypt"
+	_ "modernc.org/sqlite"
 )
 
 var Version = "v0.1.0"

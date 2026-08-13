@@ -18,8 +18,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/db"
 	"github.com/jberlyn/syncopation/storage"
-	_ "modernc.org/sqlite"
 	"golang.org/x/crypto/bcrypt"
+	_ "modernc.org/sqlite"
 )
 
 func setupTestApp(t *testing.T) (*http.ServeMux, *db.Queries, *sql.DB, *storage.LocalFS) {
