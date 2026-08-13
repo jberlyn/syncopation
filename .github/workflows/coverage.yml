@@ -45,9 +45,23 @@ jobs:
             printf "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"%.1f%%\",\"color\":\"%s\"}\n", p, color;
           }' > /tmp/badge/coverage.json
 
-          PULLS=$(curl -sL https://github.com/jberlyn/syncopation/pkgs/container/syncopation | grep -A 2 "Total downloads" | grep "<h3" | sed -E 's/.*title="([^"]+)".*/\1/' || echo "0")
-          if [ -z "$PULLS" ]; then PULLS="0"; fi
-          echo "Docker pulls: ${PULLS}"
+          RAW_PULLS=$(curl -sL https://github.com/jberlyn/syncopation/pkgs/container/syncopation | grep -A 2 "Total downloads" | grep "<h3" | sed -E 's/.*title="([^"]+)".*/\1/' || echo "0")
+          if [ -z "$RAW_PULLS" ]; then RAW_PULLS="0"; fi
+          PULLS=$(awk -v raw="$RAW_PULLS" 'BEGIN {
+            gsub(",", "", raw);
+            n = raw + 0;
+            if (n >= 1000000) {
+              val = n / 1000000;
+              fmt = (val == int(val)) ? sprintf("%dM", val) : sprintf("%.1fM", val);
+            } else if (n >= 1000) {
+              val = n / 1000;
+              fmt = (val == int(val)) ? sprintf("%dk", val) : sprintf("%.1fk", val);
+            } else {
+              fmt = sprintf("%d", n);
+            }
+            print fmt;
+          }')
+          echo "Docker pulls: ${PULLS} (raw: ${RAW_PULLS})"
           printf "{\"schemaVersion\":1,\"label\":\"docker pulls\",\"message\":\"%s\",\"color\":\"blue\"}\n" "$PULLS" > /tmp/badge/docker_pulls.json
 
       - name: Deploy badge JSONs to badges branch
