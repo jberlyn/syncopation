@@ -10,6 +10,7 @@ This document serves as the discovery phase for every table and column, proposin
 ## Discovery and Proposed Renaming
 
 ### 1. `users` -> `users` (No table name change)
+*Purpose: Stores user account credentials, including email, hashed password, and administrator status.*
 - `id` -> `id`
 - `email` -> `email`
 - `password` -> `password_hash` *(Clarifies that this stores a hash, not plaintext)*
@@ -18,6 +19,7 @@ This document serves as the discovery phase for every table and column, proposin
 - `updated_time` -> `updated_at`
 
 ### 2. `sessions` -> `sessions` (No table name change)
+*Purpose: Tracks active authenticated API sessions. When a user logs in, an API token is generated and stored here to authorize subsequent requests.*
 - `id` -> `id`
 - `user_id` -> `user_id`
 - `auth_code` -> `auth_code`
@@ -26,6 +28,7 @@ This document serves as the discovery phase for every table and column, proposin
 
 ### 3. `storages` -> `storage_backends` 
 *(`storages` is awkward pluralization; `storage_backends` better describes what this tracks)*
+*Purpose: Tracks the physical storage location of item contents (e.g., local disk filesystem vs. S3). Sync items contain a reference to this table so the server knows where to read/write the actual binary payload.*
 - `id` -> `id`
 - `connection_string` -> `connection_string`
 - `created_time` -> `created_at`
@@ -33,6 +36,7 @@ This document serves as the discovery phase for every table and column, proposin
 
 ### 4. `items` -> `sync_items`
 *(`items` is highly generic. `sync_items` clarifies this is the core synchronizable entity)*
+*Purpose: The core table storing metadata for every synchronized Joplin entity (notes, resources, tags, folders). Note that actual binary content is stored in the `storage_backends` location.*
 - `id` -> `id`
 - `name` -> `file_name` *(More accurately describes the `root:/<path>:` name)*
 - `mime_type` -> `mime_type`
@@ -48,6 +52,7 @@ This document serves as the discovery phase for every table and column, proposin
 - `updated_time` -> `updated_at`
 
 ### 5. `user_items` -> `user_sync_items`
+*Purpose: A mapping table tracking which user owns or has access to which sync item, acting as an access control list (ACL).*
 - `id` -> `id`
 - `user_id` -> `user_id`
 - `item_id` -> `sync_item_id`
@@ -56,6 +61,7 @@ This document serves as the discovery phase for every table and column, proposin
 
 ### 6. `changes_2` -> `delta_events`
 *(Removes the historical `_2` migration artifact and clarifies the table's purpose for delta sync)*
+*Purpose: An append-only log recording every creation, update, or deletion of a sync item. It drives the incremental "delta sync" engine, allowing clients to quickly pull only the changes that occurred since their last sync cursor.*
 - `counter` -> `id` *(Standardizes the primary key name)*
 - `id` -> `event_uuid` *(The string UUID of the event, distinguishing it from the PK id)*
 - `item_id` -> `joplin_id` *(Matches the renamed field in `sync_items`)*
@@ -68,12 +74,14 @@ This document serves as the discovery phase for every table and column, proposin
 - `updated_time` -> `updated_at`
 
 ### 7. `key_values` -> `kv_store`
+*Purpose: A generic key-value store used primarily by the server to manage distributed concurrency locks. These locks prevent two clients from overwriting each other if they try to sync simultaneously.*
 - `id` -> `id`
 - `key` -> `key`
 - `type` -> `value_type`
 - `value` -> `value`
 
 ### 8. `shares` -> `shares` (No table name change)
+*Purpose: Tracks shared folders that a user has published or shared with others, enabling the multi-user notebook sharing features.*
 - `id` -> `id`
 - `owner_id` -> `owner_id`
 - `folder_id` -> `folder_id`
@@ -81,6 +89,7 @@ This document serves as the discovery phase for every table and column, proposin
 - `updated_time` -> `updated_at`
 
 ### 9. `user_shares` -> `user_shares` (No table name change)
+*Purpose: Tracks the participants (users) who have been invited to or have accepted access to a shared folder.*
 - `id` -> `id`
 - `share_id` -> `share_id`
 - `user_id` -> `user_id`
