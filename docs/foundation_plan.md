@@ -336,9 +336,9 @@ Guide me through the trade-offs, ask any necessary clarifying questions, and hel
 - **Scope**:
   - Implement a `.github/workflows/docker-publish.yml` file.
   - Trigger workflow on Git version tags (e.g., `v*.*.*`).
-  - Build and push Docker image.
+  - Build and push Docker image with the version tag as well as the `:latest` tag.
 - **Deliverables**: GitHub Actions workflow YAML file.
-- **Acceptance Criteria**: Pushing a version tag successfully triggers the image build.
+- **Acceptance Criteria**: Pushing a version tag successfully triggers the image build and tags the image with both the version and `:latest`.
 
 #### 📋 Session Handoff Prompt (Slice 9)
 ```text
@@ -346,6 +346,7 @@ We are starting Slice 9 of the custom Joplin Sync Server project.
 
 Our goal for this session is to set up a GitHub Actions workflow for building the Docker image.
 The workflow should trigger automatically whenever there is a version tag.
+It must build and tag the image with both the specific version tag and the `latest` tag so users on `:latest` get the update.
 
 Please help me implement this workflow.
 ```
