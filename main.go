@@ -59,11 +59,16 @@ func main() {
 	// GET /api/ping
 	mux.HandleFunc("GET /api/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
 
 	mux.HandleFunc("POST /api/sessions", authHandler.Login)
 	mux.HandleFunc("DELETE /api/sessions/{id}", authHandler.Logout)
+
+	lockHandler := &api.LockHandler{Queries: queries}
+	mux.Handle("POST /api/locks", authHandler.RequireAuth(http.HandlerFunc(lockHandler.AcquireLock)))
+	mux.Handle("DELETE /api/locks/{id}", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ReleaseLock)))
+	mux.Handle("GET /api/locks", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ListLocks)))
 
 	log.Printf("Server listening on port %s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
@@ -73,7 +78,7 @@ func main() {
 
 func seedUser(queries *db.Queries, email, password string) {
 	ctx := context.Background()
-	
+
 	// Check if user exists
 	existingUser, err := queries.GetUserByEmail(ctx, email)
 	if err == nil && existingUser.ID != "" {

@@ -87,6 +87,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteKeyValue = `-- name: DeleteKeyValue :exec
+DELETE FROM key_values
+WHERE key = ?
+`
+
+func (q *Queries) DeleteKeyValue(ctx context.Context, key string) error {
+	_, err := q.db.ExecContext(ctx, deleteKeyValue, key)
+	return err
+}
+
 const deleteSession = `-- name: DeleteSession :exec
 DELETE FROM sessions
 WHERE id = ?
@@ -95,6 +105,23 @@ WHERE id = ?
 func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, deleteSession, id)
 	return err
+}
+
+const getKeyValue = `-- name: GetKeyValue :one
+SELECT id, "key", type, value FROM key_values
+WHERE key = ? LIMIT 1
+`
+
+func (q *Queries) GetKeyValue(ctx context.Context, key string) (KeyValue, error) {
+	row := q.db.QueryRowContext(ctx, getKeyValue, key)
+	var i KeyValue
+	err := row.Scan(
+		&i.ID,
+		&i.Key,
+		&i.Type,
+		&i.Value,
+	)
+	return i, err
 }
 
 const getSession = `-- name: GetSession :one
@@ -131,6 +158,69 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.IsAdmin,
 		&i.CreatedTime,
 		&i.UpdatedTime,
+	)
+	return i, err
+}
+
+const listKeyValuesByType = `-- name: ListKeyValuesByType :many
+SELECT id, "key", type, value FROM key_values
+WHERE type = ?
+`
+
+func (q *Queries) ListKeyValuesByType(ctx context.Context, type_ int64) ([]KeyValue, error) {
+	rows, err := q.db.QueryContext(ctx, listKeyValuesByType, type_)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []KeyValue
+	for rows.Next() {
+		var i KeyValue
+		if err := rows.Scan(
+			&i.ID,
+			&i.Key,
+			&i.Type,
+			&i.Value,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setKeyValue = `-- name: SetKeyValue :one
+INSERT INTO key_values (
+  key, type, value
+) VALUES (
+  ?, ?, ?
+)
+ON CONFLICT(key) DO UPDATE SET
+  type = excluded.type,
+  value = excluded.value
+RETURNING id, "key", type, value
+`
+
+type SetKeyValueParams struct {
+	Key   string `json:"key"`
+	Type  int64  `json:"type"`
+	Value string `json:"value"`
+}
+
+func (q *Queries) SetKeyValue(ctx context.Context, arg SetKeyValueParams) (KeyValue, error) {
+	row := q.db.QueryRowContext(ctx, setKeyValue, arg.Key, arg.Type, arg.Value)
+	var i KeyValue
+	err := row.Scan(
+		&i.ID,
+		&i.Key,
+		&i.Type,
+		&i.Value,
 	)
 	return i, err
 }

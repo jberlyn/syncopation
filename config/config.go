@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	Port     string
-	DBPath   string
+	Port   string
+	DBPath string
 }
 
 func LoadConfig() *Config {
@@ -29,7 +29,7 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		Port:     port,
-		DBPath:   dbPath,
+		Port:   port,
+		DBPath: dbPath,
 	}
 }

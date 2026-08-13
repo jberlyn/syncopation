@@ -41,7 +41,7 @@ func setupTestDB(t *testing.T) *db.Queries {
 func seedUser(t *testing.T, queries *db.Queries, email, password string) db.User {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	now := time.Now().UnixMilli()
-	
+
 	user, err := queries.CreateUser(context.Background(), db.CreateUserParams{
 		ID:          uuid.New().String(),
 		Email:       email,
@@ -83,7 +83,7 @@ func TestAuthFlow(t *testing.T) {
 		bodyBytes, _ := json.Marshal(reqBody)
 		req := httptest.NewRequest("POST", "/api/sessions", bytes.NewBuffer(bodyBytes))
 		rr := httptest.NewRecorder()
-		
+
 		mux.ServeHTTP(rr, req)
 
 		if rr.Code != http.StatusOK {
@@ -94,7 +94,7 @@ func TestAuthFlow(t *testing.T) {
 		if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
 			t.Fatalf("Failed to decode response: %v", err)
 		}
-		
+
 		if resp.UserID != user.ID {
 			t.Errorf("Expected user ID %s, got %s", user.ID, resp.UserID)
 		}
@@ -115,7 +115,7 @@ func TestAuthFlow(t *testing.T) {
 		// 3. Test Logout
 		req3 := httptest.NewRequest("DELETE", "/api/sessions/"+resp.ID, nil)
 		rr3 := httptest.NewRecorder()
-		
+
 		mux.ServeHTTP(rr3, req3)
 		if rr3.Code != http.StatusOK {
 			t.Errorf("Expected 200 OK on logout, got %d", rr3.Code)
@@ -138,7 +138,7 @@ func TestAuthFlow(t *testing.T) {
 		bodyBytes, _ := json.Marshal(reqBody)
 		req := httptest.NewRequest("POST", "/api/sessions", bytes.NewBuffer(bodyBytes))
 		rr := httptest.NewRecorder()
-		
+
 		mux.ServeHTTP(rr, req)
 
 		if rr.Code != http.StatusUnauthorized {

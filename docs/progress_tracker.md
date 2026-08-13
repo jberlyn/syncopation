@@ -31,21 +31,17 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Implement `AuthMiddleware` to validate `X-API-AUTH` header.
 - [x] Write automated tests for login, logout, and token authorization.
 
+### [x] Slice 3: Concurrency Lock Management Engine (`/api/locks`)
+- [x] Design lock manager using `key_values` table / memory fallback.
+- [x] Implement `POST /api/locks` (Acquire Sync and Exclusive locks).
+- [x] Implement `DELETE /api/locks/:id` (Release lock).
+- [x] Implement `GET /api/locks` (List active locks).
+- [x] Implement lock expiration / TTL check.
+- [x] Write integration tests for acquiring and releasing locks.
+
 ---
 
 ## 🚀 Current Focus
-
-### [ ] Slice 3: Concurrency Lock Management Engine (`/api/locks`)
-- [ ] Design lock manager using `key_values` table / memory fallback.
-- [ ] Implement `POST /api/locks` (Acquire Sync and Exclusive locks).
-- [ ] Implement `DELETE /api/locks/:id` (Release lock).
-- [ ] Implement `GET /api/locks` (List active locks).
-- [ ] Implement lock expiration / TTL check.
-- [ ] Write integration tests for acquiring and releasing locks.
-
----
-
-## ⏳ Upcoming Slices
 
 ### [ ] Slice 4: Item Storage Engine & Core CRUD API (`/api/items`)
 - [ ] Implement Joplin URL path parser for `root:/<path>:` syntax.
@@ -55,6 +51,10 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [ ] Implement `PUT /api/items/root:/<path>:/content` (Create/Update item).
 - [ ] Implement `DELETE /api/items/root:/<path>:` (Delete item).
 - [ ] Write tests verifying CRUD operations.
+
+---
+
+## ⏳ Upcoming Slices
 
 ### [ ] Slice 5: Change Event Log & Delta Sync Engine (`changes_2`)
 - [ ] Implement change tracking hook on item create, update, and delete.

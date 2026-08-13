@@ -110,7 +110,7 @@ Our goal for this session is to build out the technical plan and implementation 
 6. Implement the `GET /api/ping` health check endpoint.
 7. Write unit/integration tests to verify database creation, seeding, and health check.
 
-*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms so I can learn.*
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
 
 ---
@@ -139,7 +139,7 @@ Our goal for this session is to design and implement Slice 2 (Authentication & S
 4. Implement request middleware validating the `X-API-AUTH` HTTP header against the `sessions` table, returning `403 Forbidden` on invalid sessions.
 5. Write automated unit/integration tests for login, logout, and token authorization.
 
-*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms so I can learn.*
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
 
 ---
@@ -172,7 +172,7 @@ Our goal for this session is to design and implement Slice 3 (Concurrency Lock E
 5. Implement TTL / timestamp check to auto-expire stale locks.
 6. Write integration tests simulating multiple clients acquiring and releasing locks.
 
-*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms so I can learn.*
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
 
 ---
@@ -206,7 +206,7 @@ Our goal for this session is to design and implement Slice 4 (Item Storage & CRU
 5. Implement `DELETE /api/items/root:/<path>:` (Delete item).
 6. Write tests verifying item upload, stat retrieval, content download, and deletion.
 
-*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms so I can learn.*
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
 
 ---
@@ -238,7 +238,7 @@ Our goal for this session is to design and implement Slice 5 (Delta Sync & Event
 4. Format delta response with `items` array, `has_more` boolean flag, and next `cursor`.
 5. Write integration tests simulating multiple edits and deletes, verifying cursor progression.
 
-*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms so I can learn.*
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
 
 ---
@@ -267,7 +267,7 @@ Our goal for this session is to design and implement Slice 6 (Batch Operations &
 4. Implement `GET /api/items/root:/<path>/*:/children` for directory children listing.
 5. Write tests verifying batch upload and batch deletion performance and correctness.
 
-*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms so I can learn.*
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
 
 ---
@@ -298,7 +298,7 @@ Our goal for this session is Slice 7 (E2E Verification & Deployment):
 4. Create a production Dockerfile and `docker-compose.yml` for lightweight hosting.
 5. Finalize user documentation and server administration instructions.
 
-*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms so I can learn.*
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
 
 ---

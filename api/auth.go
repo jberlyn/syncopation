@@ -51,7 +51,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	session, err := h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
 		ID:          sessionID,
 		UserID:      user.ID,
-		AuthCode:    "", 
+		AuthCode:    "",
 		CreatedTime: now,
 		UpdatedTime: now,
 	})
@@ -66,7 +66,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
