@@ -84,13 +84,21 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ---
 
+### [x] Slice 8: Phase 2 Discovery - Admin Management & Multi-User Support
+- [x] Interactively design technical approach for Admin UI (SSR vs SPA vs Microservice).
+- [x] Design Role-Based Access Control (RBAC) strategy.
+- [x] Architect data model extensions for multi-user notebook sharing.
+- [x] Create Architectural Decision Record (`adr_phase2_admin_sharing.md`).
+
+---
+
 ## 🚀 Current Focus
 
-### [ ] Slice 8: Phase 2 Discovery - Admin Management & Multi-User Support
-- [ ] Interactively design technical approach for Admin UI (SSR vs SPA vs Microservice).
-- [ ] Design Role-Based Access Control (RBAC) strategy.
-- [ ] Architect data model extensions for multi-user notebook sharing.
-- [ ] Create Architectural Decision Record (`adr_phase2_admin_sharing.md`).
+### [ ] Slice 8.1: Phase 2 Implementation - Admin & RBAC
+- [ ] Implement Go Server-Side Rendered (SSR) Admin UI (`html/template` + HTMX).
+- [ ] Implement "Zero-User Onboarding Flow".
+- [ ] Implement `AdminMiddleware` utilizing `is_admin` flag.
+- [ ] Implement foundational schema changes for Multi-User Sharing (Fan-out).
 
 ---
 
