@@ -68,12 +68,12 @@ This document serves as the discovery phase for every table and column, proposin
 - `created_time` -> `created_at`
 - `updated_time` -> `updated_at`
 
-### 7. `key_values` -> `kv_store`
-*Purpose: A generic key-value store used primarily by the server to manage distributed concurrency locks. These locks prevent two clients from overwriting each other if they try to sync simultaneously.*
+### 7. `key_values` -> `sync_locks`
+*Purpose: Used exclusively by the server to manage distributed concurrency locks. These locks prevent two clients from overwriting each other if they try to sync simultaneously.*
 - `id` -> `id`
-- `key` -> `key`
-- `type` -> `value_type`
-- `value` -> `value`
+- `key` -> `lock_key`
+- `type` -> `lock_type`
+- `value` -> `lock_data` *(Stores the JSON blob with lock details)*
 
 ### 8. `shares` -> `shares` (No table name change)
 *Purpose: Tracks shared folders that a user has published or shared with others, enabling the multi-user notebook sharing features.*
