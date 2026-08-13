@@ -98,13 +98,21 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ---
 
-## 🚀 Current Focus
-
 ### [x] Slice 8.2: Phase 2 Implementation - Admin Dashboard (User Management & Statistics)
 - [x] Implement user list view in the admin dashboard.
 - [x] Implement user creation and deletion functionality for the admin.
 - [x] Implement basic instance statistics on the admin dashboard (e.g., total items, total active sessions).
 - [x] Ensure HTMX is utilized for dynamic interactions without full page reloads.
+
+---
+
+## 🚀 Current Focus
+
+### [ ] Slice 8.3: Discovery - User Data Lifecycle & Deletion
+- [ ] Review official Joplin Server codebase regarding user deletion logic.
+- [ ] Determine how to handle orphaned data (notes, files, shares) when an account is deleted.
+- [ ] Choose between soft deletion, cascade deletion, or background garbage collection.
+- [ ] Draft approach in a design document or ADR to be implemented in a subsequent slice.
 
 ---
 
