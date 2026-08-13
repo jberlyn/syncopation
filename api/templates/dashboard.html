@@ -11,7 +11,7 @@
 
 <main>
     <div class="card" style="margin-bottom: 2rem;">
-        <h2>Dashboard Statistics</h2>
+        <h2>Statistics</h2>
         {{template "stats" .}}
     </div>
 
@@ -30,7 +30,7 @@
         <h3 style="margin: 0;">Add New User</h3>
         <button onclick="document.getElementById('add-user-modal').close()" style="background: none; color: var(--text-muted); border: none; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; width: auto;">&times;</button>
     </div>
-    
+
     {{template "add-user-form" .}}
 </dialog>
 
