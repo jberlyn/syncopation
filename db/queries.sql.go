@@ -87,6 +87,23 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteItemByNameAndUser = `-- name: DeleteItemByNameAndUser :exec
+DELETE FROM items
+WHERE name = ? AND id IN (
+  SELECT item_id FROM user_items WHERE user_id = ?
+)
+`
+
+type DeleteItemByNameAndUserParams struct {
+	Name   string `json:"name"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) DeleteItemByNameAndUser(ctx context.Context, arg DeleteItemByNameAndUserParams) error {
+	_, err := q.db.ExecContext(ctx, deleteItemByNameAndUser, arg.Name, arg.UserID)
+	return err
+}
+
 const deleteKeyValue = `-- name: DeleteKeyValue :exec
 DELETE FROM key_values
 WHERE key = ?
@@ -105,6 +122,56 @@ WHERE id = ?
 func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, deleteSession, id)
 	return err
+}
+
+const deleteUserItem = `-- name: DeleteUserItem :exec
+DELETE FROM user_items
+WHERE user_id = ? AND item_id = ?
+`
+
+type DeleteUserItemParams struct {
+	UserID string `json:"user_id"`
+	ItemID string `json:"item_id"`
+}
+
+func (q *Queries) DeleteUserItem(ctx context.Context, arg DeleteUserItemParams) error {
+	_, err := q.db.ExecContext(ctx, deleteUserItem, arg.UserID, arg.ItemID)
+	return err
+}
+
+const getItemByNameAndUser = `-- name: GetItemByNameAndUser :one
+SELECT items.id, items.name, items.mime_type, items.content, items.content_size, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
+JOIN user_items ON items.id = user_items.item_id
+WHERE items.name = ? AND user_items.user_id = ?
+LIMIT 1
+`
+
+type GetItemByNameAndUserParams struct {
+	Name   string `json:"name"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) GetItemByNameAndUser(ctx context.Context, arg GetItemByNameAndUserParams) (Item, error) {
+	row := q.db.QueryRowContext(ctx, getItemByNameAndUser, arg.Name, arg.UserID)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.MimeType,
+		&i.Content,
+		&i.ContentSize,
+		&i.JopID,
+		&i.JopParentID,
+		&i.JopShareID,
+		&i.JopType,
+		&i.JopEncryptionApplied,
+		&i.JopUpdatedTime,
+		&i.OwnerID,
+		&i.ContentStorageID,
+		&i.CreatedTime,
+		&i.UpdatedTime,
+	)
+	return i, err
 }
 
 const getKeyValue = `-- name: GetKeyValue :one
@@ -221,6 +288,124 @@ func (q *Queries) SetKeyValue(ctx context.Context, arg SetKeyValueParams) (KeyVa
 		&i.Key,
 		&i.Type,
 		&i.Value,
+	)
+	return i, err
+}
+
+const upsertItem = `-- name: UpsertItem :one
+INSERT INTO items (
+  id, name, mime_type, content, content_size, jop_id, jop_parent_id, jop_share_id,
+  jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id,
+  created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+ON CONFLICT(id) DO UPDATE SET
+  name = excluded.name,
+  mime_type = excluded.mime_type,
+  content = excluded.content,
+  content_size = excluded.content_size,
+  jop_id = excluded.jop_id,
+  jop_parent_id = excluded.jop_parent_id,
+  jop_share_id = excluded.jop_share_id,
+  jop_type = excluded.jop_type,
+  jop_encryption_applied = excluded.jop_encryption_applied,
+  jop_updated_time = excluded.jop_updated_time,
+  owner_id = excluded.owner_id,
+  content_storage_id = excluded.content_storage_id,
+  updated_time = excluded.updated_time
+RETURNING id, name, mime_type, content, content_size, jop_id, jop_parent_id, jop_share_id, jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id, created_time, updated_time
+`
+
+type UpsertItemParams struct {
+	ID                   string `json:"id"`
+	Name                 string `json:"name"`
+	MimeType             string `json:"mime_type"`
+	Content              []byte `json:"content"`
+	ContentSize          int64  `json:"content_size"`
+	JopID                string `json:"jop_id"`
+	JopParentID          string `json:"jop_parent_id"`
+	JopShareID           string `json:"jop_share_id"`
+	JopType              int64  `json:"jop_type"`
+	JopEncryptionApplied int64  `json:"jop_encryption_applied"`
+	JopUpdatedTime       int64  `json:"jop_updated_time"`
+	OwnerID              string `json:"owner_id"`
+	ContentStorageID     int64  `json:"content_storage_id"`
+	CreatedTime          int64  `json:"created_time"`
+	UpdatedTime          int64  `json:"updated_time"`
+}
+
+func (q *Queries) UpsertItem(ctx context.Context, arg UpsertItemParams) (Item, error) {
+	row := q.db.QueryRowContext(ctx, upsertItem,
+		arg.ID,
+		arg.Name,
+		arg.MimeType,
+		arg.Content,
+		arg.ContentSize,
+		arg.JopID,
+		arg.JopParentID,
+		arg.JopShareID,
+		arg.JopType,
+		arg.JopEncryptionApplied,
+		arg.JopUpdatedTime,
+		arg.OwnerID,
+		arg.ContentStorageID,
+		arg.CreatedTime,
+		arg.UpdatedTime,
+	)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.MimeType,
+		&i.Content,
+		&i.ContentSize,
+		&i.JopID,
+		&i.JopParentID,
+		&i.JopShareID,
+		&i.JopType,
+		&i.JopEncryptionApplied,
+		&i.JopUpdatedTime,
+		&i.OwnerID,
+		&i.ContentStorageID,
+		&i.CreatedTime,
+		&i.UpdatedTime,
+	)
+	return i, err
+}
+
+const upsertUserItem = `-- name: UpsertUserItem :one
+INSERT INTO user_items (
+  user_id, item_id, created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?
+)
+ON CONFLICT(user_id, item_id) DO UPDATE SET
+  updated_time = excluded.updated_time
+RETURNING id, user_id, item_id, created_time, updated_time
+`
+
+type UpsertUserItemParams struct {
+	UserID      string `json:"user_id"`
+	ItemID      string `json:"item_id"`
+	CreatedTime int64  `json:"created_time"`
+	UpdatedTime int64  `json:"updated_time"`
+}
+
+func (q *Queries) UpsertUserItem(ctx context.Context, arg UpsertUserItemParams) (UserItem, error) {
+	row := q.db.QueryRowContext(ctx, upsertUserItem,
+		arg.UserID,
+		arg.ItemID,
+		arg.CreatedTime,
+		arg.UpdatedTime,
+	)
+	var i UserItem
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ItemID,
+		&i.CreatedTime,
+		&i.UpdatedTime,
 	)
 	return i, err
 }
