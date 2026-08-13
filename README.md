@@ -103,3 +103,10 @@ Syncopation uses Go's standard `testing` package.
 ## AI Disclosure
 
 This project was built with the assistance of AI tooling such as Antigravity following a Research, Plan, Implement strategy.
+
+## License
+
+This software is licensed under the **PolyForm Noncommercial License 1.0.0**.
+You may use, modify, and distribute this software for any non-commercial purpose (personal use, hobbies, research, etc.).
+
+If you wish to use this software for commercial purposes (including offering it as a paid service), you must obtain explicit permission or a commercial license from the author. For full license terms, please see the [LICENSE](LICENSE) file.
