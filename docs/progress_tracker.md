@@ -80,3 +80,16 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [ ] Design Role-Based Access Control (RBAC) strategy.
 - [ ] Architect data model extensions for multi-user notebook sharing.
 - [ ] Create Architectural Decision Record (`adr_phase2_admin_sharing.md`).
+
+### [ ] Slice 9: CI/CD & Image Building
+- [ ] Implement a `.github/workflows/docker-publish.yml` file.
+- [ ] Trigger workflow on Git version tags (e.g., `v*.*.*`).
+- [ ] Verify pushing a version tag successfully triggers the image build.
+
+### [ ] Slice 10: Documentation Cleanup & Self-Hosted Guide
+- [ ] Migrate all planning and ADR documents into a slimmed `README.md` and `CLAUDE.md`.
+- [ ] Rewrite `README.md` to focus on stack, how to run/dev/test, and 100% Joplin compatibility (skip motivations).
+- [ ] Create a self-hosted guide covering Docker setup and requirements.
+- [ ] Include setup for bind mounts or volumes.
+- [ ] Document recommendations for reverse proxy vs exposing ports.
+- [ ] Document recommendations for backing up the database and files.

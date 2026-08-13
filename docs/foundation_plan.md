@@ -19,6 +19,8 @@ graph TD
     S4 --> S6["Slice 6: Batch Operations & Directory Listing"]
     S5 & S6 --> S7["Slice 7: E2E Client Verification & Deployment"]
     S7 --> S8["Slice 8: Phase 2 Discovery - Admin UI & Multi-User Sharing"]
+    S8 --> S9["Slice 9: CI/CD & Image Building"]
+    S9 --> S10["Slice 10: Documentation Cleanup & Self-Hosted Guide"]
 ```
 
 ---
@@ -325,6 +327,53 @@ Please help me design:
 3. The data model and architectural changes required to support multi-user notebook sharing (e.g., share links, shared folder permissions) while remaining compatible with Joplin clients.
 
 Guide me through the trade-offs, ask any necessary clarifying questions, and help me decide. Once we align, record our choices in an Architectural Decision Record file (adr_phase2_admin_sharing.md).
+```
+---
+
+### Slice 9: CI/CD & Image Building
+
+- **Goal**: Setup a GitHub Actions workflow for building a Docker image automatically when a version tag is created.
+- **Scope**:
+  - Implement a `.github/workflows/docker-publish.yml` file.
+  - Trigger workflow on Git version tags (e.g., `v*.*.*`).
+  - Build and push Docker image.
+- **Deliverables**: GitHub Actions workflow YAML file.
+- **Acceptance Criteria**: Pushing a version tag successfully triggers the image build.
+
+#### 📋 Session Handoff Prompt (Slice 9)
+```text
+We are starting Slice 9 of the custom Joplin Sync Server project.
+
+Our goal for this session is to set up a GitHub Actions workflow for building the Docker image.
+The workflow should trigger automatically whenever there is a version tag.
+
+Please help me implement this workflow.
+```
+
+---
+
+### Slice 10: Documentation Cleanup & Self-Hosted Guide
+
+- **Goal**: Clean up project documentation after implementation is complete and provide a comprehensive guide for self-hosted users.
+- **Scope**:
+  - Migrate all planning and ADR documents into a slimmed `README.md` and `CLAUDE.md`.
+  - The `README.md` should focus on the stack, how to run it, how to dev it, how to test it, and explicitly state 100% compatibility with Joplin (without mentioning the motivations).
+  - Create a self-hosted guide covering:
+    - How to get everything running with Docker and requirements.
+    - How to setup bind mounts or volumes.
+    - Recommendations for accessing via reverse proxy vs exposing ports directly.
+    - Recommendations for backing up the database and files.
+- **Deliverables**: Updated `README.md`, `CLAUDE.md`, and self-hosted documentation.
+- **Acceptance Criteria**: Documentation is clean, actionable, and tailored for home server deployments.
+
+#### 📋 Session Handoff Prompt (Slice 10)
+```text
+We are starting Slice 10 of the custom Joplin Sync Server project.
+
+Our goal for this session is to clean up the documentation and write a self-hosted guide.
+Please help me:
+1. Migrate the planning and ADR documents into a slimmed `README.md` and `CLAUDE.md`. Focus the `README.md` on stack, running, developing, testing, and 100% Joplin compatibility (skip the motivations).
+2. Write a comprehensive guide for the typical home server self-hosted audience, including Docker setup, volume/bind mounts, reverse proxy recommendations, and backup strategies.
 ```
 
 ---
