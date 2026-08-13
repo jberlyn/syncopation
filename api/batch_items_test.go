@@ -29,8 +29,8 @@ func TestBatchOperations(t *testing.T) {
 	now := time.Now().UnixMilli()
 
 	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
-		ID:          sessionID,
-		UserID:      user.ID,
+		ID:        sessionID,
+		UserID:    user.ID,
 		CreatedAt: now,
 		UpdatedAt: now,
 	})

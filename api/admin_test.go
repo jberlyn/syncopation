@@ -65,12 +65,12 @@ func TestAdminUI(t *testing.T) {
 	// First create a regular user
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
 	_, _ = queries.CreateUser(context.Background(), db.CreateUserParams{
-		ID:          uuid.New().String(),
-		Email:       "regular@example.com",
-		PasswordHash:    string(hashedPassword),
-		IsAdmin:     0,
-		CreatedAt: time.Now().UnixMilli(),
-		UpdatedAt: time.Now().UnixMilli(),
+		ID:           uuid.New().String(),
+		Email:        "regular@example.com",
+		PasswordHash: string(hashedPassword),
+		IsAdmin:      0,
+		CreatedAt:    time.Now().UnixMilli(),
+		UpdatedAt:    time.Now().UnixMilli(),
 	})
 
 	form = url.Values{}

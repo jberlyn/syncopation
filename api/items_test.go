@@ -55,9 +55,9 @@ func TestItemCRUD(t *testing.T) {
 	now := time.Now().UnixMilli()
 
 	_, err := queries.CreateSession(context.Background(), db.CreateSessionParams{
-		ID:          sessionID,
-		UserID:      user.ID,
-		AuthCode:    "",
+		ID:        sessionID,
+		UserID:    user.ID,
+		AuthCode:  "",
 		CreatedAt: now,
 		UpdatedAt: now,
 	})
@@ -174,8 +174,8 @@ func TestDeltaSync(t *testing.T) {
 	now := time.Now().UnixMilli()
 
 	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
-		ID:          sessionID,
-		UserID:      user.ID,
+		ID:        sessionID,
+		UserID:    user.ID,
 		CreatedAt: now,
 		UpdatedAt: now,
 	})
@@ -282,8 +282,8 @@ func TestDirectoryChildren(t *testing.T) {
 	now := time.Now().UnixMilli()
 
 	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
-		ID:          sessionID,
-		UserID:      user.ID,
+		ID:        sessionID,
+		UserID:    user.ID,
 		CreatedAt: now,
 		UpdatedAt: now,
 	})
