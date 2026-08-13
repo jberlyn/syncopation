@@ -32,8 +32,8 @@ func TestLoadConfig(t *testing.T) {
 	os.Unsetenv("STORAGE_PATH")
 
 	cfgDefault := LoadConfig()
-	if cfgDefault.Port != "8080" {
-		t.Errorf("Expected default port 8080, got %s", cfgDefault.Port)
+	if cfgDefault.Port != "22300" {
+		t.Errorf("Expected default port 22300, got %s", cfgDefault.Port)
 	}
 	if cfgDefault.DBPath != "data/database/syncopation.sqlite" {
 		t.Errorf("Expected default DBPath, got %s", cfgDefault.DBPath)

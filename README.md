@@ -19,7 +19,7 @@ The official [Joplin](https://joplinapp.org/help/faq/#why-is-it-named-joplin) ap
 - **Storage**: Local Filesystem
 - **Admin UI**: Go `html/template` + HTMX
 
-## 🏡 Self-Hosting Guide (Docker)
+## Self-Hosting Guide (Docker)
 
 This is the recommended way to run Syncopation on your home server, NAS, or VPS.
 
@@ -34,11 +34,9 @@ services:
     container_name: syncopation
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "22300:22300"
     volumes:
       - syncopation-data:/app/data
-    environment:
-      - PORT=8080
 
 volumes:
   syncopation-data:
@@ -49,7 +47,7 @@ volumes:
 The server stores both the SQLite database (`syncopation.sqlite`) and all physical note attachments inside the `/app/data` directory within the container. 
 It is crucial that you persist this directory.
 - **Named Volume (Example above)**: Best for easy management by Docker.
-- **Bind Mount**: If you prefer storing the data in a specific folder on your host (e.g., `- ./my-joplin-data:/app/data`), ensure the container has write permissions to that directory.
+- **Bind Mount**: If you prefer storing the data in a specific folder on your host (e.g., `- ./my-syncopation-data:/app/data`), ensure the container has write permissions to that directory.
 
 ### 3. Running & Initial Setup
 
@@ -58,7 +56,7 @@ Start the server:
 docker compose up -d
 ```
 
-Visit the Admin UI at `http://localhost:8080/admin` in your browser. 
+Visit the Admin UI at `http://localhost:22300/admin` in your browser. 
 Since this is a fresh install, you will be presented with a **Zero-User Onboarding Flow** to create your initial administrator account.
 
 ### 4. Reverse Proxy Recommendations
@@ -69,8 +67,8 @@ It is highly recommended to place Syncopation behind a reverse proxy (like Caddy
 - **Nginx**: Add `client_max_body_size 100M;` to your server block.
 - **Caddy**: Automatically handles large bodies and SSL. A simple Caddyfile:
   ```caddyfile
-  joplin.yourdomain.com {
-      reverse_proxy localhost:8080
+  syncopation.yourdomain.com {
+      reverse_proxy localhost:22300
   }
   ```
 
@@ -78,12 +76,12 @@ It is highly recommended to place Syncopation behind a reverse proxy (like Caddy
 
 1. Open Joplin and go to **Options > Synchronization**.
 2. Set **Sync target** to **Joplin Server**.
-3. **Joplin Server URL**: Your server's URL (e.g., `https://joplin.yourdomain.com` or `http://your-server-ip:8080`).
+3. **Joplin Server URL**: Your server's URL (e.g., `https://joplin.yourdomain.com` or `http://your-server-ip:22300`).
 4. **Joplin Server email**: The email of the account you created.
 5. **Joplin Server password**: Your password.
 6. Click "Check synchronization configuration".
 
-## 🛠️ Local Development
+## Local Development
 
 ### Prerequisites
 - Go 1.25+
@@ -98,6 +96,6 @@ go build -o syncopation .
 ```
 
 ### Testing
-We use Go's standard `testing` package.
+Syncopation uses Go's standard `testing` package.
 - **Unit & Integration Tests**: Run with `go test ./...`
 - **E2E Tests**: Use `net/http/httptest` via `go test ./api/...`

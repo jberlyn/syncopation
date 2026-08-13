@@ -34,9 +34,9 @@ COPY --from=builder /app/db ./db
 COPY --from=builder /app/data ./data
 
 # Environment variables
-ENV PORT=8080
+ENV PORT=22300
 ENV DB_PATH=/app/data/syncopation.sqlite
 
-EXPOSE 8080
+EXPOSE 22300
 
 CMD ["./syncopation"]
