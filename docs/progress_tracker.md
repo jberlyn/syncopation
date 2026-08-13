@@ -120,20 +120,24 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Update StorageDriver to clean up physical files on user deletion.
 - [x] Connect admin API delete endpoint to fully purge user data (database and disk).
 
----
-
-## ⏳ Upcoming Slices
-
 ### [x] Slice 8.5: Database Schema Modernization
 - [x] Update database schema directly to rename tables (e.g., `changes_2` to `delta_events`, `items` to `sync_items`) and columns (no SQL migrations needed since stack is not productionized).
 - [x] Refactor `db/queries.sql` and run `sqlc generate`.
 - [x] Update Go codebase and ensure strict JSON response compatibility with Joplin clients.
+
+---
+
+## 🚀 Current Focus
 
 ### [ ] Slice 9: CI/CD & Image Building
 - [ ] Implement a `.github/workflows/docker-publish.yml` file.
 - [ ] Trigger workflow on Git version tags (e.g., `v*.*.*`).
 - [ ] Build and push Docker image with both the version tag and `:latest` tag.
 - [ ] Verify pushing a version tag successfully triggers the image build.
+
+---
+
+## ⏳ Upcoming Slices
 
 ### [ ] Slice 10: Documentation Cleanup & Self-Hosted Guide
 - [ ] Migrate all planning and ADR documents into a slimmed `README.md` and `CLAUDE.md`.
