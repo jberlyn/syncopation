@@ -26,13 +26,8 @@ This document serves as the discovery phase for every table and column, proposin
 - `created_time` -> `created_at`
 - `updated_time` -> `updated_at`
 
-### 3. `storages` -> `storage_backends` 
-*(`storages` is awkward pluralization; `storage_backends` better describes what this tracks)*
-*Purpose: Tracks the physical storage location of item contents (e.g., local disk filesystem vs. S3). Sync items contain a reference to this table so the server knows where to read/write the actual binary payload.*
-- `id` -> `id`
-- `connection_string` -> `connection_string`
-- `created_time` -> `created_at`
-- `updated_time` -> `updated_at`
+### 3. `storages` -> **(DROPPED)**
+*Purpose: In the original Joplin Server, this tracked whether payloads were in the DB, local disk, or S3. Since Syncopation is explicitly designed for SQLite + Local Disk only (as per the tech stack ADR), this abstraction is unnecessary legacy bloat. We will drop this table entirely.*
 
 ### 4. `items` -> `sync_items`
 *(`items` is highly generic. `sync_items` clarifies this is the core synchronizable entity)*
@@ -47,7 +42,7 @@ This document serves as the discovery phase for every table and column, proposin
 - `jop_encryption_applied` -> `is_encrypted` *(Boolean-like fields should use `is_` prefix)*
 - `jop_updated_time` -> `client_updated_at` *(Clarifies this is the timestamp from the client, not the server)*
 - `owner_id` -> `owner_id`
-- `content_storage_id` -> `storage_backend_id` *(Matches new table name)*
+- `content_storage_id` -> **(DROPPED)** *(We only use local disk, so we don't need to track which storage backend holds the file)*
 - `created_time` -> `created_at`
 - `updated_time` -> `updated_at`
 
