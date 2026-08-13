@@ -155,3 +155,110 @@ func TestItemCRUD(t *testing.T) {
 		}
 	})
 }
+
+func TestDeltaSync(t *testing.T) {
+	queries := setupTestDB(t)
+	authHandler := &api.AuthHandler{Queries: queries}
+	itemHandler := &api.ItemHandler{Queries: queries}
+
+	mux := http.NewServeMux()
+	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
+	// Delta sync is requested with root:: path
+	mux.Handle("/api/items/root::/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
+
+	user := seedUser(t, queries, "delta@example.com", "password")
+	sessionID := uuid.New().String()
+	now := time.Now().UnixMilli()
+
+	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
+		ID:          sessionID,
+		UserID:      user.ID,
+		CreatedTime: now,
+		UpdatedTime: now,
+	})
+
+	itemName := "delta_note.md"
+	itemContent := []byte("Initial content")
+	updatedContent := []byte("Updated content")
+
+	// 1. Create Item
+	reqCreate := httptest.NewRequest("PUT", "/api/items/root:/"+itemName+":/content", bytes.NewBuffer(itemContent))
+	reqCreate.Header.Set("X-API-AUTH", sessionID)
+	reqCreate.Header.Set("Content-Type", "text/markdown")
+	rrCreate := httptest.NewRecorder()
+	mux.ServeHTTP(rrCreate, reqCreate)
+	if rrCreate.Code != http.StatusOK {
+		t.Fatalf("Failed to create item: %d %s", rrCreate.Code, rrCreate.Body.String())
+	}
+
+	// 2. Fetch Delta (should return 1 create change)
+	reqDelta1 := httptest.NewRequest("GET", "/api/items/root::/delta", nil)
+	reqDelta1.Header.Set("X-API-AUTH", sessionID)
+	rrDelta1 := httptest.NewRecorder()
+	mux.ServeHTTP(rrDelta1, reqDelta1)
+	
+	if rrDelta1.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for delta, got %d. Body: %s", rrDelta1.Code, rrDelta1.Body.String())
+	}
+	
+	var deltaResp1 api.DeltaResponse
+	if err := json.NewDecoder(rrDelta1.Body).Decode(&deltaResp1); err != nil {
+		t.Fatalf("Failed to decode delta response: %v", err)
+	}
+	if len(deltaResp1.Items) != 1 {
+		t.Fatalf("Expected 1 delta item, got %d", len(deltaResp1.Items))
+	}
+	if deltaResp1.Items[0].Type != 1 {
+		t.Errorf("Expected change type 1 (Create), got %d", deltaResp1.Items[0].Type)
+	}
+	
+	cursor1 := deltaResp1.Cursor
+
+	// 3. Update Item
+	reqUpdate := httptest.NewRequest("PUT", "/api/items/root:/"+itemName+":/content", bytes.NewBuffer(updatedContent))
+	reqUpdate.Header.Set("X-API-AUTH", sessionID)
+	reqUpdate.Header.Set("Content-Type", "text/markdown")
+	rrUpdate := httptest.NewRecorder()
+	mux.ServeHTTP(rrUpdate, reqUpdate)
+	if rrUpdate.Code != http.StatusOK {
+		t.Fatalf("Failed to update item: %d", rrUpdate.Code)
+	}
+
+	// 4. Fetch Delta with Cursor 1 (should return 1 update change)
+	reqDelta2 := httptest.NewRequest("GET", "/api/items/root::/delta?cursor="+cursor1, nil)
+	reqDelta2.Header.Set("X-API-AUTH", sessionID)
+	rrDelta2 := httptest.NewRecorder()
+	mux.ServeHTTP(rrDelta2, reqDelta2)
+
+	var deltaResp2 api.DeltaResponse
+	_ = json.NewDecoder(rrDelta2.Body).Decode(&deltaResp2)
+	if len(deltaResp2.Items) != 1 {
+		t.Fatalf("Expected 1 delta item, got %d", len(deltaResp2.Items))
+	}
+	if deltaResp2.Items[0].Type != 2 {
+		t.Errorf("Expected change type 2 (Update), got %d", deltaResp2.Items[0].Type)
+	}
+
+	cursor2 := deltaResp2.Cursor
+
+	// 5. Delete Item
+	reqDelete := httptest.NewRequest("DELETE", "/api/items/root:/"+itemName+":", nil)
+	reqDelete.Header.Set("X-API-AUTH", sessionID)
+	rrDelete := httptest.NewRecorder()
+	mux.ServeHTTP(rrDelete, reqDelete)
+
+	// 6. Fetch Delta with Cursor 2 (should return 1 delete change)
+	reqDelta3 := httptest.NewRequest("GET", "/api/items/root::/delta?cursor="+cursor2, nil)
+	reqDelta3.Header.Set("X-API-AUTH", sessionID)
+	rrDelta3 := httptest.NewRecorder()
+	mux.ServeHTTP(rrDelta3, reqDelta3)
+
+	var deltaResp3 api.DeltaResponse
+	_ = json.NewDecoder(rrDelta3.Body).Decode(&deltaResp3)
+	if len(deltaResp3.Items) != 1 {
+		t.Fatalf("Expected 1 delta item, got %d", len(deltaResp3.Items))
+	}
+	if deltaResp3.Items[0].Type != 3 {
+		t.Errorf("Expected change type 3 (Delete), got %d", deltaResp3.Items[0].Type)
+	}
+}

@@ -99,3 +99,16 @@ WHERE name = ? AND id IN (
 DELETE FROM user_items
 WHERE user_id = ? AND item_id = ?;
 
+-- name: InsertChange :one
+INSERT INTO changes_2 (
+  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING *;
+
+-- name: GetChangesByUser :many
+SELECT * FROM changes_2
+WHERE user_id = ? AND counter > ?
+ORDER BY counter ASC
+LIMIT ?;

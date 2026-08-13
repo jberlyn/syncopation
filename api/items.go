@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,23 +26,41 @@ type ItemMetadataResponse struct {
 	JopItem        map[string]any `json:"jopItem,omitempty"`
 }
 
-func parseItemPath(p string) (string, bool, bool) {
-	prefix := "/api/items/root:/"
-	if !strings.HasPrefix(p, prefix) {
-		return "", false, false
+type DeltaResponse struct {
+	Items   []DeltaItem `json:"items"`
+	HasMore bool        `json:"has_more"`
+	Cursor  string      `json:"cursor"`
+}
+
+type DeltaItem struct {
+	ItemName    string `json:"item_name"`
+	ItemType    int64  `json:"item_type,omitempty"`
+	Type        int64  `json:"type"`
+	UpdatedTime int64  `json:"updated_time"`
+}
+
+func parseItemPath(p string) (string, string, bool) {
+	if strings.HasPrefix(p, "/api/items/root:/") {
+		rest := p[len("/api/items/root:/"):]
+		if strings.HasSuffix(rest, ":/content") {
+			return rest[:len(rest)-len(":/content")], "content", true
+		}
+		if strings.HasSuffix(rest, ":/delta") {
+			return rest[:len(rest)-len(":/delta")], "delta", true
+		}
+		if strings.HasSuffix(rest, ":") {
+			return rest[:len(rest)-1], "stat", true
+		}
+	} else if strings.HasPrefix(p, "/api/items/root::") {
+		rest := p[len("/api/items/root::"):]
+		if rest == "/delta" {
+			return "", "delta", true
+		}
+		if rest == "" {
+			return "", "stat", true
+		}
 	}
-
-	rest := p[len(prefix):]
-
-	if strings.HasSuffix(rest, ":/content") {
-		return rest[:len(rest)-len(":/content")], true, true
-	}
-
-	if strings.HasSuffix(rest, ":") {
-		return rest[:len(rest)-1], false, true
-	}
-
-	return "", false, false
+	return "", "", false
 }
 
 func (h *ItemHandler) HandleItems(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +70,7 @@ func (h *ItemHandler) HandleItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	itemName, isContent, valid := parseItemPath(r.URL.Path)
+	itemName, action, valid := parseItemPath(r.URL.Path)
 	if !valid {
 		http.Error(w, "Invalid path format", http.StatusBadRequest)
 		return
@@ -59,19 +78,21 @@ func (h *ItemHandler) HandleItems(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		if isContent {
+		if action == "content" {
 			h.handleGetContent(w, r, userID, itemName)
+		} else if action == "delta" {
+			h.handleGetDelta(w, r, userID)
 		} else {
 			h.handleGetStat(w, r, userID, itemName)
 		}
 	case http.MethodPut:
-		if !isContent {
+		if action != "content" {
 			http.Error(w, "PUT only supported for /content", http.StatusBadRequest)
 			return
 		}
 		h.handlePutContent(w, r, userID, itemName)
 	case http.MethodDelete:
-		if isContent {
+		if action != "stat" {
 			http.Error(w, "DELETE only supported for metadata endpoint", http.StatusBadRequest)
 			return
 		}
@@ -127,6 +148,57 @@ func (h *ItemHandler) handleGetContent(w http.ResponseWriter, r *http.Request, u
 	_, _ = w.Write(item.Content)
 }
 
+func (h *ItemHandler) handleGetDelta(w http.ResponseWriter, r *http.Request, userID string) {
+	cursorStr := r.URL.Query().Get("cursor")
+	cursor := int64(0)
+	if cursorStr != "" {
+		c, err := strconv.ParseInt(cursorStr, 10, 64)
+		if err == nil {
+			cursor = c
+		}
+	}
+
+	limit := int64(100)
+
+	changes, err := h.Queries.GetChangesByUser(r.Context(), db.GetChangesByUserParams{
+		UserID:  userID,
+		Counter: cursor,
+		Limit:   limit + 1,
+	})
+	if err != nil {
+		http.Error(w, "Failed to fetch changes", http.StatusInternalServerError)
+		return
+	}
+
+	hasMore := false
+	if len(changes) > int(limit) {
+		hasMore = true
+		changes = changes[:limit]
+	}
+
+	deltaItems := make([]DeltaItem, 0, len(changes))
+	lastCursor := cursor
+	for _, c := range changes {
+		item := DeltaItem{
+			ItemName:    c.ItemName,
+			ItemType:    c.ItemType,
+			Type:        c.Type,
+			UpdatedTime: c.UpdatedTime,
+		}
+		deltaItems = append(deltaItems, item)
+		lastCursor = c.Counter
+	}
+
+	resp := DeltaResponse{
+		Items:   deltaItems,
+		HasMore: hasMore,
+		Cursor:  strconv.FormatInt(lastCursor, 10),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
 func (h *ItemHandler) handlePutContent(w http.ResponseWriter, r *http.Request, userID, itemName string) {
 	content, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -143,16 +215,19 @@ func (h *ItemHandler) handlePutContent(w http.ResponseWriter, r *http.Request, u
 
 	var itemID string
 	var createdTime int64
+	var changeType int64
 
 	if err == sql.ErrNoRows {
 		itemID = uuid.New().String()
 		createdTime = now
+		changeType = 1 // Create
 	} else if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	} else {
 		itemID = existing.ID
 		createdTime = existing.CreatedTime
+		changeType = 2 // Update
 	}
 
 	contentType := r.Header.Get("Content-Type")
@@ -169,7 +244,7 @@ func (h *ItemHandler) handlePutContent(w http.ResponseWriter, r *http.Request, u
 		JopID:                "",
 		JopParentID:          "",
 		JopShareID:           "",
-		JopType:              0,
+		JopType:              1,
 		JopEncryptionApplied: 0,
 		JopUpdatedTime:       now,
 		OwnerID:              userID,
@@ -190,6 +265,22 @@ func (h *ItemHandler) handlePutContent(w http.ResponseWriter, r *http.Request, u
 	})
 	if err != nil {
 		http.Error(w, "Failed to map item to user", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = h.Queries.InsertChange(r.Context(), db.InsertChangeParams{
+		ID:              uuid.New().String(),
+		ItemID:          itemID,
+		UserID:          userID,
+		ItemName:        itemName,
+		PreviousShareID: "",
+		ItemType:        1,
+		Type:            changeType,
+		CreatedTime:     now,
+		UpdatedTime:     now,
+	})
+	if err != nil {
+		http.Error(w, "Failed to log change", http.StatusInternalServerError)
 		return
 	}
 
@@ -234,6 +325,24 @@ func (h *ItemHandler) handleDelete(w http.ResponseWriter, r *http.Request, userI
 	})
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	
+	now := time.Now().UnixMilli()
+
+	_, err = h.Queries.InsertChange(r.Context(), db.InsertChangeParams{
+		ID:              uuid.New().String(),
+		ItemID:          existing.ID,
+		UserID:          userID,
+		ItemName:        itemName,
+		PreviousShareID: "",
+		ItemType:        1,
+		Type:            3, // Delete
+		CreatedTime:     now,
+		UpdatedTime:     now,
+	})
+	if err != nil {
+		http.Error(w, "Failed to log change", http.StatusInternalServerError)
 		return
 	}
 

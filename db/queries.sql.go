@@ -139,6 +139,53 @@ func (q *Queries) DeleteUserItem(ctx context.Context, arg DeleteUserItemParams) 
 	return err
 }
 
+const getChangesByUser = `-- name: GetChangesByUser :many
+SELECT counter, id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time FROM changes_2
+WHERE user_id = ? AND counter > ?
+ORDER BY counter ASC
+LIMIT ?
+`
+
+type GetChangesByUserParams struct {
+	UserID  string `json:"user_id"`
+	Counter int64  `json:"counter"`
+	Limit   int64  `json:"limit"`
+}
+
+func (q *Queries) GetChangesByUser(ctx context.Context, arg GetChangesByUserParams) ([]Changes2, error) {
+	rows, err := q.db.QueryContext(ctx, getChangesByUser, arg.UserID, arg.Counter, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Changes2
+	for rows.Next() {
+		var i Changes2
+		if err := rows.Scan(
+			&i.Counter,
+			&i.ID,
+			&i.ItemID,
+			&i.UserID,
+			&i.ItemName,
+			&i.PreviousShareID,
+			&i.ItemType,
+			&i.Type,
+			&i.CreatedTime,
+			&i.UpdatedTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getItemByNameAndUser = `-- name: GetItemByNameAndUser :one
 SELECT items.id, items.name, items.mime_type, items.content, items.content_size, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
 JOIN user_items ON items.id = user_items.item_id
@@ -223,6 +270,55 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Password,
 		&i.FullName,
 		&i.IsAdmin,
+		&i.CreatedTime,
+		&i.UpdatedTime,
+	)
+	return i, err
+}
+
+const insertChange = `-- name: InsertChange :one
+INSERT INTO changes_2 (
+  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING counter, id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+`
+
+type InsertChangeParams struct {
+	ID              string `json:"id"`
+	ItemID          string `json:"item_id"`
+	UserID          string `json:"user_id"`
+	ItemName        string `json:"item_name"`
+	PreviousShareID string `json:"previous_share_id"`
+	ItemType        int64  `json:"item_type"`
+	Type            int64  `json:"type"`
+	CreatedTime     int64  `json:"created_time"`
+	UpdatedTime     int64  `json:"updated_time"`
+}
+
+func (q *Queries) InsertChange(ctx context.Context, arg InsertChangeParams) (Changes2, error) {
+	row := q.db.QueryRowContext(ctx, insertChange,
+		arg.ID,
+		arg.ItemID,
+		arg.UserID,
+		arg.ItemName,
+		arg.PreviousShareID,
+		arg.ItemType,
+		arg.Type,
+		arg.CreatedTime,
+		arg.UpdatedTime,
+	)
+	var i Changes2
+	err := row.Scan(
+		&i.Counter,
+		&i.ID,
+		&i.ItemID,
+		&i.UserID,
+		&i.ItemName,
+		&i.PreviousShareID,
+		&i.ItemType,
+		&i.Type,
 		&i.CreatedTime,
 		&i.UpdatedTime,
 	)
