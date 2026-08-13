@@ -21,7 +21,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-var Version = "v1.0.0"
+var Version = "v1.0.1"
 
 func main() {
 	seedFlag := flag.Bool("seed", false, "Seed the database with an admin user")

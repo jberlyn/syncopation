@@ -385,18 +385,18 @@ func (h *ItemHandler) handleDelete(w http.ResponseWriter, r *http.Request, userI
 		return
 	}
 
-	err = h.Queries.DeleteUserSyncItem(r.Context(), db.DeleteUserSyncItemParams{
-		UserID:     userID,
-		SyncItemID: existing.ID,
+	err = h.Queries.DeleteSyncItemByFileNameAndUser(r.Context(), db.DeleteSyncItemByFileNameAndUserParams{
+		FileName: itemName,
+		UserID:   userID,
 	})
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	err = h.Queries.DeleteSyncItemByFileNameAndUser(r.Context(), db.DeleteSyncItemByFileNameAndUserParams{
-		FileName: itemName,
-		UserID:   userID,
+	err = h.Queries.DeleteUserSyncItem(r.Context(), db.DeleteUserSyncItemParams{
+		UserID:     userID,
+		SyncItemID: existing.ID,
 	})
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

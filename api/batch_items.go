@@ -235,17 +235,17 @@ func (h *BatchItemHandler) handleDeleteBatch(w http.ResponseWriter, r *http.Requ
 			continue
 		}
 
-		err = qtx.DeleteUserSyncItem(ctx, db.DeleteUserSyncItemParams{
-			UserID:     userID,
-			SyncItemID: existing.ID,
+		err = qtx.DeleteSyncItemByFileNameAndUser(ctx, db.DeleteSyncItemByFileNameAndUserParams{
+			FileName: itemName,
+			UserID:   userID,
 		})
 		if err != nil {
 			continue
 		}
 
-		err = qtx.DeleteSyncItemByFileNameAndUser(ctx, db.DeleteSyncItemByFileNameAndUserParams{
-			FileName: itemName,
-			UserID:   userID,
+		err = qtx.DeleteUserSyncItem(ctx, db.DeleteUserSyncItemParams{
+			UserID:     userID,
+			SyncItemID: existing.ID,
 		})
 		if err != nil {
 			continue
