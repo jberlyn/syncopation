@@ -17,7 +17,8 @@ graph TD
     S2 --> S4["Slice 4: Item Storage Engine & REST API"]
     S4 --> S5["Slice 5: Change Event Log & Delta Sync Engine"]
     S4 --> S6["Slice 6: Batch Operations & Directory Listing"]
-    S5 & S6 --> S7["Slice 7: E2E Client Verification & Deployment"]
+    S6 --> S65["Slice 6.5: Observability & Structured Logging"]
+    S5 & S65 --> S7["Slice 7: E2E Client Verification & Deployment"]
     S7 --> S8["Slice 8: Phase 2 Discovery - Admin UI & Multi-User Sharing"]
     S8 --> S9["Slice 9: CI/CD & Image Building"]
     S9 --> S10["Slice 10: Documentation Cleanup & Self-Hosted Guide"]
@@ -268,6 +269,36 @@ Our goal for this session is to design and implement Slice 6 (Batch Operations &
 3. Ensure batch operations create corresponding change events in `changes_2`.
 4. Implement `GET /api/items/root:/<path>/*:/children` for directory children listing.
 5. Write tests verifying batch upload and batch deletion performance and correctness.
+
+*Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
+```
+
+---
+
+### Slice 6.5: Observability & Structured Logging
+
+- **Goal**: Implement structured JSON logging (`slog`) and a request middleware to track incoming HTTP requests while scrubbing sensitive information (like auth headers).
+- **Scope**:
+  - Setup Go 1.21+ `log/slog` with a JSON handler globally.
+  - Implement an HTTP request logger middleware.
+  - Track request method, URL path, status code, latency, IP, and User-Agent.
+  - Redact sensitive headers such as `Authorization` / `X-API-AUTH`.
+  - Replace all standard library `log` calls with `slog` calls.
+- **Acceptance Criteria**:
+  - All logs output in structured JSON format.
+  - Every API request is logged with its duration and status code.
+  - Sensitive information is successfully stripped from logs.
+
+#### 📋 Session Handoff Prompt (Slice 6.5)
+```text
+We are starting Slice 6.5 of the custom Joplin Sync Server project.
+Please refer to @joplin_server_deep_dive.md and @foundation_plan.md.
+
+Our goal for this session is to implement Observability & Structured Logging:
+1. Setup Go's built-in `log/slog` as the global logger using a JSON handler, similar to a Node/pino setup.
+2. Implement a request middleware that logs incoming HTTP requests (method, path, status, latency).
+3. Ensure the middleware scrubs sensitive headers like `Authorization` / `X-API-AUTH`.
+4. Refactor existing `log.Printf`/`log.Fatalf` calls throughout the codebase to use `slog`.
 
 *Coaching Note for Agy: I have a strong background in TypeScript/Node. As we build this in Go, please proactively relate Go concepts (structs, interfaces, pointers, error handling) to TS/Node idioms in your conversational responses so I can learn. Do NOT include these comparisons as comments in the codebase itself.*
 ```
