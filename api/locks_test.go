@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jberlyn/joplin-sync/api"
+	"github.com/jberlyn/syncopation/api"
 )
 
 func TestLocksFlow(t *testing.T) {

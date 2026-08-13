@@ -32,7 +32,7 @@ As we begin implementing the custom Joplin Sync Server (Slice 0.5), we need to e
 
 #### Directory Layout:
 ```text
-joplin-sync/
+syncopation/
 ├── api/             # HTTP route handlers (AuthHandler, ItemHandler)
 ├── cmd/             # Obsolete/Empty - we keep main.go at root
 ├── db/              # sqlc generated code, schema definitions, and queries

@@ -1,4 +1,4 @@
-module github.com/jberlyn/joplin-sync
+module github.com/jberlyn/syncopation
 
 go 1.25.0
 

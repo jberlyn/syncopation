@@ -18,7 +18,7 @@ seed:
 
 # Build the server into a binary
 build:
-	go build -o joplin-sync-server .
+	go build -o syncopation .
 
 # Spin up the docker container
 docker-up:

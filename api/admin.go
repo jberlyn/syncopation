@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jberlyn/joplin-sync/db"
-	"github.com/jberlyn/joplin-sync/storage"
+	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/storage"
 	"golang.org/x/crypto/bcrypt"
 )
 

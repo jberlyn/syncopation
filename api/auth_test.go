@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jberlyn/joplin-sync/api"
-	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/syncopation/api"
+	"github.com/jberlyn/syncopation/db"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )

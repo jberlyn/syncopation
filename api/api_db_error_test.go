@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/syncopation/db"
 )
 
 func TestAPIDBErrors(t *testing.T) {

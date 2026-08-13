@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jberlyn/joplin-sync/config"
-	"github.com/jberlyn/joplin-sync/db"
-	"github.com/jberlyn/joplin-sync/storage"
+	"github.com/jberlyn/syncopation/config"
+	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/storage"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -93,7 +93,7 @@ func TestMain_Seed(t *testing.T) {
 		os.Unsetenv("PORT")
 	}()
 
-	os.Args = []string{"joplin-sync", "-seed", "-email", "main@example.com", "-password", "mainpass"}
+	os.Args = []string{"syncopation", "-seed", "-email", "main@example.com", "-password", "mainpass"}
 
 	main()
 }
@@ -135,7 +135,7 @@ func TestMain_Run(t *testing.T) {
 		os.Unsetenv("PORT")
 	}()
 
-	os.Args = []string{"joplin-sync"}
+	os.Args = []string{"syncopation"}
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
 	go main()

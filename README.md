@@ -18,7 +18,7 @@ A custom, lightweight, 100% compatible Joplin Sync Server written in Go.
 2. **Seed an admin user:**
    You must create at least one user account to authenticate your Joplin clients. Run this command while the container is running:
    ```bash
-   docker compose exec joplin-server ./joplin-sync-server -seed -email your_email@example.com -password your_secure_password
+   docker compose exec joplin-server ./syncopation -seed -email your_email@example.com -password your_secure_password
    ```
 
 3. **Configure Joplin Client:**
@@ -37,6 +37,6 @@ To back up your data, simply copy the `joplin.sqlite3` file out of the docker vo
 ## Building Locally
 Ensure you have Go 1.21+ installed and CGO enabled (required for SQLite).
 ```bash
-go build -o joplin-sync-server .
-./joplin-sync-server
+go build -o syncopation .
+./syncopation
 ```

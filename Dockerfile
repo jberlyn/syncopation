@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=1 GOOS=linux go build -o joplin-sync-server .
+RUN CGO_ENABLED=1 GOOS=linux go build -o syncopation .
 
 # Run stage
 FROM alpine:3.21
@@ -25,7 +25,7 @@ WORKDIR /app
 RUN apk add --no-cache tzdata ca-certificates
 
 # Copy the binary and necessary directories from the builder stage
-COPY --from=builder /app/joplin-sync-server .
+COPY --from=builder /app/syncopation .
 COPY --from=builder /app/db ./db
 
 # Ensure data directory exists for sqlite db
@@ -37,4 +37,4 @@ ENV DB_PATH=/app/data/joplin.sqlite3
 
 EXPOSE 8080
 
-CMD ["./joplin-sync-server"]
+CMD ["./syncopation"]
