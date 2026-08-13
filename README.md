@@ -1,8 +1,8 @@
 # Syncopation
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/jberlyn/syncopation/coverage.yml?branch=main&label=build)](https://github.com/jberlyn/syncopation/actions/workflows/coverage.yml)
-[![Version](https://img.shields.io/github/v/tag/jberlyn/syncopation?label=version)](https://github.com/jberlyn/syncopation/tags)
 [![Coverage Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jberlyn/syncopation/badges/coverage.json)](https://github.com/jberlyn/syncopation/actions)
+[![Version](https://img.shields.io/github/v/tag/jberlyn/syncopation?label=version)](https://github.com/jberlyn/syncopation/tags)
 
 A custom, lightweight, 100% compatible Joplin Sync Server written in Go.
 

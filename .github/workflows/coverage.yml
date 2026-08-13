@@ -49,8 +49,13 @@ jobs:
           mkdir -p /tmp/badge
           cp coverage.json /tmp/badge/coverage.json
 
-          git fetch origin badges:badges || true
-          git checkout badges 2>/dev/null || git checkout --orphan badges
+          git fetch origin badges || true
+          if git rev-parse --verify origin/badges >/dev/null 2>&1; then
+            git checkout badges 2>/dev/null || git checkout -b badges origin/badges
+            git reset --hard origin/badges
+          else
+            git checkout --orphan badges
+          fi
 
           git rm -rf . 2>/dev/null || true
           cp /tmp/badge/coverage.json .
