@@ -66,7 +66,20 @@ func main() {
 		return
 	}
 
-	// Setup HTTP server
+	mux := setupMux(queries, dbConn, localFS)
+
+	slog.Info("Server listening", "port", cfg.Port)
+
+	// Wrap mux with the LoggingMiddleware
+	loggedMux := api.LoggingMiddleware(mux)
+
+	if err := http.ListenAndServe(":"+cfg.Port, loggedMux); err != nil {
+		slog.Error("Server failed", "error", err)
+		os.Exit(1)
+	}
+}
+
+func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	authHandler := &api.AuthHandler{Queries: queries}
@@ -91,15 +104,7 @@ func main() {
 	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn, Storage: localFS}
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
 
-	slog.Info("Server listening", "port", cfg.Port)
-
-	// Wrap mux with the LoggingMiddleware
-	loggedMux := api.LoggingMiddleware(mux)
-
-	if err := http.ListenAndServe(":"+cfg.Port, loggedMux); err != nil {
-		slog.Error("Server failed", "error", err)
-		os.Exit(1)
-	}
+	return mux
 }
 
 func seedUser(queries *db.Queries, email, password string) {

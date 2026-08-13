@@ -40,4 +40,4 @@ Hello! Your task is to implement "Slice 7.1: Test Coverage Improvement" for this
    - Achieve 90%+ overall code coverage.
    - Run `go test -coverprofile=c.out -coverpkg=./... ./... && go tool cover -func=c.out` frequently to track your progress and identify the remaining gaps.
    - Do NOT write mock-based unit tests. We prefer exclusively integration/E2E tests using real database and storage instances.
-   - Remember to automatically commit your changes as you complete logical chunks.
+   - Remember to automatically commit your changes as you complete logical chunks. Ensure that coverage reports are not comitted to source control.
