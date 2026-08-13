@@ -17,10 +17,13 @@ import (
 //go:embed templates/*
 var templatesFS embed.FS
 
-var templates *template.Template
+var templates = map[string]*template.Template{}
 
 func init() {
-	templates = template.Must(template.ParseFS(templatesFS, "templates/*.html"))
+	layout := template.Must(template.ParseFS(templatesFS, "templates/layout.html"))
+	templates["setup.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/setup.html"))
+	templates["login.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/login.html"))
+	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html"))
 }
 
 type AdminHandler struct {
@@ -92,7 +95,7 @@ func (h *AdminHandler) HandleSetupGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_ = templates.ExecuteTemplate(w, "setup.html", nil)
+	_ = templates["setup.html"].ExecuteTemplate(w, "base", nil)
 }
 
 func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +114,7 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 	fullName := r.FormValue("full_name")
 
 	if email == "" || password == "" {
-		_ = templates.ExecuteTemplate(w, "setup.html", map[string]string{"Error": "Email and password are required"})
+		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Email and password are required"})
 		return
 	}
 
@@ -135,7 +138,7 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		slog.Error("Failed to create admin user during setup", "error", err)
-		_ = templates.ExecuteTemplate(w, "setup.html", map[string]string{"Error": "Failed to create account"})
+		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Failed to create account"})
 		return
 	}
 
@@ -169,7 +172,7 @@ func (h *AdminHandler) HandleLoginGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_ = templates.ExecuteTemplate(w, "login.html", nil)
+	_ = templates["login.html"].ExecuteTemplate(w, "base", nil)
 }
 
 func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -184,12 +187,12 @@ func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Queries.GetUserByEmail(r.Context(), email)
 	if err != nil || user.IsAdmin != 1 {
-		_ = templates.ExecuteTemplate(w, "login.html", map[string]string{"Error": "Invalid credentials or not an admin"})
+		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Invalid credentials or not an admin"})
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		_ = templates.ExecuteTemplate(w, "login.html", map[string]string{"Error": "Invalid credentials or not an admin"})
+		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Invalid credentials or not an admin"})
 		return
 	}
 
@@ -240,7 +243,7 @@ func (h *AdminHandler) HandleDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := r.Context().Value(AdminUserKey).(db.User)
-	_ = templates.ExecuteTemplate(w, "dashboard.html", map[string]interface{}{
+	_ = templates["dashboard.html"].ExecuteTemplate(w, "base", map[string]interface{}{
 		"User": user,
 	})
 }
