@@ -33,6 +33,7 @@ func init() {
 type AdminHandler struct {
 	Queries *db.Queries
 	Storage storage.Storage
+	Version string
 }
 
 type UserContextKey string
@@ -100,7 +101,7 @@ func (h *AdminHandler) HandleSetupGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_ = templates["setup.html"].ExecuteTemplate(w, "base", nil)
+	_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Version": h.Version})
 }
 
 func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +119,7 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	if email == "" || password == "" {
-		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Email and password are required"})
+		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Email and password are required", "Version": h.Version})
 		return
 	}
 
@@ -141,7 +142,7 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		slog.Error("Failed to create admin user during setup", "error", err)
-		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Failed to create account"})
+		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Failed to create account", "Version": h.Version})
 		return
 	}
 
@@ -175,7 +176,7 @@ func (h *AdminHandler) HandleLoginGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_ = templates["login.html"].ExecuteTemplate(w, "base", nil)
+	_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Version": h.Version})
 }
 
 func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -190,12 +191,12 @@ func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Queries.GetUserByEmail(r.Context(), email)
 	if err != nil || user.IsAdmin != 1 {
-		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Invalid credentials or not an admin"})
+		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Invalid credentials or not an admin", "Version": h.Version})
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Invalid credentials or not an admin"})
+		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Invalid credentials or not an admin", "Version": h.Version})
 		return
 	}
 
@@ -254,6 +255,7 @@ func (h *AdminHandler) HandleDashboard(w http.ResponseWriter, r *http.Request) {
 		"User":      user,
 		"Stats":     stats,
 		"UserStats": userStats,
+		"Version":   h.Version,
 	})
 }
 

@@ -21,6 +21,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var Version = "dev"
+
 func main() {
 	seedFlag := flag.Bool("seed", false, "Seed the database with an admin user")
 	emailFlag := flag.String("email", "admin@localhost", "Email for the seeded user")
@@ -105,7 +107,7 @@ func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *ht
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
 
 	// Admin UI Routes
-	adminHandler := &api.AdminHandler{Queries: queries, Storage: localFS}
+	adminHandler := &api.AdminHandler{Queries: queries, Storage: localFS, Version: Version}
 
 	// Create a sub-router for admin routes so we can apply the middleware to all of them easily.
 	// Since Go 1.22 mux doesn't easily let us apply middleware to a prefix without stripping or matching exactly,

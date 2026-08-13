@@ -23,6 +23,9 @@
 
         {{template "user-list" .}}
     </div>
+    <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.75rem;">
+        v{{.Version}}
+    </div>
 </main>
 
 <dialog id="add-user-modal" style="border: none; border-radius: 8px; padding: 2rem; background: var(--surface); color: var(--text-color); box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto;">
