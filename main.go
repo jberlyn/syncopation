@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -27,21 +27,27 @@ func main() {
 
 	cfg := config.LoadConfig()
 
+	// Configure global slog to use JSON, similar to Node's pino
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	// Connect to SQLite DB
 	dbConn, err := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL&_busy_timeout=5000")
 	if err != nil {
-		log.Fatalf("Failed to open database: %v", err)
+		slog.Error("Failed to open database", "error", err)
+		os.Exit(1)
 	}
 	defer dbConn.Close()
 
 	// Run migrations (In a real app, use golang-migrate, here we run schema.sql)
 	schema, err := os.ReadFile("db/schema.sql")
 	if err != nil {
-		log.Fatalf("Failed to read schema.sql: %v", err)
+		slog.Error("Failed to read schema.sql", "error", err)
+		os.Exit(1)
 	}
 	if _, err := dbConn.Exec(string(schema)); err != nil {
 		// Ignore "already exists" errors or ensure schema.sql uses IF NOT EXISTS
-		log.Printf("Migration output (ignoring errors if tables exist): %v", err)
+		slog.Info("Migration output (ignoring errors if tables exist)", "error", err)
 	}
 
 	queries := db.New(dbConn)
@@ -76,9 +82,14 @@ func main() {
 	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn}
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
 
-	log.Printf("Server listening on port %s", cfg.Port)
-	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
-		log.Fatalf("Server failed: %v", err)
+	slog.Info("Server listening", "port", cfg.Port)
+
+	// Wrap mux with the LoggingMiddleware
+	loggedMux := api.LoggingMiddleware(mux)
+
+	if err := http.ListenAndServe(":"+cfg.Port, loggedMux); err != nil {
+		slog.Error("Server failed", "error", err)
+		os.Exit(1)
 	}
 }
 
@@ -94,7 +105,8 @@ func seedUser(queries *db.Queries, email, password string) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Fatalf("Failed to hash password: %v", err)
+		slog.Error("Failed to hash password", "error", err)
+		os.Exit(1)
 	}
 
 	id := uuid.New().String()
@@ -110,7 +122,8 @@ func seedUser(queries *db.Queries, email, password string) {
 		UpdatedTime: now,
 	})
 	if err != nil {
-		log.Fatalf("Failed to create user: %v", err)
+		slog.Error("Failed to create user", "error", err)
+		os.Exit(1)
 	}
 
 	fmt.Printf("Successfully created admin user: %s (ID: %s)\n", user.Email, user.ID)

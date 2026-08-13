@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -93,7 +93,7 @@ func (h *LockHandler) AcquireLock(w http.ResponseWriter, r *http.Request) {
 	// 1. Get all active locks and clear out stale ones
 	activeLocks, err := h.getActiveLocks(ctx)
 	if err != nil {
-		log.Printf("Error fetching active locks: %v", err)
+		slog.Error("Error fetching active locks", "error", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
