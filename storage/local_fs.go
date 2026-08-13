@@ -27,11 +27,12 @@ func (fs *LocalFS) ReadItem(ctx context.Context, userID, itemName string) ([]byt
 }
 
 func (fs *LocalFS) WriteItem(ctx context.Context, userID, itemName string, content []byte) error {
-	dir := fs.userDir(userID)
+	fullPath := fs.itemPath(userID, itemName)
+	dir := filepath.Dir(fullPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
-	return os.WriteFile(fs.itemPath(userID, itemName), content, 0644)
+	return os.WriteFile(fullPath, content, 0644)
 }
 
 func (fs *LocalFS) DeleteItem(ctx context.Context, userID, itemName string) error {
