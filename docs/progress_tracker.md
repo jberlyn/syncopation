@@ -39,28 +39,28 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Implement lock expiration / TTL check.
 - [x] Write integration tests for acquiring and releasing locks.
 
+### [x] Slice 4: Item Storage Engine & Core CRUD API (`/api/items`)
+- [x] Implement Joplin URL path parser for `root:/<path>:` syntax.
+- [x] Implement Storage Driver (DB BLOB or Local Disk based on ADR).
+- [x] Implement `GET /api/items/root:/<path>:` (Get item stat metadata).
+- [x] Implement `GET /api/items/root:/<path>:/content` (Get raw item content).
+- [x] Implement `PUT /api/items/root:/<path>:/content` (Create/Update item).
+- [x] Implement `DELETE /api/items/root:/<path>:` (Delete item).
+- [x] Write tests verifying CRUD operations.
+
 ---
 
 ## 🚀 Current Focus
-
-### [ ] Slice 4: Item Storage Engine & Core CRUD API (`/api/items`)
-- [ ] Implement Joplin URL path parser for `root:/<path>:` syntax.
-- [ ] Implement Storage Driver (DB BLOB or Local Disk based on ADR).
-- [ ] Implement `GET /api/items/root:/<path>:` (Get item stat metadata).
-- [ ] Implement `GET /api/items/root:/<path>:/content` (Get raw item content).
-- [ ] Implement `PUT /api/items/root:/<path>:/content` (Create/Update item).
-- [ ] Implement `DELETE /api/items/root:/<path>:` (Delete item).
-- [ ] Write tests verifying CRUD operations.
-
----
-
-## ⏳ Upcoming Slices
 
 ### [ ] Slice 5: Change Event Log & Delta Sync Engine (`changes_2`)
 - [ ] Implement change tracking hook on item create, update, and delete.
 - [ ] Log events (Create=1, Update=2, Delete=3) in `changes_2` with counter.
 - [ ] Implement `GET /api/items/root:/<path>:/delta` with cursor pagination.
 - [ ] Write integration tests for delta sync and cursor progression.
+
+---
+
+## ⏳ Upcoming Slices
 
 ### [ ] Slice 6: Batch Operations & Directory Listing (`/api/batch_items`)
 - [ ] Implement `PUT /api/batch_items` (Batch insert/update in single transaction).
