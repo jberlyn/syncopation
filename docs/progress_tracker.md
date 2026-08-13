@@ -73,13 +73,13 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Redact sensitive headers such as `Authorization` / `X-API-AUTH`.
 - [x] Replace all standard library `log` calls with `slog` calls.
 
-### 🔄 In Progress
-- [ ] **Slice 7: E2E Client Verification, Encryption & Deployment**
+### ✅ Completed
+- [x] **Slice 7: E2E Client Verification, Encryption & Deployment**
   - [x] Create a production Dockerfile and `docker-compose.yml` for lightweight hosting.
-  - [ ] Configure and test an official Joplin client against our running custom sync server.
-  - [ ] Verify initial sync, delta sync, and E2EE note sync.
-  - [ ] Fix any edge-case protocol mismatches or header issues discovered during client testing.
-  - [ ] Finalize user documentation and server administration instructions.
+  - [x] Configure and test an official Joplin client against our running custom sync server.
+  - [x] Verify initial sync, delta sync, and E2EE note sync.
+  - [x] Fix any edge-case protocol mismatches or header issues discovered during client testing.
+  - [x] Finalize user documentation and server administration instructions.
 
 ---
 
