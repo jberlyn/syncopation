@@ -23,9 +23,10 @@ func init() {
 	layout := template.Must(template.ParseFS(templatesFS, "templates/layout.html"))
 	templates["setup.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/setup.html"))
 	templates["login.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/login.html"))
-	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html", "templates/user_list.html", "templates/add_user_form.html"))
+	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html", "templates/user_list.html", "templates/add_user_form.html", "templates/stats.html"))
 	templates["user_list.html"] = template.Must(template.ParseFS(templatesFS, "templates/user_list.html"))
 	templates["add_user_form.html"] = template.Must(template.ParseFS(templatesFS, "templates/add_user_form.html"))
+	templates["stats.html"] = template.Must(template.ParseFS(templatesFS, "templates/stats.html"))
 }
 
 type AdminHandler struct {
@@ -302,6 +303,11 @@ func (h *AdminHandler) HandleUsersPost(w http.ResponseWriter, r *http.Request) {
 			"UserStats": userStats,
 			"OOB":       true,
 		})
+		stats, _ := h.Queries.GetInstanceStats(r.Context())
+		_ = templates["stats.html"].ExecuteTemplate(w, "stats", map[string]interface{}{
+			"Stats": stats,
+			"OOB":   true,
+		})
 	} else {
 		_ = templates["add_user_form.html"].ExecuteTemplate(w, "add-user-form", map[string]interface{}{
 			"Error": errMsg,
@@ -331,5 +337,11 @@ func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request)
 	userStats, _ := h.Queries.GetUserStats(r.Context())
 	_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
 		"UserStats": userStats,
+	})
+
+	stats, _ := h.Queries.GetInstanceStats(r.Context())
+	_ = templates["stats.html"].ExecuteTemplate(w, "stats", map[string]interface{}{
+		"Stats": stats,
+		"OOB":   true,
 	})
 }

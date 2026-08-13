@@ -12,16 +12,7 @@
 <main>
     <div class="card" style="margin-bottom: 2rem;">
         <h2>Dashboard Statistics</h2>
-        <div style="display: flex; gap: 2rem; margin-top: 1rem;">
-            <div style="padding: 1rem; background: var(--surface); border: 1px solid var(--border-color); border-radius: 8px; flex: 1;">
-                <h3 style="margin-bottom: 0.5rem; color: var(--text-muted);">Total Users</h3>
-                <p style="font-size: 2rem; font-weight: bold; margin: 0;">{{.Stats.TotalUsers}}</p>
-            </div>
-            <div style="padding: 1rem; background: var(--surface); border: 1px solid var(--border-color); border-radius: 8px; flex: 1;">
-                <h3 style="margin-bottom: 0.5rem; color: var(--text-muted);">Total Sync Items</h3>
-                <p style="font-size: 2rem; font-weight: bold; margin: 0;">{{.Stats.TotalItems}}</p>
-            </div>
-        </div>
+        {{template "stats" .}}
     </div>
 
     <div class="card">
