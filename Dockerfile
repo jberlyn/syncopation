@@ -17,7 +17,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o syncopation .
 
 # Create data directory so we can copy it to the scratch container
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data/database /app/data/resources
 
 # Run stage
 FROM scratch
@@ -35,7 +35,8 @@ COPY --from=builder /app/data ./data
 
 # Environment variables
 ENV PORT=22300
-ENV DB_PATH=/app/data/syncopation.sqlite
+ENV DB_PATH=/app/data/database/syncopation.sqlite
+ENV STORAGE_PATH=/app/data/resources
 
 EXPOSE 22300
 
