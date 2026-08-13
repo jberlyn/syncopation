@@ -68,8 +68,7 @@ func seedTestUser(t *testing.T, queries *db.Queries, email, password string) {
 		ID:          uuid.New().String(),
 		Email:       email,
 		Password:    string(hashedPassword),
-		FullName:    "Test User",
-		IsAdmin:     1,
+		IsAdmin:     0,
 		CreatedTime: time.Now().UnixMilli(),
 		UpdatedTime: time.Now().UnixMilli(),
 	})

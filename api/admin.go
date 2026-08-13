@@ -111,7 +111,6 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-	fullName := r.FormValue("full_name")
 
 	if email == "" || password == "" {
 		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Email and password are required"})
@@ -131,7 +130,6 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 		ID:          id,
 		Email:       email,
 		Password:    string(hashedPassword),
-		FullName:    fullName,
 		IsAdmin:     1,
 		CreatedTime: now,
 		UpdatedTime: now,

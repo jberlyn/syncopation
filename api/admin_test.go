@@ -41,7 +41,6 @@ func TestAdminUI(t *testing.T) {
 	form := url.Values{}
 	form.Add("email", "admin@example.com")
 	form.Add("password", "password123")
-	form.Add("full_name", "Test Admin")
 
 	req = httptest.NewRequest(http.MethodPost, "/admin/setup", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")

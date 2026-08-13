@@ -39,8 +39,7 @@ func TestQueries(t *testing.T) {
 	user, err := queries.CreateUser(ctx, CreateUserParams{
 		ID:          userID,
 		Email:       "test@example.com",
-		Password:    "hash",
-		FullName:    "Test User",
+		Password:    "password123",
 		IsAdmin:     0,
 		CreatedTime: time.Now().UnixMilli(),
 		UpdatedTime: time.Now().UnixMilli(),

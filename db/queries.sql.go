@@ -58,18 +58,17 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  id, email, password, full_name, is_admin, created_time, updated_time
+  id, email, password, is_admin, created_time, updated_time
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?
 )
-RETURNING id, email, password, full_name, is_admin, created_time, updated_time
+RETURNING id, email, password, is_admin, created_time, updated_time
 `
 
 type CreateUserParams struct {
 	ID          string `json:"id"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	FullName    string `json:"full_name"`
 	IsAdmin     int64  `json:"is_admin"`
 	CreatedTime int64  `json:"created_time"`
 	UpdatedTime int64  `json:"updated_time"`
@@ -80,7 +79,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.ID,
 		arg.Email,
 		arg.Password,
-		arg.FullName,
 		arg.IsAdmin,
 		arg.CreatedTime,
 		arg.UpdatedTime,
@@ -90,7 +88,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.FullName,
 		&i.IsAdmin,
 		&i.CreatedTime,
 		&i.UpdatedTime,
@@ -266,7 +263,7 @@ func (q *Queries) GetSession(ctx context.Context, id string) (Session, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, password, full_name, is_admin, created_time, updated_time FROM users
+SELECT id, email, password, is_admin, created_time, updated_time FROM users
 WHERE id = ? LIMIT 1
 `
 
@@ -277,7 +274,6 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.FullName,
 		&i.IsAdmin,
 		&i.CreatedTime,
 		&i.UpdatedTime,
@@ -286,7 +282,7 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, full_name, is_admin, created_time, updated_time FROM users
+SELECT id, email, password, is_admin, created_time, updated_time FROM users
 WHERE email = ? LIMIT 1
 `
 
@@ -297,7 +293,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.FullName,
 		&i.IsAdmin,
 		&i.CreatedTime,
 		&i.UpdatedTime,

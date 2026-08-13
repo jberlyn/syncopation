@@ -67,7 +67,6 @@ type User struct {
 	ID          string `json:"id"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	FullName    string `json:"full_name"`
 	IsAdmin     int64  `json:"is_admin"`
 	CreatedTime int64  `json:"created_time"`
 	UpdatedTime int64  `json:"updated_time"`

@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(32) PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    full_name TEXT DEFAULT '' NOT NULL,
     is_admin INTEGER DEFAULT 0 NOT NULL,
     created_time BIGINT NOT NULL,
     updated_time BIGINT NOT NULL

@@ -145,7 +145,6 @@ func seedUser(queries *db.Queries, email, password string) {
 		ID:          id,
 		Email:       email,
 		Password:    string(hashedPassword),
-		FullName:    "Admin User",
 		IsAdmin:     1,
 		CreatedTime: now,
 		UpdatedTime: now,
