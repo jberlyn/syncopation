@@ -1,9 +1,9 @@
 # Syncopation
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/jberlyn/syncopation/coverage.yml?branch=main&label=build)](https://github.com/jberlyn/syncopation/actions/workflows/coverage.yml)
-[![Coverage Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jberlyn/syncopation/badges/coverage.json)](https://github.com/jberlyn/syncopation/actions)
+[![Coverage Status](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjberlyn%2Fsyncopation%2Fbadges%2Fcoverage.json)](https://github.com/jberlyn/syncopation/actions)
 [![Version](https://img.shields.io/github/v/tag/jberlyn/syncopation?label=version)](https://github.com/jberlyn/syncopation/tags)
-[![Docker Pulls](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jberlyn/syncopation/badges/docker_pulls.json)](https://github.com/jberlyn/syncopation/pkgs/container/syncopation)
+[![Docker Pulls](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjberlyn%2Fsyncopation%2Fbadges%2Fdocker_pulls.json)](https://github.com/jberlyn/syncopation/pkgs/container/syncopation)
 
 A custom, lightweight, 100% compatible Joplin Sync Server written in Go.
 
