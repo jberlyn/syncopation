@@ -124,7 +124,7 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 	id := uuid.New().String()
 	now := time.Now().UnixMilli()
 
-	_, err = h.Queries.CreateUser(r.Context(), db.CreateUserParams{
+	user, err := h.Queries.CreateUser(r.Context(), db.CreateUserParams{
 		ID:          id,
 		Email:       email,
 		Password:    string(hashedPassword),
@@ -139,7 +139,29 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin/login", http.StatusFound)
+	// Auto-login the user after setup
+	sessionID := strings.ReplaceAll(uuid.New().String(), "-", "")
+	_, err = h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
+		ID:          sessionID,
+		UserID:      user.ID,
+		AuthCode:    "",
+		CreatedTime: now,
+		UpdatedTime: now,
+	})
+	if err != nil {
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "admin_session",
+		Value:    sessionID,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
 func (h *AdminHandler) HandleLoginGet(w http.ResponseWriter, r *http.Request) {

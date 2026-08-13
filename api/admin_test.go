@@ -48,8 +48,8 @@ func TestAdminUI(t *testing.T) {
 	w = httptest.NewRecorder()
 	mux.ServeHTTP(w, req)
 
-	if w.Code != http.StatusFound || w.Header().Get("Location") != "/admin/login" {
-		t.Fatalf("Expected redirect to /admin/login after setup, got %d %s", w.Code, w.Header().Get("Location"))
+	if w.Code != http.StatusFound || w.Header().Get("Location") != "/admin" {
+		t.Fatalf("Expected redirect to /admin after setup, got %d %s", w.Code, w.Header().Get("Location"))
 	}
 
 	// 3. User now exists, /admin/setup should redirect to /admin
