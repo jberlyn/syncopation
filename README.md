@@ -2,6 +2,9 @@
 
 A custom, lightweight, 100% compatible Joplin Sync Server written in Go.
 
+### Why the name?
+The official [Joplin](https://joplinapp.org/) app is named in honor of the famous ragtime composer and pianist, Scott Joplin. This custom server is named **Syncopation** as a play on words: it **syncs** your notes, and *syncopation* is a core musical concept that drives the ragtime rhythm Scott Joplin is known for.
+
 ## Features
 - **100% Joplin Client Compatibility**: Seamlessly works with official Joplin Desktop, Mobile, and CLI clients.
 - **End-to-End Encryption (E2EE)**: Fully supports transparent syncing of encrypted notes.
