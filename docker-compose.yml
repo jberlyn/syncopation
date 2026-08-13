@@ -11,4 +11,4 @@ services:
       - ./data:/app/data
     environment:
       - PORT=8080
-      - DB_PATH=/app/data/joplin.sqlite3
+      - DB_PATH=/app/data/syncopation.sqlite

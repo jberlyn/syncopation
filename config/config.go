@@ -26,7 +26,7 @@ func LoadConfig() *Config {
 
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
-		dbPath = "data/database/joplin.sqlite3"
+		dbPath = "data/database/syncopation.sqlite"
 	}
 
 	storagePath := os.Getenv("STORAGE_PATH")

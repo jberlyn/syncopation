@@ -33,7 +33,7 @@ RUN mkdir -p /app/data
 
 # Environment variables
 ENV PORT=8080
-ENV DB_PATH=/app/data/joplin.sqlite3
+ENV DB_PATH=/app/data/syncopation.sqlite
 
 EXPOSE 8080
 

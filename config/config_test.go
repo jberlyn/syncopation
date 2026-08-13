@@ -35,7 +35,7 @@ func TestLoadConfig(t *testing.T) {
 	if cfgDefault.Port != "8080" {
 		t.Errorf("Expected default port 8080, got %s", cfgDefault.Port)
 	}
-	if cfgDefault.DBPath != "data/database/joplin.sqlite3" {
+	if cfgDefault.DBPath != "data/database/syncopation.sqlite" {
 		t.Errorf("Expected default DBPath, got %s", cfgDefault.DBPath)
 	}
 	if cfgDefault.StoragePath != "data/resources" {

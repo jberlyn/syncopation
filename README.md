@@ -30,9 +30,9 @@ A custom, lightweight, 100% compatible Joplin Sync Server written in Go.
    - Click "Check synchronization configuration" to verify.
 
 ## Backup and Restoration
-All metadata and item content (BLOBs) are stored inside the SQLite database located at `/app/data/joplin.sqlite3` inside the container. This directory is mounted to the Docker named volume `joplin-data`.
+All metadata and item content (BLOBs) are stored inside the SQLite database located at `/app/data/syncopation.sqlite` inside the container. This directory is mounted to the Docker named volume `joplin-data`.
 
-To back up your data, simply copy the `joplin.sqlite3` file out of the docker volume or use standard docker volume backup procedures.
+To back up your data, simply copy the `syncopation.sqlite` file out of the docker volume or use standard docker volume backup procedures.
 
 ## Building Locally
 Ensure you have Go 1.21+ installed and CGO enabled (required for SQLite).
