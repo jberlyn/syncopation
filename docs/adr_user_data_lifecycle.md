@@ -20,46 +20,26 @@ Analysis of the official `joplin/joplin` repository (specifically `packages/serv
 
 ## Proposed Technical Approach
 
-To achieve 100% compatibility and avoid orphaned disk files, our Go sync server will implement a similar asynchronous background worker model.
+After reviewing the requirements and our specific architecture, we've decided to diverge from the official server's heavy-duty background queue approach in favor of a simpler, synchronous deletion strategy. 
 
-### 1. Schema Changes
-- Modify the `users` table to include an `enabled INTEGER DEFAULT 1` or `disabled_time BIGINT DEFAULT 0` column.
-- Create a new `user_deletions` table:
-  ```sql
-  CREATE TABLE IF NOT EXISTS user_deletions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id VARCHAR(32) NOT NULL,
-      scheduled_time BIGINT NOT NULL,
-      start_time BIGINT DEFAULT 0 NOT NULL,
-      end_time BIGINT DEFAULT 0 NOT NULL,
-      success INTEGER DEFAULT 0 NOT NULL,
-      error TEXT DEFAULT '' NOT NULL,
-      created_time BIGINT NOT NULL,
-      updated_time BIGINT NOT NULL
-  );
-  ```
+Because our custom `StorageDriver` (specifically `local_fs`) already groups physical files into a root directory based on `userID`, and because SQLite handles cascading deletes very efficiently, we can accomplish user deletion in a single, fast operation.
+
+### 1. Schema Changes (Foreign Keys)
+We will update our database schema and migrations to include strict `ON DELETE CASCADE` foreign keys linking back to `users(id)`. This will be applied to:
+- `sessions.user_id`
+- `items.owner_id`
+- `user_items.user_id`
+- `changes_2.user_id`
+- `shares.owner_id`
+- `user_shares.user_id`
 
 ### 2. Admin Deletion API (`DELETE /admin/users/:id`)
-Instead of deleting the user row, the Admin API will:
-1. Update `users.enabled = 0`.
-2. Insert a record into `user_deletions` scheduled for immediate execution (or after a configurable TTL if soft-deletes are desired).
-3. Terminate all active `sessions` for the user immediately to force logout.
+When the Admin deletes a user, the API handler will simply do two things sequentially:
 
-### 3. Background Garbage Collection Worker (Goroutine)
-A background worker (started in `main.go`) will poll the `user_deletions` table every minute. For each pending job:
-1. **Mark Start**: Update `start_time` to claim the job.
-2. **Share Cleanup**: Delete from `user_shares` and `shares` associated with the user.
-3. **Item & File Cleanup**: Loop over `items` owned by `user_id` with `LIMIT 1000`.
-    - For each item, call `storageDriver.Delete(item.ID)` to remove the physical file on disk.
-    - Delete the `items`, `user_items`, and `changes_2` rows.
-    - Sleep briefly between batches.
-4. **Final User Deletion**: Delete the `users` row.
-5. **Mark End**: Update `end_time` and `success = 1`.
-
-### 4. Middleware & Sync Protection
-The `AuthMiddleware` must be updated to reject any API requests for users where `enabled = 0`, ensuring clients cannot sync data while a background deletion is in progress.
+1. **Delete from Database**: Execute `DELETE FROM users WHERE id = ?`. Due to the cascading foreign keys, SQLite will instantly purge all associated items, changes, shares, and sessions in a single transaction.
+2. **Delete from Disk**: Call a new `DeleteUser(userID)` method on the `StorageDriver` interface. For our `local_fs` driver, this will execute an `os.RemoveAll()` on the user's root folder, completely removing all physical files instantly.
 
 ## Consequences
 
-- **Pros**: Prevents orphaned files on disk; avoids long-running synchronous HTTP requests; prevents SQLite lock starvation; perfectly mirrors the official server.
-- **Cons**: Requires managing a background goroutine and introduces slightly more state complexity (job queue).
+- **Pros**: Drastically simpler architecture. No need for background goroutines, polling, state management flags, or a `user_deletions` table. Deletion is instantaneous and clean.
+- **Cons**: A synchronous deletion might block the HTTP thread for a few milliseconds longer than a soft-delete, but for the scale of personal/small-team servers, this is completely negligible. It technically diverges from the official implementation's internal flow, but achieves the exact same functional outcome.
