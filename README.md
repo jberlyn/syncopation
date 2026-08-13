@@ -1,4 +1,4 @@
-# Syncopation (Joplin Sync Server)
+# Syncopation
 
 A custom, lightweight, 100% compatible Joplin Sync Server written in Go.
 
@@ -19,8 +19,6 @@ The official [Joplin](https://joplinapp.org/help/faq/#why-is-it-named-joplin) ap
 - **Storage**: Local Filesystem
 - **Admin UI**: Go `html/template` + HTMX
 
----
-
 ## 🏡 Self-Hosting Guide (Docker)
 
 This is the recommended way to run Syncopation on your home server, NAS, or VPS.
@@ -30,8 +28,6 @@ This is the recommended way to run Syncopation on your home server, NAS, or VPS.
 Create a `docker-compose.yml` file:
 
 ```yaml
-version: '3.8'
-
 services:
   syncopation:
     image: ghcr.io/jberlyn/syncopation:latest
@@ -87,26 +83,13 @@ It is highly recommended to place Syncopation behind a reverse proxy (like Caddy
 5. **Joplin Server password**: Your password.
 6. Click "Check synchronization configuration".
 
-### 6. Backup Strategy
-
-To back up your data, you must back up both the database and the files. Because they are both located in the `/app/data` directory, a simple backup script just needs to archive that folder.
-
-*Note: For the safest database backup, it's recommended to stop the container first, or use the `sqlite3` CLI tool to create a backup of the DB while running.*
-
-```bash
-docker compose stop syncopation
-tar -czvf joplin-backup-$(date +%F).tar.gz /path/to/your/data/dir
-docker compose start syncopation
-```
-
----
-
 ## 🛠️ Local Development
 
 ### Prerequisites
-- Go 1.21+
-- CGO enabled (required for SQLite `mattn/go-sqlite3` driver)
+- Go 1.25+
 - `sqlc` (for generating DB queries)
+
+*Note: Syncopation uses the pure-Go `modernc.org/sqlite` driver, so CGO is **not** required. This makes the project extremely easy to build and cross-compile!*
 
 ### Building and Running
 ```bash
