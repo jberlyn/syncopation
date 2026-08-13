@@ -327,7 +327,7 @@ func (h *ItemHandler) handleDelete(w http.ResponseWriter, r *http.Request, userI
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	
+
 	now := time.Now().UnixMilli()
 
 	_, err = h.Queries.InsertChange(r.Context(), db.InsertChangeParams{

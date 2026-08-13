@@ -196,11 +196,11 @@ func TestDeltaSync(t *testing.T) {
 	reqDelta1.Header.Set("X-API-AUTH", sessionID)
 	rrDelta1 := httptest.NewRecorder()
 	mux.ServeHTTP(rrDelta1, reqDelta1)
-	
+
 	if rrDelta1.Code != http.StatusOK {
 		t.Fatalf("Expected 200 OK for delta, got %d. Body: %s", rrDelta1.Code, rrDelta1.Body.String())
 	}
-	
+
 	var deltaResp1 api.DeltaResponse
 	if err := json.NewDecoder(rrDelta1.Body).Decode(&deltaResp1); err != nil {
 		t.Fatalf("Failed to decode delta response: %v", err)
@@ -211,7 +211,7 @@ func TestDeltaSync(t *testing.T) {
 	if deltaResp1.Items[0].Type != 1 {
 		t.Errorf("Expected change type 1 (Create), got %d", deltaResp1.Items[0].Type)
 	}
-	
+
 	cursor1 := deltaResp1.Cursor
 
 	// 3. Update Item

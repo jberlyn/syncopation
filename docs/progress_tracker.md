@@ -48,19 +48,15 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Implement `DELETE /api/items/root:/<path>:` (Delete item).
 - [x] Write tests verifying CRUD operations.
 
+### [x] Slice 5: Change Event Log & Delta Sync Engine (`changes_2`)
+- [x] Implement change tracking hook on item create, update, and delete.
+- [x] Log events (Create=1, Update=2, Delete=3) in `changes_2` with counter.
+- [x] Implement `GET /api/items/root:/<path>:/delta` with cursor pagination.
+- [x] Write integration tests for delta sync and cursor progression.
+
 ---
 
 ## 🚀 Current Focus
-
-### [ ] Slice 5: Change Event Log & Delta Sync Engine (`changes_2`)
-- [ ] Implement change tracking hook on item create, update, and delete.
-- [ ] Log events (Create=1, Update=2, Delete=3) in `changes_2` with counter.
-- [ ] Implement `GET /api/items/root:/<path>:/delta` with cursor pagination.
-- [ ] Write integration tests for delta sync and cursor progression.
-
----
-
-## ⏳ Upcoming Slices
 
 ### [ ] Slice 6: Batch Operations & Directory Listing (`/api/batch_items`)
 - [ ] Implement `PUT /api/batch_items` (Batch insert/update in single transaction).
@@ -68,6 +64,10 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [ ] Integrate batch operations with `changes_2` event logging.
 - [ ] Implement `GET /api/items/root:/<path>/*:/children` for directory listing.
 - [ ] Write tests verifying batch operations performance and correctness.
+
+---
+
+## ⏳ Upcoming Slices
 
 ### [ ] Slice 7: E2E Client Verification, Encryption & Deployment
 - [ ] Configure and test official Joplin client against the custom sync server.
