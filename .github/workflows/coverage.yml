@@ -1,13 +1,15 @@
-name: Code Coverage Badge
+name: Badges and Stats
 
 on:
   push:
     branches:
       - main
+  schedule:
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
-  coverage:
+  badges:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,7 +27,7 @@ jobs:
         run: |
           go test -coverpkg=./... -coverprofile=coverage.out ./...
 
-      - name: Generate coverage.json
+      - name: Generate coverage.json and docker_pulls.json
         run: |
           PERCENT=$(go tool cover -func=coverage.out | awk '/total:/ {print $3}' | sed 's/%//')
           echo "Coverage: ${PERCENT}%"
@@ -41,13 +43,19 @@ jobs:
             printf "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"%.1f%%\",\"color\":\"%s\"}\n", p, color;
           }' > coverage.json
 
-      - name: Deploy coverage.json to badges branch
+          PULLS=$(curl -sL https://github.com/jberlyn/syncopation/pkgs/container/syncopation | grep -A 2 "Total downloads" | grep "<h3" | sed -E 's/.*title="([^"]+)".*/\1/' || echo "0")
+          if [ -z "$PULLS" ]; then PULLS="0"; fi
+          echo "Docker pulls: ${PULLS}"
+          printf "{\"schemaVersion\":1,\"label\":\"docker pulls\",\"message\":\"%s\",\"color\":\"blue\"}\n" "$PULLS" > docker_pulls.json
+
+      - name: Deploy badge JSONs to badges branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           mkdir -p /tmp/badge
           cp coverage.json /tmp/badge/coverage.json
+          cp docker_pulls.json /tmp/badge/docker_pulls.json
 
           git fetch origin badges || true
           if git rev-parse --verify origin/badges >/dev/null 2>&1; then
@@ -59,11 +67,12 @@ jobs:
 
           git rm -rf . 2>/dev/null || true
           cp /tmp/badge/coverage.json .
-          git add coverage.json
+          cp /tmp/badge/docker_pulls.json .
+          git add coverage.json docker_pulls.json
 
           if ! git diff --cached --quiet; then
-            git commit -m "Update coverage badge"
+            git commit -m "Update badge stats"
             git push origin badges
           else
-            echo "No changes to coverage badge."
+            echo "No changes to badge stats."
           fi
