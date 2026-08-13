@@ -63,40 +63,38 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Implement `GET /api/items/root:/<path>/*:/children` for directory listing.
 - [x] Write tests verifying batch operations performance and correctness.
 
----
-
-## 🚀 Current Focus
-
 ### [x] Slice 6.5: Observability & Structured Logging
 - [x] Setup Go 1.21+ `log/slog` with a JSON handler globally.
 - [x] Implement an HTTP request logger middleware.
 - [x] Redact sensitive headers such as `Authorization` / `X-API-AUTH`.
 - [x] Replace all standard library `log` calls with `slog` calls.
 
-### ✅ Completed
-- [x] **Slice 7: E2E Client Verification, Encryption & Deployment**
-  - [x] Create a production Dockerfile and `docker-compose.yml` for lightweight hosting.
-  - [x] Configure and test an official Joplin client against our running custom sync server.
-  - [x] Verify initial sync, delta sync, and E2EE note sync.
-  - [x] Fix any edge-case protocol mismatches or header issues discovered during client testing.
-  - [x] Finalize user documentation and server administration instructions.
+### [x] Slice 7: E2E Client Verification, Encryption & Deployment
+- [x] Create a production Dockerfile and `docker-compose.yml` for lightweight hosting.
+- [x] Configure and test an official Joplin client against our running custom sync server.
+- [x] Verify initial sync, delta sync, and E2EE note sync.
+- [x] Fix any edge-case protocol mismatches or header issues discovered during client testing.
+- [x] Finalize user documentation and server administration instructions.
 
-### ✅ Completed
-- [x] **Slice 7.1: Test Coverage Improvement**
-  - [x] Implement E2E tests to cover `main.go`, `config.go`, and `middleware.go` via a complete client flow.
-  - [x] Add integration test edge-cases to cover error paths in API handlers (e.g. `handleGetContent`, `Logout`, `handlePutBatch`).
-  - [x] Improve database and storage driver coverage to handle edge cases like pagination and missing keys.
-  - [x] Reach high overall code coverage (~80%) using exclusively integration/E2E tests (90%+ was found impractical without mock databases for SQLite transaction/driver-level failure paths).
+### [x] Slice 7.1: Test Coverage Improvement
+- [x] Implement E2E tests to cover `main.go`, `config.go`, and `middleware.go` via a complete client flow.
+- [x] Add integration test edge-cases to cover error paths in API handlers (e.g. `handleGetContent`, `Logout`, `handlePutBatch`).
+- [x] Improve database and storage driver coverage to handle edge cases like pagination and missing keys.
+- [x] Reach high overall code coverage (~80%) using exclusively integration/E2E tests (90%+ was found impractical without mock databases for SQLite transaction/driver-level failure paths).
 
 ---
 
-## ⏳ Upcoming Slices
+## 🚀 Current Focus
 
 ### [ ] Slice 8: Phase 2 Discovery - Admin Management & Multi-User Support
 - [ ] Interactively design technical approach for Admin UI (SSR vs SPA vs Microservice).
 - [ ] Design Role-Based Access Control (RBAC) strategy.
 - [ ] Architect data model extensions for multi-user notebook sharing.
 - [ ] Create Architectural Decision Record (`adr_phase2_admin_sharing.md`).
+
+---
+
+## ⏳ Upcoming Slices
 
 ### [ ] Slice 9: CI/CD & Image Building
 - [ ] Implement a `.github/workflows/docker-publish.yml` file.
