@@ -59,8 +59,7 @@ func main() {
 	}
 
 	queries := db.New(dbConn)
-	dataDir := filepath.Join(filepath.Dir(cfg.DBPath), "data")
-	localFS := storage.NewLocalFS(dataDir)
+	localFS := storage.NewLocalFS(cfg.StoragePath)
 
 	if *seedFlag {
 		seedUser(queries, *emailFlag, *passwordFlag)

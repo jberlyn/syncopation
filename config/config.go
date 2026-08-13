@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Port   string
-	DBPath string
+	Port        string
+	DBPath      string
+	StoragePath string
 }
 
 func LoadConfig() *Config {
@@ -25,11 +26,17 @@ func LoadConfig() *Config {
 
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
-		dbPath = "data/joplin.sqlite3"
+		dbPath = "data/database/joplin.sqlite3"
+	}
+
+	storagePath := os.Getenv("STORAGE_PATH")
+	if storagePath == "" {
+		storagePath = "data/resources"
 	}
 
 	return &Config{
-		Port:   port,
-		DBPath: dbPath,
+		Port:        port,
+		DBPath:      dbPath,
+		StoragePath: storagePath,
 	}
 }
