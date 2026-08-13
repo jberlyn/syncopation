@@ -73,6 +73,9 @@ func main() {
 	itemHandler := &api.ItemHandler{Queries: queries}
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
 
+	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn}
+	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
+
 	log.Printf("Server listening on port %s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)

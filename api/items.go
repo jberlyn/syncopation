@@ -48,6 +48,13 @@ func parseItemPath(p string) (string, string, bool) {
 		if strings.HasSuffix(rest, ":/delta") {
 			return rest[:len(rest)-len(":/delta")], "delta", true
 		}
+		if strings.HasSuffix(rest, "*:/children") {
+			// e.g. path/*:/children -> path. But for root:/*:/children, rest is *:/children -> empty path.
+			// Actually, let's just strip the suffix. If there's a trailing slash, strip it.
+			path := rest[:len(rest)-len("*:/children")]
+			path = strings.TrimSuffix(path, "/")
+			return path, "children", true
+		}
 		if strings.HasSuffix(rest, ":") {
 			return rest[:len(rest)-1], "stat", true
 		}
@@ -55,6 +62,9 @@ func parseItemPath(p string) (string, string, bool) {
 		rest := p[len("/api/items/root::"):]
 		if rest == "/delta" {
 			return "", "delta", true
+		}
+		if rest == "/*:/children" || rest == "*:/children" {
+			return "", "children", true
 		}
 		if rest == "" {
 			return "", "stat", true
@@ -82,6 +92,8 @@ func (h *ItemHandler) HandleItems(w http.ResponseWriter, r *http.Request) {
 			h.handleGetContent(w, r, userID, itemName)
 		} else if action == "delta" {
 			h.handleGetDelta(w, r, userID)
+		} else if action == "children" {
+			h.handleGetChildren(w, r, userID)
 		} else {
 			h.handleGetStat(w, r, userID, itemName)
 		}
@@ -193,6 +205,59 @@ func (h *ItemHandler) handleGetDelta(w http.ResponseWriter, r *http.Request, use
 		Items:   deltaItems,
 		HasMore: hasMore,
 		Cursor:  strconv.FormatInt(lastCursor, 10),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func (h *ItemHandler) handleGetChildren(w http.ResponseWriter, r *http.Request, userID string) {
+	cursorStr := r.URL.Query().Get("cursor")
+	cursor := int64(0)
+	if cursorStr != "" {
+		c, err := strconv.ParseInt(cursorStr, 10, 64)
+		if err == nil {
+			cursor = c
+		}
+	}
+
+	limit := int64(100)
+
+	items, err := h.Queries.ListItemsByUser(r.Context(), db.ListItemsByUserParams{
+		UserID: userID,
+		Limit:  limit + 1,
+		Offset: cursor,
+	})
+	if err != nil {
+		http.Error(w, "Failed to fetch items", http.StatusInternalServerError)
+		return
+	}
+
+	hasMore := false
+	if len(items) > int(limit) {
+		hasMore = true
+		items = items[:limit]
+	}
+
+	childrenItems := make([]ItemMetadataResponse, 0, len(items))
+	for _, item := range items {
+		childrenItems = append(childrenItems, ItemMetadataResponse{
+			ID:             item.ID,
+			Name:           item.Name,
+			MimeType:       item.MimeType,
+			UpdatedTime:    item.UpdatedTime,
+			JopUpdatedTime: item.JopUpdatedTime,
+		})
+	}
+
+	resp := struct {
+		Items   []ItemMetadataResponse `json:"items"`
+		HasMore bool                   `json:"has_more"`
+		Cursor  string                 `json:"cursor"`
+	}{
+		Items:   childrenItems,
+		HasMore: hasMore,
+		Cursor:  strconv.FormatInt(cursor+limit, 10),
 	}
 
 	w.Header().Set("Content-Type", "application/json")

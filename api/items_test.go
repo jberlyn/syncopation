@@ -262,3 +262,61 @@ func TestDeltaSync(t *testing.T) {
 		t.Errorf("Expected change type 3 (Delete), got %d", deltaResp3.Items[0].Type)
 	}
 }
+
+func TestDirectoryChildren(t *testing.T) {
+	queries := setupTestDB(t)
+	authHandler := &api.AuthHandler{Queries: queries}
+	itemHandler := &api.ItemHandler{Queries: queries}
+
+	mux := http.NewServeMux()
+	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
+	// Children sync could be requested with root:: or root:/*:/children
+	mux.Handle("/api/items/root::/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
+
+	user := seedUser(t, queries, "children@example.com", "password")
+	sessionID := uuid.New().String()
+	now := time.Now().UnixMilli()
+
+	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
+		ID:          sessionID,
+		UserID:      user.ID,
+		CreatedTime: now,
+		UpdatedTime: now,
+	})
+
+	// 1. Create two items
+	for _, name := range []string{"file1.md", "file2.md"} {
+		reqCreate := httptest.NewRequest("PUT", "/api/items/root:/"+name+":/content", bytes.NewBuffer([]byte("content")))
+		reqCreate.Header.Set("X-API-AUTH", sessionID)
+		reqCreate.Header.Set("Content-Type", "text/markdown")
+		rrCreate := httptest.NewRecorder()
+		mux.ServeHTTP(rrCreate, reqCreate)
+		if rrCreate.Code != http.StatusOK {
+			t.Fatalf("Failed to create item: %d", rrCreate.Code)
+		}
+	}
+
+	// 2. Fetch children
+	reqChildren := httptest.NewRequest("GET", "/api/items/root:/*:/children", nil)
+	reqChildren.Header.Set("X-API-AUTH", sessionID)
+	rrChildren := httptest.NewRecorder()
+	mux.ServeHTTP(rrChildren, reqChildren)
+
+	if rrChildren.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for children, got %d", rrChildren.Code)
+	}
+
+	var resp struct {
+		Items   []api.ItemMetadataResponse `json:"items"`
+		HasMore bool                       `json:"has_more"`
+		Cursor  string                     `json:"cursor"`
+	}
+
+	if err := json.NewDecoder(rrChildren.Body).Decode(&resp); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if len(resp.Items) != 2 {
+		t.Fatalf("Expected 2 items, got %d", len(resp.Items))
+	}
+}

@@ -18,14 +18,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func setupTestDB(t *testing.T) *db.Queries {
+func setupTestDBConn(t *testing.T) (*sql.DB, *db.Queries) {
 	dbConn, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
 	t.Cleanup(func() { dbConn.Close() })
 
-	// Since we are in api/ directory, schema.sql is in ../db/schema.sql
 	schema, err := os.ReadFile("../db/schema.sql")
 	if err != nil {
 		t.Fatalf("Failed to read schema.sql: %v", err)
@@ -35,7 +34,12 @@ func setupTestDB(t *testing.T) *db.Queries {
 		t.Fatalf("Failed to run migrations: %v", err)
 	}
 
-	return db.New(dbConn)
+	return dbConn, db.New(dbConn)
+}
+
+func setupTestDB(t *testing.T) *db.Queries {
+	_, queries := setupTestDBConn(t)
+	return queries
 }
 
 func seedUser(t *testing.T, queries *db.Queries, email, password string) db.User {

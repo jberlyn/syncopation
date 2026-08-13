@@ -325,6 +325,59 @@ func (q *Queries) InsertChange(ctx context.Context, arg InsertChangeParams) (Cha
 	return i, err
 }
 
+const listItemsByUser = `-- name: ListItemsByUser :many
+SELECT items.id, items.name, items.mime_type, items.content, items.content_size, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
+JOIN user_items ON items.id = user_items.item_id
+WHERE user_items.user_id = ?
+ORDER BY items.updated_time ASC
+LIMIT ? OFFSET ?
+`
+
+type ListItemsByUserParams struct {
+	UserID string `json:"user_id"`
+	Limit  int64  `json:"limit"`
+	Offset int64  `json:"offset"`
+}
+
+func (q *Queries) ListItemsByUser(ctx context.Context, arg ListItemsByUserParams) ([]Item, error) {
+	rows, err := q.db.QueryContext(ctx, listItemsByUser, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Item
+	for rows.Next() {
+		var i Item
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.MimeType,
+			&i.Content,
+			&i.ContentSize,
+			&i.JopID,
+			&i.JopParentID,
+			&i.JopShareID,
+			&i.JopType,
+			&i.JopEncryptionApplied,
+			&i.JopUpdatedTime,
+			&i.OwnerID,
+			&i.ContentStorageID,
+			&i.CreatedTime,
+			&i.UpdatedTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listKeyValuesByType = `-- name: ListKeyValuesByType :many
 SELECT id, "key", type, value FROM key_values
 WHERE type = ?

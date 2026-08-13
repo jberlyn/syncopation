@@ -56,24 +56,26 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ---
 
-## 🚀 Current Focus
-
-### [ ] Slice 6: Batch Operations & Directory Listing (`/api/batch_items`)
-- [ ] Implement `PUT /api/batch_items` (Batch insert/update in single transaction).
-- [ ] Implement `DELETE /api/batch_items` (Batch delete in single transaction).
-- [ ] Integrate batch operations with `changes_2` event logging.
-- [ ] Implement `GET /api/items/root:/<path>/*:/children` for directory listing.
-- [ ] Write tests verifying batch operations performance and correctness.
+### [x] Slice 6: Batch Operations & Directory Listing (`/api/batch_items`)
+- [x] Implement `PUT /api/batch_items` (Batch insert/update in single transaction).
+- [x] Implement `DELETE /api/batch_items` (Batch delete in single transaction).
+- [x] Integrate batch operations with `changes_2` event logging.
+- [x] Implement `GET /api/items/root:/<path>/*:/children` for directory listing.
+- [x] Write tests verifying batch operations performance and correctness.
 
 ---
 
-## ⏳ Upcoming Slices
+## 🚀 Current Focus
 
 ### [ ] Slice 7: E2E Client Verification, Encryption & Deployment
 - [ ] Configure and test official Joplin client against the custom sync server.
 - [ ] Verify initial sync, delta sync, and E2EE note sync.
 - [ ] Create Dockerfile and `docker-compose.yml`.
 - [ ] Finalize user documentation and server administration instructions.
+
+---
+
+## ⏳ Upcoming Slices
 
 ### [ ] Slice 8: Phase 2 Discovery - Admin Management & Multi-User Support
 - [ ] Interactively design technical approach for Admin UI (SSR vs SPA vs Microservice).

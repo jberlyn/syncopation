@@ -112,3 +112,10 @@ SELECT * FROM changes_2
 WHERE user_id = ? AND counter > ?
 ORDER BY counter ASC
 LIMIT ?;
+
+-- name: ListItemsByUser :many
+SELECT items.* FROM items
+JOIN user_items ON items.id = user_items.item_id
+WHERE user_items.user_id = ?
+ORDER BY items.updated_time ASC
+LIMIT ? OFFSET ?;
