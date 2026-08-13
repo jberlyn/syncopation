@@ -67,11 +67,11 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ## 🚀 Current Focus
 
-### [ ] Slice 6.5: Observability & Structured Logging
-- [ ] Setup Go 1.21+ `log/slog` with a JSON handler globally.
-- [ ] Implement an HTTP request logger middleware.
-- [ ] Redact sensitive headers such as `Authorization` / `X-API-AUTH`.
-- [ ] Replace all standard library `log` calls with `slog` calls.
+### [x] Slice 6.5: Observability & Structured Logging
+- [x] Setup Go 1.21+ `log/slog` with a JSON handler globally.
+- [x] Implement an HTTP request logger middleware.
+- [x] Redact sensitive headers such as `Authorization` / `X-API-AUTH`.
+- [x] Replace all standard library `log` calls with `slog` calls.
 
 ### [ ] Slice 7: E2E Client Verification, Encryption & Deployment
 - [ ] Configure and test official Joplin client against the custom sync server.
