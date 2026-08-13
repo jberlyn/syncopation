@@ -56,6 +56,42 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 	return i, err
 }
 
+const createShare = `-- name: CreateShare :one
+INSERT INTO shares (
+  id, owner_id, folder_id, created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?, ?
+)
+RETURNING id, owner_id, folder_id, created_time, updated_time
+`
+
+type CreateShareParams struct {
+	ID          string `json:"id"`
+	OwnerID     string `json:"owner_id"`
+	FolderID    string `json:"folder_id"`
+	CreatedTime int64  `json:"created_time"`
+	UpdatedTime int64  `json:"updated_time"`
+}
+
+func (q *Queries) CreateShare(ctx context.Context, arg CreateShareParams) (Share, error) {
+	row := q.db.QueryRowContext(ctx, createShare,
+		arg.ID,
+		arg.OwnerID,
+		arg.FolderID,
+		arg.CreatedTime,
+		arg.UpdatedTime,
+	)
+	var i Share
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.FolderID,
+		&i.CreatedTime,
+		&i.UpdatedTime,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   id, email, password, is_admin, created_time, updated_time
@@ -89,6 +125,43 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.Password,
 		&i.IsAdmin,
+		&i.CreatedTime,
+		&i.UpdatedTime,
+	)
+	return i, err
+}
+
+const createUserShare = `-- name: CreateUserShare :one
+INSERT INTO user_shares (
+  share_id, user_id, status, created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?, ?
+)
+RETURNING id, share_id, user_id, status, created_time, updated_time
+`
+
+type CreateUserShareParams struct {
+	ShareID     string `json:"share_id"`
+	UserID      string `json:"user_id"`
+	Status      int64  `json:"status"`
+	CreatedTime int64  `json:"created_time"`
+	UpdatedTime int64  `json:"updated_time"`
+}
+
+func (q *Queries) CreateUserShare(ctx context.Context, arg CreateUserShareParams) (UserShare, error) {
+	row := q.db.QueryRowContext(ctx, createUserShare,
+		arg.ShareID,
+		arg.UserID,
+		arg.Status,
+		arg.CreatedTime,
+		arg.UpdatedTime,
+	)
+	var i UserShare
+	err := row.Scan(
+		&i.ID,
+		&i.ShareID,
+		&i.UserID,
+		&i.Status,
 		&i.CreatedTime,
 		&i.UpdatedTime,
 	)
@@ -425,6 +498,37 @@ func (q *Queries) InsertChange(ctx context.Context, arg InsertChangeParams) (Cha
 		&i.UpdatedTime,
 	)
 	return i, err
+}
+
+const insertShareTombstonesForDeletedUser = `-- name: InsertShareTombstonesForDeletedUser :exec
+INSERT INTO changes_2 (
+  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+)
+SELECT 
+  lower(hex(randomblob(16))),
+  items.id,
+  user_shares.user_id,
+  items.name,
+  items.jop_share_id,
+  items.jop_type,
+  3,
+  ?,
+  ?
+FROM items
+JOIN shares ON items.jop_share_id = shares.id
+JOIN user_shares ON shares.id = user_shares.share_id
+WHERE shares.owner_id = ?
+`
+
+type InsertShareTombstonesForDeletedUserParams struct {
+	CreatedTime int64  `json:"created_time"`
+	UpdatedTime int64  `json:"updated_time"`
+	OwnerID     string `json:"owner_id"`
+}
+
+func (q *Queries) InsertShareTombstonesForDeletedUser(ctx context.Context, arg InsertShareTombstonesForDeletedUserParams) error {
+	_, err := q.db.ExecContext(ctx, insertShareTombstonesForDeletedUser, arg.CreatedTime, arg.UpdatedTime, arg.OwnerID)
+	return err
 }
 
 const listItemsByUser = `-- name: ListItemsByUser :many

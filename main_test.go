@@ -41,7 +41,7 @@ func TestHealthCheck(t *testing.T) {
 
 func TestDatabaseSeed(t *testing.T) {
 	// Setup an in-memory database for testing
-	dbConn, err := sql.Open("sqlite3", ":memory:")
+	dbConn, err := sql.Open("sqlite3", ":memory:?_fk=1")
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -110,7 +110,7 @@ func TestSetupMux(t *testing.T) {
 	}()
 
 	cfg := config.LoadConfig()
-	dbConn, _ := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL")
+	dbConn, _ := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL&_fk=1")
 	defer dbConn.Close()
 	schema, _ := os.ReadFile("db/schema.sql")
 	_, _ = dbConn.Exec(string(schema))

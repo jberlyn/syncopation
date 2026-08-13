@@ -27,7 +27,7 @@ func setupTestApp(t *testing.T) (*http.ServeMux, *db.Queries, *sql.DB, *storage.
 	dbPath := filepath.Join(tempDir, "db.sqlite3")
 	storagePath := filepath.Join(tempDir, "storage")
 
-	dbConn, err := sql.Open("sqlite3", dbPath+"?_journal=WAL")
+	dbConn, err := sql.Open("sqlite3", dbPath+"?_journal=WAL&_fk=1")
 	if err != nil {
 		t.Fatalf("Failed to open db: %v", err)
 	}

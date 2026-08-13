@@ -114,6 +114,12 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Choose between soft deletion, cascade deletion, or background garbage collection.
 - [x] Draft approach in a design document or ADR to be implemented in a subsequent slice.
 
+### [x] Slice 8.4: Implementation - User Data Lifecycle & Deletion
+- [x] Implement schema changes to add ON DELETE CASCADE to users and shares.
+- [x] Implement tombstone generation (ghost events) for participants of deleted user's shares.
+- [x] Update StorageDriver to clean up physical files on user deletion.
+- [x] Connect admin API delete endpoint to fully purge user data (database and disk).
+
 ---
 
 ## ⏳ Upcoming Slices

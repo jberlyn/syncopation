@@ -40,7 +40,7 @@ func main() {
 	}
 
 	// Connect to SQLite DB
-	dbConn, err := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL&_busy_timeout=5000")
+	dbConn, err := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL&_fk=1&_busy_timeout=5000")
 	if err != nil {
 		slog.Error("Failed to open database", "error", err)
 		os.Exit(1)
@@ -105,7 +105,7 @@ func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *ht
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
 
 	// Admin UI Routes
-	adminHandler := &api.AdminHandler{Queries: queries}
+	adminHandler := &api.AdminHandler{Queries: queries, Storage: localFS}
 
 	// Create a sub-router for admin routes so we can apply the middleware to all of them easily.
 	// Since Go 1.22 mux doesn't easily let us apply middleware to a prefix without stripping or matching exactly,

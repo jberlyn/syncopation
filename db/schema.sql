@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     auth_code VARCHAR(32) DEFAULT '' NOT NULL,
     created_time BIGINT NOT NULL,
     updated_time BIGINT NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 3. Storage Driver Registry
@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS items (
     owner_id VARCHAR(32) NOT NULL,
     content_storage_id INTEGER DEFAULT 1 NOT NULL,
     created_time BIGINT NOT NULL,
-    updated_time BIGINT NOT NULL
+    updated_time BIGINT NOT NULL,
+    FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_items_jop_id ON items(jop_id);
 CREATE INDEX IF NOT EXISTS idx_items_name ON items(name);
@@ -52,7 +53,8 @@ CREATE TABLE IF NOT EXISTS user_items (
     item_id VARCHAR(32) NOT NULL,
     created_time BIGINT NOT NULL,
     updated_time BIGINT NOT NULL,
-    UNIQUE(user_id, item_id)
+    UNIQUE(user_id, item_id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_user_items_user_id ON user_items(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_items_item_id ON user_items(item_id);
@@ -69,7 +71,8 @@ CREATE TABLE IF NOT EXISTS changes_2 (
     type INTEGER NOT NULL,
     created_time BIGINT NOT NULL,
     updated_time BIGINT NOT NULL,
-    UNIQUE(user_id, counter)
+    UNIQUE(user_id, counter),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_changes2_item_id ON changes_2(item_id);
 
@@ -89,7 +92,7 @@ CREATE TABLE IF NOT EXISTS shares (
     folder_id VARCHAR(32) NOT NULL,
     created_time BIGINT NOT NULL,
     updated_time BIGINT NOT NULL,
-    FOREIGN KEY(owner_id) REFERENCES users(id)
+    FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user_shares (
@@ -100,8 +103,8 @@ CREATE TABLE IF NOT EXISTS user_shares (
     created_time BIGINT NOT NULL,
     updated_time BIGINT NOT NULL,
     UNIQUE(share_id, user_id),
-    FOREIGN KEY(share_id) REFERENCES shares(id),
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    FOREIGN KEY(share_id) REFERENCES shares(id) ON DELETE CASCADE,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_user_shares_user_id ON user_shares(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_shares_share_id ON user_shares(share_id);

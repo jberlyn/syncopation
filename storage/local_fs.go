@@ -42,3 +42,7 @@ func (fs *LocalFS) DeleteItem(ctx context.Context, userID, itemName string) erro
 	}
 	return err
 }
+
+func (fs *LocalFS) DeleteUser(ctx context.Context, userID string) error {
+	return os.RemoveAll(fs.userDir(userID))
+}

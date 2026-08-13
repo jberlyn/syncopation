@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/joplin-sync/storage"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -31,6 +32,7 @@ func init() {
 
 type AdminHandler struct {
 	Queries *db.Queries
+	Storage storage.Storage
 }
 
 type UserContextKey string
@@ -331,7 +333,25 @@ func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request)
 
 	user, err := h.Queries.GetUser(r.Context(), id)
 	if err == nil && user.IsAdmin == 0 {
-		_ = h.Queries.DeleteUser(r.Context(), id)
+		now := time.Now().UnixMilli()
+		err := h.Queries.InsertShareTombstonesForDeletedUser(r.Context(), db.InsertShareTombstonesForDeletedUserParams{
+			CreatedTime: now,
+			UpdatedTime: now,
+			OwnerID:     id,
+		})
+		if err != nil {
+			slog.Error("Failed to insert share tombstones", "error", err)
+		}
+		err = h.Queries.DeleteUser(r.Context(), id)
+		if err != nil {
+			slog.Error("Failed to delete user", "error", err)
+		}
+		if h.Storage != nil {
+			err = h.Storage.DeleteUser(r.Context(), id)
+			if err != nil {
+				slog.Error("Failed to delete user storage", "error", err)
+			}
+		}
 	}
 
 	userStats, _ := h.Queries.GetUserStats(r.Context())

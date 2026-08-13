@@ -12,13 +12,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/joplin-sync/api"
 	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/joplin-sync/storage"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func TestAdminUI(t *testing.T) {
 	queries := setupTestDB(t)
 
-	adminHandler := &api.AdminHandler{Queries: queries}
+	store := storage.NewLocalFS(t.TempDir())
+	adminHandler := &api.AdminHandler{Queries: queries, Storage: store}
 
 	// Setup mux
 	mux := http.NewServeMux()

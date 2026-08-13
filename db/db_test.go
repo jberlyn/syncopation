@@ -12,7 +12,7 @@ import (
 )
 
 func setupDB(t *testing.T) (*Queries, *sql.DB) {
-	dbConn, err := sql.Open("sqlite3", ":memory:")
+	dbConn, err := sql.Open("sqlite3", ":memory:?_fk=1")
 	if err != nil {
 		t.Fatalf("Failed to open DB: %v", err)
 	}
@@ -68,6 +68,7 @@ func TestQueries(t *testing.T) {
 		JopType:              1,
 		JopEncryptionApplied: 0,
 		JopUpdatedTime:       100,
+		OwnerID:              userID,
 		UpdatedTime:          100,
 		CreatedTime:          100,
 	})

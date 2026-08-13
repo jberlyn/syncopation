@@ -19,7 +19,7 @@ import (
 )
 
 func setupTestDBConn(t *testing.T) (*sql.DB, *db.Queries) {
-	dbConn, err := sql.Open("sqlite3", ":memory:")
+	dbConn, err := sql.Open("sqlite3", ":memory:?_fk=1")
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}

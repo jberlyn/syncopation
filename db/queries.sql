@@ -149,3 +149,38 @@ FROM users
 LEFT JOIN user_items ON users.id = user_items.user_id
 GROUP BY users.id, users.email, users.is_admin, users.created_time
 ORDER BY users.created_time ASC;
+
+-- name: InsertShareTombstonesForDeletedUser :exec
+INSERT INTO changes_2 (
+  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+)
+SELECT 
+  lower(hex(randomblob(16))),
+  items.id,
+  user_shares.user_id,
+  items.name,
+  items.jop_share_id,
+  items.jop_type,
+  3,
+  ?,
+  ?
+FROM items
+JOIN shares ON items.jop_share_id = shares.id
+JOIN user_shares ON shares.id = user_shares.share_id
+WHERE shares.owner_id = ?;
+
+-- name: CreateShare :one
+INSERT INTO shares (
+  id, owner_id, folder_id, created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?, ?
+)
+RETURNING *;
+
+-- name: CreateUserShare :one
+INSERT INTO user_shares (
+  share_id, user_id, status, created_time, updated_time
+) VALUES (
+  ?, ?, ?, ?, ?
+)
+RETURNING *;
