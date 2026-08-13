@@ -1,0 +1,82 @@
+# Joplin Sync Server: Progress Tracker
+
+This document tracks the progress of the custom Joplin Sync Server implementation based on the `foundation_plan.md`.
+
+## ✅ Completed Slices
+
+### [x] Slice 0: Tech Stack & Storage Strategy Selection
+- [x] Compare language options, web frameworks, and storage driver options.
+- [x] Evaluate Database Engine (SQLite vs PostgreSQL).
+- [x] Create Architectural Decision Record (`adr_tech_stack.md`).
+
+### [x] Slice 0.5: Architecture & Design Principles
+- [x] Establish Service/Repository pattern.
+- [x] Define Dependency Injection strategies.
+- [x] Outline testing strategy and TDD workflow.
+- [x] Ensure forward-compatibility for Phase 2 (Admin UI, RBAC, Multi-User Sharing).
+- [x] Create Architectural Decision Record (`adr_architecture_patterns.md`).
+
+### [x] Slice 1: Project Setup, DB Schema & Environment
+- [x] Initialize project and dependency management.
+- [x] Implement configuration loader (env vars / YAML) and logging.
+- [x] Setup DB connection pool & migration runner for the 7 essential tables (`users`, `sessions`, `storages`, `items`, `user_items`, `changes_2`, `key_values`).
+- [x] Create seed CLI command/utility to initialize an admin user.
+- [x] Implement `GET /api/ping` health check endpoint.
+- [x] Write unit/integration tests for setup and health check.
+
+### [x] Slice 2: Authentication & Session Management
+- [x] Design auth service and session token generator.
+- [x] Implement `POST /api/sessions` (Login).
+- [x] Implement `DELETE /api/sessions/:id` (Logout).
+- [x] Implement `AuthMiddleware` to validate `X-API-AUTH` header.
+- [x] Write automated tests for login, logout, and token authorization.
+
+---
+
+## 🚀 Current Focus
+
+### [ ] Slice 3: Concurrency Lock Management Engine (`/api/locks`)
+- [ ] Design lock manager using `key_values` table / memory fallback.
+- [ ] Implement `POST /api/locks` (Acquire Sync and Exclusive locks).
+- [ ] Implement `DELETE /api/locks/:id` (Release lock).
+- [ ] Implement `GET /api/locks` (List active locks).
+- [ ] Implement lock expiration / TTL check.
+- [ ] Write integration tests for acquiring and releasing locks.
+
+---
+
+## ⏳ Upcoming Slices
+
+### [ ] Slice 4: Item Storage Engine & Core CRUD API (`/api/items`)
+- [ ] Implement Joplin URL path parser for `root:/<path>:` syntax.
+- [ ] Implement Storage Driver (DB BLOB or Local Disk based on ADR).
+- [ ] Implement `GET /api/items/root:/<path>:` (Get item stat metadata).
+- [ ] Implement `GET /api/items/root:/<path>:/content` (Get raw item content).
+- [ ] Implement `PUT /api/items/root:/<path>:/content` (Create/Update item).
+- [ ] Implement `DELETE /api/items/root:/<path>:` (Delete item).
+- [ ] Write tests verifying CRUD operations.
+
+### [ ] Slice 5: Change Event Log & Delta Sync Engine (`changes_2`)
+- [ ] Implement change tracking hook on item create, update, and delete.
+- [ ] Log events (Create=1, Update=2, Delete=3) in `changes_2` with counter.
+- [ ] Implement `GET /api/items/root:/<path>:/delta` with cursor pagination.
+- [ ] Write integration tests for delta sync and cursor progression.
+
+### [ ] Slice 6: Batch Operations & Directory Listing (`/api/batch_items`)
+- [ ] Implement `PUT /api/batch_items` (Batch insert/update in single transaction).
+- [ ] Implement `DELETE /api/batch_items` (Batch delete in single transaction).
+- [ ] Integrate batch operations with `changes_2` event logging.
+- [ ] Implement `GET /api/items/root:/<path>/*:/children` for directory listing.
+- [ ] Write tests verifying batch operations performance and correctness.
+
+### [ ] Slice 7: E2E Client Verification, Encryption & Deployment
+- [ ] Configure and test official Joplin client against the custom sync server.
+- [ ] Verify initial sync, delta sync, and E2EE note sync.
+- [ ] Create Dockerfile and `docker-compose.yml`.
+- [ ] Finalize user documentation and server administration instructions.
+
+### [ ] Slice 8: Phase 2 Discovery - Admin Management & Multi-User Support
+- [ ] Interactively design technical approach for Admin UI (SSR vs SPA vs Microservice).
+- [ ] Design Role-Based Access Control (RBAC) strategy.
+- [ ] Architect data model extensions for multi-user notebook sharing.
+- [ ] Create Architectural Decision Record (`adr_phase2_admin_sharing.md`).
