@@ -132,6 +132,16 @@ func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 	return err
 }
 
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = ?
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
 const deleteUserItem = `-- name: DeleteUserItem :exec
 DELETE FROM user_items
 WHERE user_id = ? AND item_id = ?
@@ -192,6 +202,24 @@ func (q *Queries) GetChangesByUser(ctx context.Context, arg GetChangesByUserPara
 		return nil, err
 	}
 	return items, nil
+}
+
+const getInstanceStats = `-- name: GetInstanceStats :one
+SELECT 
+  (SELECT COUNT(*) FROM users) as total_users,
+  (SELECT COUNT(*) FROM items) as total_items
+`
+
+type GetInstanceStatsRow struct {
+	TotalUsers int64 `json:"total_users"`
+	TotalItems int64 `json:"total_items"`
+}
+
+func (q *Queries) GetInstanceStats(ctx context.Context) (GetInstanceStatsRow, error) {
+	row := q.db.QueryRowContext(ctx, getInstanceStats)
+	var i GetInstanceStatsRow
+	err := row.Scan(&i.TotalUsers, &i.TotalItems)
+	return i, err
 }
 
 const getItemByNameAndUser = `-- name: GetItemByNameAndUser :one
@@ -298,6 +326,56 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.UpdatedTime,
 	)
 	return i, err
+}
+
+const getUserStats = `-- name: GetUserStats :many
+SELECT 
+  users.id as user_id, 
+  users.email,
+  users.is_admin,
+  users.created_time,
+  COUNT(user_items.item_id) as total_items
+FROM users
+LEFT JOIN user_items ON users.id = user_items.user_id
+GROUP BY users.id, users.email, users.is_admin, users.created_time
+ORDER BY users.created_time ASC
+`
+
+type GetUserStatsRow struct {
+	UserID      string `json:"user_id"`
+	Email       string `json:"email"`
+	IsAdmin     int64  `json:"is_admin"`
+	CreatedTime int64  `json:"created_time"`
+	TotalItems  int64  `json:"total_items"`
+}
+
+func (q *Queries) GetUserStats(ctx context.Context) ([]GetUserStatsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserStats)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserStatsRow
+	for rows.Next() {
+		var i GetUserStatsRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Email,
+			&i.IsAdmin,
+			&i.CreatedTime,
+			&i.TotalItems,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertChange = `-- name: InsertChange :one
@@ -419,6 +497,41 @@ func (q *Queries) ListKeyValuesByType(ctx context.Context, type_ int64) ([]KeyVa
 			&i.Key,
 			&i.Type,
 			&i.Value,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, email, password, is_admin, created_time, updated_time FROM users
+ORDER BY created_time ASC
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Password,
+			&i.IsAdmin,
+			&i.CreatedTime,
+			&i.UpdatedTime,
 		); err != nil {
 			return nil, err
 		}

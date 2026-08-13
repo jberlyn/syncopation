@@ -124,3 +124,28 @@ SELECT COUNT(*) FROM users;
 -- name: GetUser :one
 SELECT * FROM users
 WHERE id = ? LIMIT 1;
+
+-- name: ListUsers :many
+SELECT * FROM users
+ORDER BY created_time ASC;
+
+-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = ?;
+
+-- name: GetInstanceStats :one
+SELECT 
+  (SELECT COUNT(*) FROM users) as total_users,
+  (SELECT COUNT(*) FROM items) as total_items;
+
+-- name: GetUserStats :many
+SELECT 
+  users.id as user_id, 
+  users.email,
+  users.is_admin,
+  users.created_time,
+  COUNT(user_items.item_id) as total_items
+FROM users
+LEFT JOIN user_items ON users.id = user_items.user_id
+GROUP BY users.id, users.email, users.is_admin, users.created_time
+ORDER BY users.created_time ASC;

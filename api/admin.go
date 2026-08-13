@@ -23,7 +23,8 @@ func init() {
 	layout := template.Must(template.ParseFS(templatesFS, "templates/layout.html"))
 	templates["setup.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/setup.html"))
 	templates["login.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/login.html"))
-	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html"))
+	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html", "templates/user_list.html"))
+	templates["user_list.html"] = template.Must(template.ParseFS(templatesFS, "templates/user_list.html"))
 }
 
 type AdminHandler struct {
@@ -241,7 +242,67 @@ func (h *AdminHandler) HandleDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := r.Context().Value(AdminUserKey).(db.User)
+
+	stats, _ := h.Queries.GetInstanceStats(r.Context())
+	userStats, _ := h.Queries.GetUserStats(r.Context())
+
 	_ = templates["dashboard.html"].ExecuteTemplate(w, "base", map[string]interface{}{
-		"User": user,
+		"User":      user,
+		"Stats":     stats,
+		"UserStats": userStats,
+	})
+}
+
+func (h *AdminHandler) HandleUsersPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	_ = r.ParseForm()
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+
+	if email != "" && password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err == nil {
+			now := time.Now().UnixMilli()
+			_, _ = h.Queries.CreateUser(r.Context(), db.CreateUserParams{
+				ID:          uuid.New().String(),
+				Email:       email,
+				Password:    string(hashedPassword),
+				IsAdmin:     0,
+				CreatedTime: now,
+				UpdatedTime: now,
+			})
+		}
+	}
+
+	userStats, _ := h.Queries.GetUserStats(r.Context())
+	_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
+		"UserStats": userStats,
+	})
+}
+
+func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 4 {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	id := parts[3]
+
+	user, err := h.Queries.GetUser(r.Context(), id)
+	if err == nil && user.IsAdmin == 0 {
+		_ = h.Queries.DeleteUser(r.Context(), id)
+	}
+
+	userStats, _ := h.Queries.GetUserStats(r.Context())
+	_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
+		"UserStats": userStats,
 	})
 }

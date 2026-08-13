@@ -119,6 +119,9 @@ func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *ht
 	mux.Handle("GET /admin", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleDashboard)))
 	mux.Handle("GET /admin/", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleDashboard)))
 
+	mux.Handle("POST /admin/users", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleUsersPost)))
+	mux.Handle("DELETE /admin/users/{id}", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleUsersDelete)))
+
 	return mux
 }
 

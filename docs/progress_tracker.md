@@ -100,11 +100,11 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ## 🚀 Current Focus
 
-### [ ] Slice 8.2: Phase 2 Implementation - Admin Dashboard (User Management & Statistics)
-- [ ] Implement user list view in the admin dashboard.
-- [ ] Implement user creation and deletion functionality for the admin.
-- [ ] Implement basic instance statistics on the admin dashboard (e.g., total items, total active sessions).
-- [ ] Ensure HTMX is utilized for dynamic interactions without full page reloads.
+### [x] Slice 8.2: Phase 2 Implementation - Admin Dashboard (User Management & Statistics)
+- [x] Implement user list view in the admin dashboard.
+- [x] Implement user creation and deletion functionality for the admin.
+- [x] Implement basic instance statistics on the admin dashboard (e.g., total items, total active sessions).
+- [x] Ensure HTMX is utilized for dynamic interactions without full page reloads.
 
 ---
 
