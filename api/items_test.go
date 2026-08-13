@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/joplin-sync/api"
 	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/joplin-sync/storage"
 )
 
 func TestParseItemPath(t *testing.T) {
@@ -42,8 +43,9 @@ func TestParseItemPath(t *testing.T) {
 
 func TestItemCRUD(t *testing.T) {
 	queries := setupTestDB(t)
+	localFS := storage.NewLocalFS(t.TempDir())
 	authHandler := &api.AuthHandler{Queries: queries}
-	itemHandler := &api.ItemHandler{Queries: queries}
+	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
@@ -158,8 +160,9 @@ func TestItemCRUD(t *testing.T) {
 
 func TestDeltaSync(t *testing.T) {
 	queries := setupTestDB(t)
+	localFS := storage.NewLocalFS(t.TempDir())
 	authHandler := &api.AuthHandler{Queries: queries}
-	itemHandler := &api.ItemHandler{Queries: queries}
+	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
@@ -265,8 +268,9 @@ func TestDeltaSync(t *testing.T) {
 
 func TestDirectoryChildren(t *testing.T) {
 	queries := setupTestDB(t)
+	localFS := storage.NewLocalFS(t.TempDir())
 	authHandler := &api.AuthHandler{Queries: queries}
-	itemHandler := &api.ItemHandler{Queries: queries}
+	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))

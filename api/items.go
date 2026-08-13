@@ -11,10 +11,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/joplin-sync/storage"
 )
 
 type ItemHandler struct {
 	Queries *db.Queries
+	Storage storage.Storage
 }
 
 type ItemMetadataResponse struct {
@@ -156,8 +158,14 @@ func (h *ItemHandler) handleGetContent(w http.ResponseWriter, r *http.Request, u
 		return
 	}
 
+	content, err := h.Storage.ReadItem(r.Context(), userID, itemName)
+	if err != nil {
+		http.Error(w, "Failed to read content", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", item.MimeType)
-	_, _ = w.Write(item.Content)
+	_, _ = w.Write(content)
 }
 
 func (h *ItemHandler) handleGetDelta(w http.ResponseWriter, r *http.Request, userID string) {
@@ -300,12 +308,15 @@ func (h *ItemHandler) handlePutContent(w http.ResponseWriter, r *http.Request, u
 		contentType = "application/octet-stream"
 	}
 
+	if err := h.Storage.WriteItem(r.Context(), userID, itemName, content); err != nil {
+		http.Error(w, "Failed to save item content", http.StatusInternalServerError)
+		return
+	}
+
 	item, err := h.Queries.UpsertItem(r.Context(), db.UpsertItemParams{
 		ID:                   itemID,
 		Name:                 itemName,
 		MimeType:             contentType,
-		Content:              content,
-		ContentSize:          int64(len(content)),
 		JopID:                "",
 		JopParentID:          "",
 		JopShareID:           "",
@@ -410,6 +421,8 @@ func (h *ItemHandler) handleDelete(w http.ResponseWriter, r *http.Request, userI
 		http.Error(w, "Failed to log change", http.StatusInternalServerError)
 		return
 	}
+
+	_ = h.Storage.DeleteItem(r.Context(), userID, itemName)
 
 	w.WriteHeader(http.StatusOK)
 }

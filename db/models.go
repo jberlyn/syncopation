@@ -21,8 +21,6 @@ type Item struct {
 	ID                   string `json:"id"`
 	Name                 string `json:"name"`
 	MimeType             string `json:"mime_type"`
-	Content              []byte `json:"content"`
-	ContentSize          int64  `json:"content_size"`
 	JopID                string `json:"jop_id"`
 	JopParentID          string `json:"jop_parent_id"`
 	JopShareID           string `json:"jop_share_id"`

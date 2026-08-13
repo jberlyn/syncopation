@@ -26,24 +26,19 @@ As we begin implementing the custom Joplin Sync Server (Slice 0.5), we need to e
   - **Integration Testing (Repositories):** We will test database queries against a real SQLite database running in memory (`:memory:`) to ensure SQL correctness without touching the disk.
   - **End-to-End Testing (E2E):** We will test our HTTP endpoints directly using Go's built-in `net/http/httptest` package to simulate HTTP requests against our router without starting a real TCP server.
 
-### 4. Project Structure (Layered Architecture)
-- **Decision:** The project will be organized by technical concerns (Layered Architecture).
-- **Rationale:** Grouping by type is straightforward and keeps the project organized for the scale of this custom server.
+### 4. Project Structure (Idiomatic Go Flat Architecture)
+- **Decision:** The project will be organized using a flat, domain-oriented structure at the root, typical of small-to-medium Go applications.
+- **Rationale:** While originally planned to use nested layered architecture (`internal/repositories`, `internal/services`, `internal/http`), this is often considered over-engineering in Go. Instead, we embrace simplicity: HTTP handlers directly utilize `sqlc` generated code (`db.Queries`) for database interaction. Interfaces are introduced only when polymorphism is strictly needed (e.g., swapping out the Storage Engine).
 
-#### Proposed Directory Layout:
+#### Directory Layout:
 ```text
 joplin-sync/
-├── cmd/server/           # Application entry points
-│   └── main.go           # DI Composition Root and server startup
-├── internal/             # Private application code (Go convention)
-│   ├── core/             # Shared domain models, types, custom errors
-│   ├── db/               # sqlc generated code, schema definitions, and migrations
-│   ├── storage/          # Storage driver implementations (e.g., Local FS)
-│   ├── repositories/     # Data access layer (e.g., UserRepository, ItemRepository)
-│   ├── services/         # Business logic layer (e.g., AuthService, SyncService)
-│   └── http/             # Transport layer (Standard library route handlers & middleware)
-└── tests/
-    ├── unit/             # Isolated unit tests for services with mocked dependencies
-    ├── integration/      # Repository tests using in-memory SQLite
-    └── e2e/              # API tests simulating client HTTP requests using httptest
+├── api/             # HTTP route handlers (AuthHandler, ItemHandler)
+├── cmd/             # Obsolete/Empty - we keep main.go at root
+├── db/              # sqlc generated code, schema definitions, and queries
+├── docs/            # Architecture decision records and plans
+├── models/          # Shared domain models
+├── storage/         # Storage driver implementations (Local FS)
+├── main.go          # Application entry point and Dependency Injection root
+└── ...
 ```

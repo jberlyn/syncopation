@@ -32,8 +32,6 @@ CREATE TABLE IF NOT EXISTS items (
     id VARCHAR(32) PRIMARY KEY,
     name TEXT NOT NULL,
     mime_type VARCHAR(128) DEFAULT 'application/octet-stream' NOT NULL,
-    content BLOB DEFAULT '' NOT NULL,
-    content_size INTEGER DEFAULT 0 NOT NULL,
     jop_id VARCHAR(32) DEFAULT '' NOT NULL,
     jop_parent_id VARCHAR(32) DEFAULT '' NOT NULL,
     jop_share_id VARCHAR(32) DEFAULT '' NOT NULL,

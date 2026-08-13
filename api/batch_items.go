@@ -9,11 +9,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/joplin-sync/storage"
 )
 
 type BatchItemHandler struct {
 	Queries *db.Queries
 	DB      *sql.DB
+	Storage storage.Storage
 }
 
 type BatchPutRequest struct {
@@ -113,12 +115,16 @@ func (h *BatchItemHandler) handlePutBatch(w http.ResponseWriter, r *http.Request
 			changeType = 2 // Update
 		}
 
+		if err := h.Storage.WriteItem(ctx, userID, itemName, content); err != nil {
+			errStr := err.Error()
+			results[itemName] = BatchPutResult{Error: &errStr}
+			continue
+		}
+
 		item, err := qtx.UpsertItem(ctx, db.UpsertItemParams{
 			ID:                   itemID,
 			Name:                 itemName,
 			MimeType:             "text/plain", // Default to text/plain for batch notes
-			Content:              content,
-			ContentSize:          int64(len(content)),
 			JopID:                "",
 			JopParentID:          "",
 			JopShareID:           "",
@@ -260,6 +266,8 @@ func (h *BatchItemHandler) handleDeleteBatch(w http.ResponseWriter, r *http.Requ
 		if err != nil {
 			continue
 		}
+
+		_ = h.Storage.DeleteItem(ctx, userID, itemName)
 
 		results[itemName] = struct{}{}
 	}

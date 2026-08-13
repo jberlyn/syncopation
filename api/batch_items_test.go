@@ -12,12 +12,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/joplin-sync/api"
 	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/joplin-sync/storage"
 )
 
 func TestBatchOperations(t *testing.T) {
 	dbConn, queries := setupTestDBConn(t)
+	localFS := storage.NewLocalFS(t.TempDir())
 	authHandler := &api.AuthHandler{Queries: queries}
-	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn}
+	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn, Storage: localFS}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))

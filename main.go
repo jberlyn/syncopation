@@ -16,6 +16,7 @@ import (
 	"github.com/jberlyn/joplin-sync/api"
 	"github.com/jberlyn/joplin-sync/config"
 	"github.com/jberlyn/joplin-sync/db"
+	"github.com/jberlyn/joplin-sync/storage"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -58,6 +59,8 @@ func main() {
 	}
 
 	queries := db.New(dbConn)
+	dataDir := filepath.Join(filepath.Dir(cfg.DBPath), "data")
+	localFS := storage.NewLocalFS(dataDir)
 
 	if *seedFlag {
 		seedUser(queries, *emailFlag, *passwordFlag)
@@ -83,10 +86,10 @@ func main() {
 	mux.Handle("DELETE /api/locks/{id}", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ReleaseLock)))
 	mux.Handle("GET /api/locks", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ListLocks)))
 
-	itemHandler := &api.ItemHandler{Queries: queries}
+	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
 
-	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn}
+	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn, Storage: localFS}
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
 
 	slog.Info("Server listening", "port", cfg.Port)

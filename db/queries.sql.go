@@ -187,7 +187,7 @@ func (q *Queries) GetChangesByUser(ctx context.Context, arg GetChangesByUserPara
 }
 
 const getItemByNameAndUser = `-- name: GetItemByNameAndUser :one
-SELECT items.id, items.name, items.mime_type, items.content, items.content_size, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
+SELECT items.id, items.name, items.mime_type, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
 JOIN user_items ON items.id = user_items.item_id
 WHERE items.name = ? AND user_items.user_id = ?
 LIMIT 1
@@ -205,8 +205,6 @@ func (q *Queries) GetItemByNameAndUser(ctx context.Context, arg GetItemByNameAnd
 		&i.ID,
 		&i.Name,
 		&i.MimeType,
-		&i.Content,
-		&i.ContentSize,
 		&i.JopID,
 		&i.JopParentID,
 		&i.JopShareID,
@@ -326,7 +324,7 @@ func (q *Queries) InsertChange(ctx context.Context, arg InsertChangeParams) (Cha
 }
 
 const listItemsByUser = `-- name: ListItemsByUser :many
-SELECT items.id, items.name, items.mime_type, items.content, items.content_size, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
+SELECT items.id, items.name, items.mime_type, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
 JOIN user_items ON items.id = user_items.item_id
 WHERE user_items.user_id = ?
 ORDER BY items.updated_time ASC
@@ -352,8 +350,6 @@ func (q *Queries) ListItemsByUser(ctx context.Context, arg ListItemsByUserParams
 			&i.ID,
 			&i.Name,
 			&i.MimeType,
-			&i.Content,
-			&i.ContentSize,
 			&i.JopID,
 			&i.JopParentID,
 			&i.JopShareID,
@@ -443,17 +439,15 @@ func (q *Queries) SetKeyValue(ctx context.Context, arg SetKeyValueParams) (KeyVa
 
 const upsertItem = `-- name: UpsertItem :one
 INSERT INTO items (
-  id, name, mime_type, content, content_size, jop_id, jop_parent_id, jop_share_id,
+  id, name, mime_type, jop_id, jop_parent_id, jop_share_id,
   jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id,
   created_time, updated_time
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 ON CONFLICT(id) DO UPDATE SET
   name = excluded.name,
   mime_type = excluded.mime_type,
-  content = excluded.content,
-  content_size = excluded.content_size,
   jop_id = excluded.jop_id,
   jop_parent_id = excluded.jop_parent_id,
   jop_share_id = excluded.jop_share_id,
@@ -463,15 +457,13 @@ ON CONFLICT(id) DO UPDATE SET
   owner_id = excluded.owner_id,
   content_storage_id = excluded.content_storage_id,
   updated_time = excluded.updated_time
-RETURNING id, name, mime_type, content, content_size, jop_id, jop_parent_id, jop_share_id, jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id, created_time, updated_time
+RETURNING id, name, mime_type, jop_id, jop_parent_id, jop_share_id, jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id, created_time, updated_time
 `
 
 type UpsertItemParams struct {
 	ID                   string `json:"id"`
 	Name                 string `json:"name"`
 	MimeType             string `json:"mime_type"`
-	Content              []byte `json:"content"`
-	ContentSize          int64  `json:"content_size"`
 	JopID                string `json:"jop_id"`
 	JopParentID          string `json:"jop_parent_id"`
 	JopShareID           string `json:"jop_share_id"`
@@ -489,8 +481,6 @@ func (q *Queries) UpsertItem(ctx context.Context, arg UpsertItemParams) (Item, e
 		arg.ID,
 		arg.Name,
 		arg.MimeType,
-		arg.Content,
-		arg.ContentSize,
 		arg.JopID,
 		arg.JopParentID,
 		arg.JopShareID,
@@ -507,8 +497,6 @@ func (q *Queries) UpsertItem(ctx context.Context, arg UpsertItemParams) (Item, e
 		&i.ID,
 		&i.Name,
 		&i.MimeType,
-		&i.Content,
-		&i.ContentSize,
 		&i.JopID,
 		&i.JopParentID,
 		&i.JopShareID,

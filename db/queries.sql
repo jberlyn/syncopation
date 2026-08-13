@@ -51,17 +51,15 @@ WHERE type = ?;
 
 -- name: UpsertItem :one
 INSERT INTO items (
-  id, name, mime_type, content, content_size, jop_id, jop_parent_id, jop_share_id,
+  id, name, mime_type, jop_id, jop_parent_id, jop_share_id,
   jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id,
   created_time, updated_time
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 ON CONFLICT(id) DO UPDATE SET
   name = excluded.name,
   mime_type = excluded.mime_type,
-  content = excluded.content,
-  content_size = excluded.content_size,
   jop_id = excluded.jop_id,
   jop_parent_id = excluded.jop_parent_id,
   jop_share_id = excluded.jop_share_id,
