@@ -99,3 +99,7 @@ go build -o syncopation .
 Syncopation uses Go's standard `testing` package.
 - **Unit & Integration Tests**: Run with `go test ./...`
 - **E2E Tests**: Use `net/http/httptest` via `go test ./api/...`
+
+## AI Disclosure
+
+This project was built with the assistance of AI tooling such as Antigravity following a Research, Plan, Implement strategy.
