@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -30,6 +31,12 @@ func main() {
 	// Configure global slog to use JSON, similar to Node's pino
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
+
+	// Ensure the parent directory for the database exists
+	if err := os.MkdirAll(filepath.Dir(cfg.DBPath), 0755); err != nil {
+		slog.Error("Failed to create database directory", "error", err)
+		os.Exit(1)
+	}
 
 	// Connect to SQLite DB
 	dbConn, err := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL&_busy_timeout=5000")
