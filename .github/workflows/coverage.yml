@@ -1,0 +1,64 @@
+name: Code Coverage Badge
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Run tests with coverage
+        run: |
+          go test -coverpkg=./... -coverprofile=coverage.out ./...
+
+      - name: Generate coverage.json
+        run: |
+          PERCENT=$(go tool cover -func=coverage.out | awk '/total:/ {print $3}' | sed 's/%//')
+          echo "Coverage: ${PERCENT}%"
+          awk -v pct="$PERCENT" 'BEGIN {
+            p = pct + 0;
+            if (p >= 90) color = "brightgreen";
+            else if (p >= 80) color = "green";
+            else if (p >= 70) color = "yellowgreen";
+            else if (p >= 60) color = "yellow";
+            else if (p >= 50) color = "orange";
+            else color = "red";
+
+            printf "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"%.1f%%\",\"color\":\"%s\"}\n", p, color;
+          }' > coverage.json
+
+      - name: Deploy coverage.json to badges branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          mkdir -p /tmp/badge
+          cp coverage.json /tmp/badge/coverage.json
+
+          git fetch origin badges:badges || true
+          git checkout badges 2>/dev/null || git checkout --orphan badges
+
+          git rm -rf . 2>/dev/null || true
+          cp /tmp/badge/coverage.json .
+          git add coverage.json
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Update coverage badge"
+            git push origin badges
+          else
+            echo "No changes to coverage badge."
+          fi
