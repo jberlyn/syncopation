@@ -50,21 +50,21 @@ func (h *AdminHandler) AdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		if count == 0 {
-			if r.URL.Path != "/admin/setup" {
-				http.Redirect(w, r, "/admin/setup", http.StatusFound)
+			if r.URL.Path != "/setup" {
+				http.Redirect(w, r, "/setup", http.StatusFound)
 				return
 			}
 			next.ServeHTTP(w, r)
 			return
 		} else {
-			if r.URL.Path == "/admin/setup" {
-				http.Redirect(w, r, "/admin", http.StatusFound)
+			if r.URL.Path == "/setup" {
+				http.Redirect(w, r, "/", http.StatusFound)
 				return
 			}
 		}
 
 		// Allow login page to bypass auth check
-		if r.URL.Path == "/admin/login" {
+		if r.URL.Path == "/login" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -72,7 +72,7 @@ func (h *AdminHandler) AdminMiddleware(next http.Handler) http.Handler {
 		// 2. Check for session cookie
 		cookie, err := r.Cookie("admin_session")
 		if err != nil || cookie.Value == "" {
-			http.Redirect(w, r, "/admin/login", http.StatusFound)
+			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
 
@@ -80,7 +80,7 @@ func (h *AdminHandler) AdminMiddleware(next http.Handler) http.Handler {
 		session, err := h.Queries.GetSession(r.Context(), cookie.Value)
 		if err != nil {
 			http.SetCookie(w, &http.Cookie{Name: "admin_session", Value: "", MaxAge: -1, Path: "/"})
-			http.Redirect(w, r, "/admin/login", http.StatusFound)
+			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
 
@@ -168,7 +168,7 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	http.Redirect(w, r, "/admin", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (h *AdminHandler) HandleLoginGet(w http.ResponseWriter, r *http.Request) {
@@ -222,7 +222,7 @@ func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	http.Redirect(w, r, "/admin", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (h *AdminHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
@@ -238,7 +238,7 @@ func (h *AdminHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-	http.Redirect(w, r, "/admin/login", http.StatusFound)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 func (h *AdminHandler) HandleDashboard(w http.ResponseWriter, r *http.Request) {
@@ -326,12 +326,17 @@ func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) < 4 {
+	id := r.PathValue("id")
+	if id == "" {
+		parts := strings.Split(r.URL.Path, "/")
+		if len(parts) > 0 {
+			id = parts[len(parts)-1]
+		}
+	}
+	if id == "" {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	id := parts[3]
 
 	user, err := h.Queries.GetUser(r.Context(), id)
 	if err == nil && user.IsAdmin == 0 {

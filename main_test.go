@@ -19,12 +19,12 @@ import (
 
 func TestHealthCheck(t *testing.T) {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/ping", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/api/ping", nil)
+	req := httptest.NewRequest("GET", "/api/health", nil)
 	rr := httptest.NewRecorder()
 
 	mux.ServeHTTP(rr, req)

@@ -140,7 +140,7 @@ func TestUserDeletionCascade(t *testing.T) {
 	}
 
 	// Make HTTP request to delete User A
-	req := httptest.NewRequest(http.MethodDelete, "/admin/users/"+userAID, nil)
+	req := httptest.NewRequest(http.MethodDelete, "/users/"+userAID, nil)
 	// Add admin to context
 	req = req.WithContext(context.WithValue(req.Context(), api.AdminUserKey, admin))
 	w := httptest.NewRecorder()

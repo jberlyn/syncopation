@@ -1,5 +1,5 @@
 {{define "add-user-form"}}
-<form id="add-user-form" hx-post="/admin/users" hx-swap="outerHTML">
+<form id="add-user-form" hx-post="/users" hx-swap="outerHTML">
     {{if .Error}}
     <div class="error-message" style="margin-bottom: 1rem;">{{.Error}}</div>
     {{end}}

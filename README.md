@@ -56,7 +56,7 @@ Start the server:
 docker compose up -d
 ```
 
-Visit the Admin UI at `http://localhost:22300/admin` in your browser. 
+Visit the Admin UI at `http://localhost:22300/` in your browser. 
 Since this is a fresh install, you will be presented with a **Zero-User Onboarding Flow** to create your initial administrator account.
 
 ### 4. Reverse Proxy Recommendations
