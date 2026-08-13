@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func setupDB(t *testing.T) (*Queries, *sql.DB) {
-	dbConn, err := sql.Open("sqlite3", ":memory:?_fk=1")
+	dbConn, err := sql.Open("sqlite", ":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
 		t.Fatalf("Failed to open DB: %v", err)
 	}

@@ -14,7 +14,7 @@ import (
 	"github.com/jberlyn/syncopation/config"
 	"github.com/jberlyn/syncopation/db"
 	"github.com/jberlyn/syncopation/storage"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func TestHealthCheck(t *testing.T) {
@@ -41,7 +41,7 @@ func TestHealthCheck(t *testing.T) {
 
 func TestDatabaseSeed(t *testing.T) {
 	// Setup an in-memory database for testing
-	dbConn, err := sql.Open("sqlite3", ":memory:?_fk=1")
+	dbConn, err := sql.Open("sqlite", ":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -110,7 +110,7 @@ func TestSetupMux(t *testing.T) {
 	}()
 
 	cfg := config.LoadConfig()
-	dbConn, _ := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL&_fk=1")
+	dbConn, _ := sql.Open("sqlite", cfg.DBPath+"?_pragma=journal_mode(WAL)&_pragma=foreign_keys(1)")
 	defer dbConn.Close()
 	schema, _ := os.ReadFile("db/schema.sql")
 	_, _ = dbConn.Exec(string(schema))

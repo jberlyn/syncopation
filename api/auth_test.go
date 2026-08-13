@@ -14,12 +14,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/api"
 	"github.com/jberlyn/syncopation/db"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func setupTestDBConn(t *testing.T) (*sql.DB, *db.Queries) {
-	dbConn, err := sql.Open("sqlite3", ":memory:?_fk=1")
+	dbConn, err := sql.Open("sqlite", ":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}

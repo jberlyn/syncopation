@@ -17,7 +17,7 @@ import (
 	"github.com/jberlyn/syncopation/config"
 	"github.com/jberlyn/syncopation/db"
 	"github.com/jberlyn/syncopation/storage"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	// Connect to SQLite DB
-	dbConn, err := sql.Open("sqlite3", cfg.DBPath+"?_journal=WAL&_fk=1&_busy_timeout=5000")
+	dbConn, err := sql.Open("sqlite", cfg.DBPath+"?_pragma=journal_mode(WAL)&_pragma=foreign_keys(1)&_pragma=busy_timeout(5000)")
 	if err != nil {
 		slog.Error("Failed to open database", "error", err)
 		os.Exit(1)

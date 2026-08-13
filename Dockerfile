@@ -1,10 +1,10 @@
 # Build stage
 FROM golang:1.25.0-alpine AS builder
 
-WORKDIR /app
+# Install tzdata and ca-certificates for the final image
+RUN apk add --no-cache tzdata ca-certificates
 
-# Install build dependencies for CGO (sqlite3 requires it)
-RUN apk add --no-cache gcc musl-dev
+WORKDIR /app
 
 # Download Go modules
 COPY go.mod go.sum ./
@@ -13,23 +13,25 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=1 GOOS=linux go build -o syncopation .
+# Build the statically linked application with stripped debugging symbols and paths
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o syncopation .
+
+# Create data directory so we can copy it to the scratch container
+RUN mkdir -p /app/data
 
 # Run stage
-FROM alpine:3.21
+FROM scratch
 
 WORKDIR /app
 
-# Install runtime dependencies
-RUN apk add --no-cache tzdata ca-certificates
+# Copy timezones and CA certificates from builder
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy the binary and necessary directories from the builder stage
 COPY --from=builder /app/syncopation .
 COPY --from=builder /app/db ./db
-
-# Ensure data directory exists for sqlite db
-RUN mkdir -p /app/data
+COPY --from=builder /app/data ./data
 
 # Environment variables
 ENV PORT=8080

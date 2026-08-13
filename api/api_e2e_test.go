@@ -18,7 +18,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/db"
 	"github.com/jberlyn/syncopation/storage"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,7 +27,7 @@ func setupTestApp(t *testing.T) (*http.ServeMux, *db.Queries, *sql.DB, *storage.
 	dbPath := filepath.Join(tempDir, "db.sqlite3")
 	storagePath := filepath.Join(tempDir, "storage")
 
-	dbConn, err := sql.Open("sqlite3", dbPath+"?_journal=WAL&_fk=1")
+	dbConn, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=foreign_keys(1)")
 	if err != nil {
 		t.Fatalf("Failed to open db: %v", err)
 	}
