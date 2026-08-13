@@ -2,7 +2,9 @@
 
 {{define "content"}}
 <header class="nav-header">
-    <div class="logo">Syncopation</div>
+    <div class="logo">
+        {{template "logo"}}
+    </div>
     <nav>
         <span>{{.User.Email}}</span>
         <a href="/admin/logout">Sign out</a>

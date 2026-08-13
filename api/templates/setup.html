@@ -3,7 +3,9 @@
 {{define "content"}}
 <div class="container">
     <div class="card">
-        <h1>Welcome to Joplin Sync Server</h1>
+        <div class="login-header-logo">
+            {{template "logo"}}
+        </div>
         <p class="subtitle">Complete the initial setup by creating your administrator account.</p>
 
         {{if .Error}}

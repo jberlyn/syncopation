@@ -3,7 +3,9 @@
 {{define "content"}}
 <div class="container">
     <div class="card">
-        <h1>Syncopation</h1>
+        <div class="login-header-logo">
+            {{template "logo"}}
+        </div>
 
         {{if .Error}}
         <div class="error-message">{{.Error}}</div>

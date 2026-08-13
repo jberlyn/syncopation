@@ -21,9 +21,9 @@ var templates = map[string]*template.Template{}
 
 func init() {
 	layout := template.Must(template.ParseFS(templatesFS, "templates/layout.html"))
-	templates["setup.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/setup.html"))
-	templates["login.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/login.html"))
-	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html", "templates/user_list.html", "templates/add_user_form.html", "templates/stats.html"))
+	templates["setup.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/setup.html", "templates/logo.html"))
+	templates["login.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/login.html", "templates/logo.html"))
+	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html", "templates/user_list.html", "templates/add_user_form.html", "templates/stats.html", "templates/logo.html"))
 	templates["user_list.html"] = template.Must(template.ParseFS(templatesFS, "templates/user_list.html"))
 	templates["add_user_form.html"] = template.Must(template.ParseFS(templatesFS, "templates/add_user_form.html"))
 	templates["stats.html"] = template.Must(template.ParseFS(templatesFS, "templates/stats.html"))
