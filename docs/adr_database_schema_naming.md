@@ -95,8 +95,27 @@ This document serves as the discovery phase for every table and column, proposin
 ## Implementation Plan (Slice 8.5)
 We will introduce **Slice 8.5: Database Schema Modernization** to implement this.
 To execute this properly:
-1. Write a new SQL migration to rename these tables and columns.
+1. Update the database schema definition directly to rename tables and columns. Since the stack is not productionized yet, no SQL migrations are necessary.
 2. Refactor all queries in `db/queries.sql` to use the new idiomatic names.
 3. Re-run `sqlc generate` to update the generated Go models and query functions.
 4. Update the Go codebase (handlers and services) to handle any struct field name changes (e.g. `CreatedTime` to `CreatedAt`).
 5. **Critical:** Ensure JSON responses in handlers remain 100% strictly compatible with Joplin clients by explicitly mapping struct properties back to their legacy JSON keys using struct tags (e.g., `json:"updated_time"`).
+
+---
+
+## Handoff Prompt for Slice 8.5
+
+```markdown
+We are starting Slice 8.5 of the custom Joplin Sync Server project.
+Please refer to @adr_database_schema_naming.md for the planned schema changes.
+
+Our goal for this session is to modernize the database schema:
+1. Update the database schema definition directly to rename tables (e.g., changes_2 to delta_events, key_values to sync_locks), rename columns (e.g., created_time to created_at), and drop the `storages` table completely (including the `content_storage_id` column in items). Since the stack is not productionized yet, no SQL migrations are necessary. 
+2. Update `db/queries.sql` to use the new names and run `sqlc generate`.
+3. Update the Go codebase to use the newly generated types.
+4. Crucially, ensure that our JSON responses to Joplin clients remain exactly the same as before by explicitly using struct tags (e.g., `json:"updated_time"`).
+
+Finally, ensure that the progress tracker is updated to the latest state.
+
+Let's begin step-by-step.
+```

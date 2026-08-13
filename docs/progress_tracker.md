@@ -125,8 +125,7 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 ## ⏳ Upcoming Slices
 
 ### [ ] Slice 8.5: Database Schema Modernization
-- [ ] Rename tables to idiomatic names (e.g., `changes_2` to `delta_events`, `items` to `sync_items`).
-- [ ] Rename columns (e.g., `created_time` to `created_at`, `jop_id` to `joplin_id`).
+- [ ] Update database schema directly to rename tables (e.g., `changes_2` to `delta_events`, `items` to `sync_items`) and columns (no SQL migrations needed since stack is not productionized).
 - [ ] Refactor `db/queries.sql` and run `sqlc generate`.
 - [ ] Update Go codebase and ensure strict JSON response compatibility with Joplin clients.
 
