@@ -90,19 +90,15 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 - [x] Architect data model extensions for multi-user notebook sharing.
 - [x] Create Architectural Decision Record (`adr_phase2_admin_sharing.md`).
 
+### [x] Slice 8.1: Phase 2 Implementation - Admin & RBAC
+- [x] Implement Go Server-Side Rendered (SSR) Admin UI (`html/template` + HTMX).
+- [x] Implement "Zero-User Onboarding Flow".
+- [x] Implement `AdminMiddleware` utilizing `is_admin` flag.
+- [x] Implement foundational schema changes for Multi-User Sharing (Fan-out).
+
 ---
 
 ## 🚀 Current Focus
-
-### [ ] Slice 8.1: Phase 2 Implementation - Admin & RBAC
-- [ ] Implement Go Server-Side Rendered (SSR) Admin UI (`html/template` + HTMX).
-- [ ] Implement "Zero-User Onboarding Flow".
-- [ ] Implement `AdminMiddleware` utilizing `is_admin` flag.
-- [ ] Implement foundational schema changes for Multi-User Sharing (Fan-out).
-
----
-
-## ⏳ Upcoming Slices
 
 ### [ ] Slice 9: CI/CD & Image Building
 - [ ] Implement a `.github/workflows/docker-publish.yml` file.

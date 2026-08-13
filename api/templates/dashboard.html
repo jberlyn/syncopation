@@ -1,0 +1,20 @@
+{{template "base" .}}
+
+{{define "content"}}
+<header class="nav-header">
+    <div class="logo">Joplin Sync Server Admin</div>
+    <nav>
+        <span>{{.User.Email}}</span>
+        <a href="/admin/logout">Sign out</a>
+    </nav>
+</header>
+
+<main>
+    <div class="card">
+        <h2>Dashboard</h2>
+        <p class="subtitle">Welcome back, {{.User.FullName}}.</p>
+        
+        <p>This is the admin dashboard. In a future update, you'll be able to view server statistics and manage other users here.</p>
+    </div>
+</main>
+{{end}}

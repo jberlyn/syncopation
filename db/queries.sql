@@ -117,3 +117,10 @@ JOIN user_items ON items.id = user_items.item_id
 WHERE user_items.user_id = ?
 ORDER BY items.updated_time ASC
 LIMIT ? OFFSET ?;
+
+-- name: CountUsers :one
+SELECT COUNT(*) FROM users;
+
+-- name: GetUser :one
+SELECT * FROM users
+WHERE id = ? LIMIT 1;

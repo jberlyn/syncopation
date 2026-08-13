@@ -104,6 +104,21 @@ func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *ht
 	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn, Storage: localFS}
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
 
+	// Admin UI Routes
+	adminHandler := &api.AdminHandler{Queries: queries}
+
+	// Create a sub-router for admin routes so we can apply the middleware to all of them easily.
+	// Since Go 1.22 mux doesn't easily let us apply middleware to a prefix without stripping or matching exactly,
+	// we will wrap each handler.
+	mux.Handle("GET /admin/setup", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleSetupGet)))
+	mux.Handle("POST /admin/setup", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleSetupPost)))
+	mux.Handle("GET /admin/login", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleLoginGet)))
+	mux.Handle("POST /admin/login", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleLoginPost)))
+	mux.Handle("GET /admin/logout", http.HandlerFunc(adminHandler.HandleLogout))
+	// Exact match for /admin
+	mux.Handle("GET /admin", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleDashboard)))
+	mux.Handle("GET /admin/", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleDashboard)))
+
 	return mux
 }
 

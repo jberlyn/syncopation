@@ -82,3 +82,27 @@ CREATE TABLE IF NOT EXISTS key_values (
     value TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_key_values_key ON key_values(key);
+
+-- 8. Sharing
+CREATE TABLE IF NOT EXISTS shares (
+    id VARCHAR(32) PRIMARY KEY,
+    owner_id VARCHAR(32) NOT NULL,
+    folder_id VARCHAR(32) NOT NULL,
+    created_time BIGINT NOT NULL,
+    updated_time BIGINT NOT NULL,
+    FOREIGN KEY(owner_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS user_shares (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    share_id VARCHAR(32) NOT NULL,
+    user_id VARCHAR(32) NOT NULL,
+    status INTEGER DEFAULT 0 NOT NULL,
+    created_time BIGINT NOT NULL,
+    updated_time BIGINT NOT NULL,
+    UNIQUE(share_id, user_id),
+    FOREIGN KEY(share_id) REFERENCES shares(id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+CREATE INDEX IF NOT EXISTS idx_user_shares_user_id ON user_shares(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_shares_share_id ON user_shares(share_id);

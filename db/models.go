@@ -48,6 +48,14 @@ type Session struct {
 	UpdatedTime int64  `json:"updated_time"`
 }
 
+type Share struct {
+	ID          string `json:"id"`
+	OwnerID     string `json:"owner_id"`
+	FolderID    string `json:"folder_id"`
+	CreatedTime int64  `json:"created_time"`
+	UpdatedTime int64  `json:"updated_time"`
+}
+
 type Storage struct {
 	ID               int64  `json:"id"`
 	ConnectionString string `json:"connection_string"`
@@ -69,6 +77,15 @@ type UserItem struct {
 	ID          int64  `json:"id"`
 	UserID      string `json:"user_id"`
 	ItemID      string `json:"item_id"`
+	CreatedTime int64  `json:"created_time"`
+	UpdatedTime int64  `json:"updated_time"`
+}
+
+type UserShare struct {
+	ID          int64  `json:"id"`
+	ShareID     string `json:"share_id"`
+	UserID      string `json:"user_id"`
+	Status      int64  `json:"status"`
 	CreatedTime int64  `json:"created_time"`
 	UpdatedTime int64  `json:"updated_time"`
 }
