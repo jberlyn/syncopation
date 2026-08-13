@@ -4,87 +4,79 @@
 
 package db
 
-type Changes2 struct {
-	Counter         int64  `json:"counter"`
-	ID              string `json:"id"`
-	ItemID          string `json:"item_id"`
+type DeltaEvent struct {
+	ID              int64  `json:"id"`
+	EventUuid       string `json:"event_uuid"`
+	JoplinID        string `json:"joplin_id"`
 	UserID          string `json:"user_id"`
-	ItemName        string `json:"item_name"`
+	FileName        string `json:"file_name"`
 	PreviousShareID string `json:"previous_share_id"`
 	ItemType        int64  `json:"item_type"`
-	Type            int64  `json:"type"`
-	CreatedTime     int64  `json:"created_time"`
-	UpdatedTime     int64  `json:"updated_time"`
-}
-
-type Item struct {
-	ID                   string `json:"id"`
-	Name                 string `json:"name"`
-	MimeType             string `json:"mime_type"`
-	JopID                string `json:"jop_id"`
-	JopParentID          string `json:"jop_parent_id"`
-	JopShareID           string `json:"jop_share_id"`
-	JopType              int64  `json:"jop_type"`
-	JopEncryptionApplied int64  `json:"jop_encryption_applied"`
-	JopUpdatedTime       int64  `json:"jop_updated_time"`
-	OwnerID              string `json:"owner_id"`
-	ContentStorageID     int64  `json:"content_storage_id"`
-	CreatedTime          int64  `json:"created_time"`
-	UpdatedTime          int64  `json:"updated_time"`
-}
-
-type KeyValue struct {
-	ID    int64  `json:"id"`
-	Key   string `json:"key"`
-	Type  int64  `json:"type"`
-	Value string `json:"value"`
+	EventType       int64  `json:"event_type"`
+	CreatedAt       int64  `json:"created_at"`
+	UpdatedAt       int64  `json:"updated_at"`
 }
 
 type Session struct {
-	ID          string `json:"id"`
-	UserID      string `json:"user_id"`
-	AuthCode    string `json:"auth_code"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ID        string `json:"id"`
+	UserID    string `json:"user_id"`
+	AuthCode  string `json:"auth_code"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
 type Share struct {
-	ID          string `json:"id"`
-	OwnerID     string `json:"owner_id"`
-	FolderID    string `json:"folder_id"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ID        string `json:"id"`
+	OwnerID   string `json:"owner_id"`
+	FolderID  string `json:"folder_id"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
-type Storage struct {
-	ID               int64  `json:"id"`
-	ConnectionString string `json:"connection_string"`
-	CreatedTime      int64  `json:"created_time"`
-	UpdatedTime      int64  `json:"updated_time"`
+type SyncItem struct {
+	ID              string `json:"id"`
+	FileName        string `json:"file_name"`
+	MimeType        string `json:"mime_type"`
+	JoplinID        string `json:"joplin_id"`
+	ParentID        string `json:"parent_id"`
+	ShareID         string `json:"share_id"`
+	ItemType        int64  `json:"item_type"`
+	IsEncrypted     int64  `json:"is_encrypted"`
+	ClientUpdatedAt int64  `json:"client_updated_at"`
+	OwnerID         string `json:"owner_id"`
+	CreatedAt       int64  `json:"created_at"`
+	UpdatedAt       int64  `json:"updated_at"`
+}
+
+type SyncLock struct {
+	ID       int64  `json:"id"`
+	LockKey  string `json:"lock_key"`
+	LockType int64  `json:"lock_type"`
+	LockData string `json:"lock_data"`
 }
 
 type User struct {
-	ID          string `json:"id"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	IsAdmin     int64  `json:"is_admin"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
-}
-
-type UserItem struct {
-	ID          int64  `json:"id"`
-	UserID      string `json:"user_id"`
-	ItemID      string `json:"item_id"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	IsAdmin      int64  `json:"is_admin"`
+	CreatedAt    int64  `json:"created_at"`
+	UpdatedAt    int64  `json:"updated_at"`
 }
 
 type UserShare struct {
-	ID          int64  `json:"id"`
-	ShareID     string `json:"share_id"`
-	UserID      string `json:"user_id"`
-	Status      int64  `json:"status"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ID        int64  `json:"id"`
+	ShareID   string `json:"share_id"`
+	UserID    string `json:"user_id"`
+	Status    int64  `json:"status"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
+}
+
+type UserSyncItem struct {
+	ID         int64  `json:"id"`
+	UserID     string `json:"user_id"`
+	SyncItemID string `json:"sync_item_id"`
+	CreatedAt  int64  `json:"created_at"`
+	UpdatedAt  int64  `json:"updated_at"`
 }

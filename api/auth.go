@@ -39,7 +39,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
@@ -49,11 +49,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UnixMilli()
 
 	session, err := h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
-		ID:          sessionID,
-		UserID:      user.ID,
-		AuthCode:    "",
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:        sessionID,
+		UserID:    user.ID,
+		AuthCode:  "",
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

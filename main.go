@@ -145,12 +145,12 @@ func seedUser(queries *db.Queries, email, password string) {
 	now := time.Now().UnixMilli()
 
 	user, err := queries.CreateUser(ctx, db.CreateUserParams{
-		ID:          id,
-		Email:       email,
-		Password:    string(hashedPassword),
-		IsAdmin:     1,
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:           id,
+		Email:        email,
+		PasswordHash: string(hashedPassword),
+		IsAdmin:      1,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	})
 	if err != nil {
 		slog.Error("Failed to create user", "error", err)

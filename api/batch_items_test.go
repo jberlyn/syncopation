@@ -31,8 +31,8 @@ func TestBatchOperations(t *testing.T) {
 	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
 		ID:          sessionID,
 		UserID:      user.ID,
-		CreatedTime: now,
-		UpdatedTime: now,
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 
 	// 1. Batch Upload Items

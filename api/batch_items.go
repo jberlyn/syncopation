@@ -92,9 +92,9 @@ func (h *BatchItemHandler) handlePutBatch(w http.ResponseWriter, r *http.Request
 		itemName := reqItem.Name
 		content := []byte(reqItem.Body)
 
-		existing, err := qtx.GetItemByNameAndUser(ctx, db.GetItemByNameAndUserParams{
-			Name:   itemName,
-			UserID: userID,
+		existing, err := qtx.GetSyncItemByFileNameAndUser(ctx, db.GetSyncItemByFileNameAndUserParams{
+			FileName: itemName,
+			UserID:   userID,
 		})
 
 		var itemID string
@@ -111,7 +111,7 @@ func (h *BatchItemHandler) handlePutBatch(w http.ResponseWriter, r *http.Request
 			continue
 		} else {
 			itemID = existing.ID
-			createdTime = existing.CreatedTime
+			createdTime = existing.CreatedAt
 			changeType = 2 // Update
 		}
 
@@ -121,20 +121,19 @@ func (h *BatchItemHandler) handlePutBatch(w http.ResponseWriter, r *http.Request
 			continue
 		}
 
-		item, err := qtx.UpsertItem(ctx, db.UpsertItemParams{
-			ID:                   itemID,
-			Name:                 itemName,
-			MimeType:             "text/plain", // Default to text/plain for batch notes
-			JopID:                "",
-			JopParentID:          "",
-			JopShareID:           "",
-			JopType:              1,
-			JopEncryptionApplied: 0,
-			JopUpdatedTime:       now,
-			OwnerID:              userID,
-			ContentStorageID:     1,
-			CreatedTime:          createdTime,
-			UpdatedTime:          now,
+		item, err := qtx.UpsertSyncItem(ctx, db.UpsertSyncItemParams{
+			ID:              itemID,
+			FileName:        itemName,
+			MimeType:        "text/plain", // Default to text/plain for batch notes
+			JoplinID:        "",
+			ParentID:        "",
+			ShareID:         "",
+			ItemType:        1,
+			IsEncrypted:     0,
+			ClientUpdatedAt: now,
+			OwnerID:         userID,
+			CreatedAt:       createdTime,
+			UpdatedAt:       now,
 		})
 		if err != nil {
 			errStr := err.Error()
@@ -142,11 +141,11 @@ func (h *BatchItemHandler) handlePutBatch(w http.ResponseWriter, r *http.Request
 			continue
 		}
 
-		_, err = qtx.UpsertUserItem(ctx, db.UpsertUserItemParams{
-			UserID:      userID,
-			ItemID:      itemID,
-			CreatedTime: createdTime,
-			UpdatedTime: now,
+		_, err = qtx.UpsertUserSyncItem(ctx, db.UpsertUserSyncItemParams{
+			UserID:     userID,
+			SyncItemID: itemID,
+			CreatedAt:  createdTime,
+			UpdatedAt:  now,
 		})
 		if err != nil {
 			errStr := err.Error()
@@ -154,16 +153,16 @@ func (h *BatchItemHandler) handlePutBatch(w http.ResponseWriter, r *http.Request
 			continue
 		}
 
-		_, err = qtx.InsertChange(ctx, db.InsertChangeParams{
-			ID:              uuid.New().String(),
-			ItemID:          itemID,
+		_, err = qtx.InsertDeltaEvent(ctx, db.InsertDeltaEventParams{
+			EventUuid:       uuid.New().String(),
+			JoplinID:        itemID,
 			UserID:          userID,
-			ItemName:        itemName,
+			FileName:        itemName,
 			PreviousShareID: "",
 			ItemType:        1,
-			Type:            changeType,
-			CreatedTime:     now,
-			UpdatedTime:     now,
+			EventType:       changeType,
+			CreatedAt:       now,
+			UpdatedAt:       now,
 		})
 		if err != nil {
 			errStr := err.Error()
@@ -174,10 +173,10 @@ func (h *BatchItemHandler) handlePutBatch(w http.ResponseWriter, r *http.Request
 		results[itemName] = BatchPutResult{
 			Item: &ItemMetadataResponse{
 				ID:             item.ID,
-				Name:           item.Name,
+				Name:           item.FileName,
 				MimeType:       item.MimeType,
-				UpdatedTime:    item.UpdatedTime,
-				JopUpdatedTime: item.JopUpdatedTime,
+				UpdatedTime:    item.UpdatedAt,
+				JopUpdatedTime: item.ClientUpdatedAt,
 			},
 			Error: nil,
 		}
@@ -223,9 +222,9 @@ func (h *BatchItemHandler) handleDeleteBatch(w http.ResponseWriter, r *http.Requ
 	results := make(map[string]struct{})
 
 	for _, itemName := range req.Items {
-		existing, err := qtx.GetItemByNameAndUser(ctx, db.GetItemByNameAndUserParams{
-			Name:   itemName,
-			UserID: userID,
+		existing, err := qtx.GetSyncItemByFileNameAndUser(ctx, db.GetSyncItemByFileNameAndUserParams{
+			FileName: itemName,
+			UserID:   userID,
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -236,32 +235,32 @@ func (h *BatchItemHandler) handleDeleteBatch(w http.ResponseWriter, r *http.Requ
 			continue
 		}
 
-		err = qtx.DeleteUserItem(ctx, db.DeleteUserItemParams{
-			UserID: userID,
-			ItemID: existing.ID,
+		err = qtx.DeleteUserSyncItem(ctx, db.DeleteUserSyncItemParams{
+			UserID:     userID,
+			SyncItemID: existing.ID,
 		})
 		if err != nil {
 			continue
 		}
 
-		err = qtx.DeleteItemByNameAndUser(ctx, db.DeleteItemByNameAndUserParams{
-			Name:   itemName,
-			UserID: userID,
+		err = qtx.DeleteSyncItemByFileNameAndUser(ctx, db.DeleteSyncItemByFileNameAndUserParams{
+			FileName: itemName,
+			UserID:   userID,
 		})
 		if err != nil {
 			continue
 		}
 
-		_, err = qtx.InsertChange(ctx, db.InsertChangeParams{
-			ID:              uuid.New().String(),
-			ItemID:          existing.ID,
+		_, err = qtx.InsertDeltaEvent(ctx, db.InsertDeltaEventParams{
+			EventUuid:       uuid.New().String(),
+			JoplinID:        existing.ID,
 			UserID:          userID,
-			ItemName:        itemName,
+			FileName:        itemName,
 			PreviousShareID: "",
 			ItemType:        1,
-			Type:            3, // Delete
-			CreatedTime:     now,
-			UpdatedTime:     now,
+			EventType:       3, // Delete
+			CreatedAt:       now,
+			UpdatedAt:       now,
 		})
 		if err != nil {
 			continue

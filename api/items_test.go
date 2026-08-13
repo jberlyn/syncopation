@@ -58,8 +58,8 @@ func TestItemCRUD(t *testing.T) {
 		ID:          sessionID,
 		UserID:      user.ID,
 		AuthCode:    "",
-		CreatedTime: now,
-		UpdatedTime: now,
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create session: %v", err)
@@ -176,8 +176,8 @@ func TestDeltaSync(t *testing.T) {
 	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
 		ID:          sessionID,
 		UserID:      user.ID,
-		CreatedTime: now,
-		UpdatedTime: now,
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 
 	itemName := "delta_note.md"
@@ -284,8 +284,8 @@ func TestDirectoryChildren(t *testing.T) {
 	_, _ = queries.CreateSession(context.Background(), db.CreateSessionParams{
 		ID:          sessionID,
 		UserID:      user.ID,
-		CreatedTime: now,
-		UpdatedTime: now,
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 
 	// 1. Create two items

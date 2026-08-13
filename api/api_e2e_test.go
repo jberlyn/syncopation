@@ -65,12 +65,12 @@ func seedTestUser(t *testing.T, queries *db.Queries, email, password string) {
 	ctx := context.Background()
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	_, err := queries.CreateUser(ctx, db.CreateUserParams{
-		ID:          uuid.New().String(),
-		Email:       email,
-		Password:    string(hashedPassword),
-		IsAdmin:     0,
-		CreatedTime: time.Now().UnixMilli(),
-		UpdatedTime: time.Now().UnixMilli(),
+		ID:           uuid.New().String(),
+		Email:        email,
+		PasswordHash: string(hashedPassword),
+		IsAdmin:      0,
+		CreatedAt:    time.Now().UnixMilli(),
+		UpdatedAt:    time.Now().UnixMilli(),
 	})
 	if err != nil {
 		t.Fatalf("Seed failed: %v", err)

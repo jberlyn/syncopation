@@ -67,10 +67,10 @@ func TestAdminUI(t *testing.T) {
 	_, _ = queries.CreateUser(context.Background(), db.CreateUserParams{
 		ID:          uuid.New().String(),
 		Email:       "regular@example.com",
-		Password:    string(hashedPassword),
+		PasswordHash:    string(hashedPassword),
 		IsAdmin:     0,
-		CreatedTime: time.Now().UnixMilli(),
-		UpdatedTime: time.Now().UnixMilli(),
+		CreatedAt: time.Now().UnixMilli(),
+		UpdatedAt: time.Now().UnixMilli(),
 	})
 
 	form = url.Values{}

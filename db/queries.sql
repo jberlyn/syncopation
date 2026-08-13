@@ -1,6 +1,6 @@
 -- name: CreateUser :one
 INSERT INTO users (
-  id, email, password, is_admin, created_time, updated_time
+  id, email, password_hash, is_admin, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?, ?
 )
@@ -12,7 +12,7 @@ WHERE email = ? LIMIT 1;
 
 -- name: CreateSession :one
 INSERT INTO sessions (
-  id, user_id, auth_code, created_time, updated_time
+  id, user_id, auth_code, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?
 )
@@ -26,96 +26,95 @@ WHERE id = ? LIMIT 1;
 DELETE FROM sessions
 WHERE id = ?;
 
--- name: SetKeyValue :one
-INSERT INTO key_values (
-  key, type, value
+-- name: SetSyncLock :one
+INSERT INTO sync_locks (
+  lock_key, lock_type, lock_data
 ) VALUES (
   ?, ?, ?
 )
-ON CONFLICT(key) DO UPDATE SET
-  type = excluded.type,
-  value = excluded.value
+ON CONFLICT(lock_key) DO UPDATE SET
+  lock_type = excluded.lock_type,
+  lock_data = excluded.lock_data
 RETURNING *;
 
--- name: GetKeyValue :one
-SELECT * FROM key_values
-WHERE key = ? LIMIT 1;
+-- name: GetSyncLock :one
+SELECT * FROM sync_locks
+WHERE lock_key = ? LIMIT 1;
 
--- name: DeleteKeyValue :exec
-DELETE FROM key_values
-WHERE key = ?;
+-- name: DeleteSyncLock :exec
+DELETE FROM sync_locks
+WHERE lock_key = ?;
 
--- name: ListKeyValuesByType :many
-SELECT * FROM key_values
-WHERE type = ?;
+-- name: ListSyncLocksByType :many
+SELECT * FROM sync_locks
+WHERE lock_type = ?;
 
--- name: UpsertItem :one
-INSERT INTO items (
-  id, name, mime_type, jop_id, jop_parent_id, jop_share_id,
-  jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id,
-  created_time, updated_time
+-- name: UpsertSyncItem :one
+INSERT INTO sync_items (
+  id, file_name, mime_type, joplin_id, parent_id, share_id,
+  item_type, is_encrypted, client_updated_at, owner_id,
+  created_at, updated_at
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 ON CONFLICT(id) DO UPDATE SET
-  name = excluded.name,
+  file_name = excluded.file_name,
   mime_type = excluded.mime_type,
-  jop_id = excluded.jop_id,
-  jop_parent_id = excluded.jop_parent_id,
-  jop_share_id = excluded.jop_share_id,
-  jop_type = excluded.jop_type,
-  jop_encryption_applied = excluded.jop_encryption_applied,
-  jop_updated_time = excluded.jop_updated_time,
+  joplin_id = excluded.joplin_id,
+  parent_id = excluded.parent_id,
+  share_id = excluded.share_id,
+  item_type = excluded.item_type,
+  is_encrypted = excluded.is_encrypted,
+  client_updated_at = excluded.client_updated_at,
   owner_id = excluded.owner_id,
-  content_storage_id = excluded.content_storage_id,
-  updated_time = excluded.updated_time
+  updated_at = excluded.updated_at
 RETURNING *;
 
--- name: UpsertUserItem :one
-INSERT INTO user_items (
-  user_id, item_id, created_time, updated_time
+-- name: UpsertUserSyncItem :one
+INSERT INTO user_sync_items (
+  user_id, sync_item_id, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?
 )
-ON CONFLICT(user_id, item_id) DO UPDATE SET
-  updated_time = excluded.updated_time
+ON CONFLICT(user_id, sync_item_id) DO UPDATE SET
+  updated_at = excluded.updated_at
 RETURNING *;
 
--- name: GetItemByNameAndUser :one
-SELECT items.* FROM items
-JOIN user_items ON items.id = user_items.item_id
-WHERE items.name = ? AND user_items.user_id = ?
+-- name: GetSyncItemByFileNameAndUser :one
+SELECT sync_items.* FROM sync_items
+JOIN user_sync_items ON sync_items.id = user_sync_items.sync_item_id
+WHERE sync_items.file_name = ? AND user_sync_items.user_id = ?
 LIMIT 1;
 
--- name: DeleteItemByNameAndUser :exec
-DELETE FROM items
-WHERE name = ? AND id IN (
-  SELECT item_id FROM user_items WHERE user_id = ?
+-- name: DeleteSyncItemByFileNameAndUser :exec
+DELETE FROM sync_items
+WHERE file_name = ? AND id IN (
+  SELECT sync_item_id FROM user_sync_items WHERE user_id = ?
 );
 
--- name: DeleteUserItem :exec
-DELETE FROM user_items
-WHERE user_id = ? AND item_id = ?;
+-- name: DeleteUserSyncItem :exec
+DELETE FROM user_sync_items
+WHERE user_id = ? AND sync_item_id = ?;
 
--- name: InsertChange :one
-INSERT INTO changes_2 (
-  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+-- name: InsertDeltaEvent :one
+INSERT INTO delta_events (
+  event_uuid, joplin_id, user_id, file_name, previous_share_id, item_type, event_type, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 RETURNING *;
 
--- name: GetChangesByUser :many
-SELECT * FROM changes_2
-WHERE user_id = ? AND counter > ?
-ORDER BY counter ASC
+-- name: GetDeltaEventsByUser :many
+SELECT * FROM delta_events
+WHERE user_id = ? AND id > ?
+ORDER BY id ASC
 LIMIT ?;
 
--- name: ListItemsByUser :many
-SELECT items.* FROM items
-JOIN user_items ON items.id = user_items.item_id
-WHERE user_items.user_id = ?
-ORDER BY items.updated_time ASC
+-- name: ListSyncItemsByUser :many
+SELECT sync_items.* FROM sync_items
+JOIN user_sync_items ON sync_items.id = user_sync_items.sync_item_id
+WHERE user_sync_items.user_id = ?
+ORDER BY sync_items.updated_at ASC
 LIMIT ? OFFSET ?;
 
 -- name: CountUsers :one
@@ -127,7 +126,7 @@ WHERE id = ? LIMIT 1;
 
 -- name: ListUsers :many
 SELECT * FROM users
-ORDER BY created_time ASC;
+ORDER BY created_at ASC;
 
 -- name: DeleteUser :exec
 DELETE FROM users
@@ -136,42 +135,42 @@ WHERE id = ?;
 -- name: GetInstanceStats :one
 SELECT 
   (SELECT COUNT(*) FROM users) as total_users,
-  (SELECT COUNT(*) FROM items) as total_items;
+  (SELECT COUNT(*) FROM sync_items) as total_items;
 
 -- name: GetUserStats :many
 SELECT 
   users.id as user_id, 
   users.email,
   users.is_admin,
-  users.created_time,
-  COUNT(user_items.item_id) as total_items
+  users.created_at,
+  COUNT(user_sync_items.sync_item_id) as total_items
 FROM users
-LEFT JOIN user_items ON users.id = user_items.user_id
-GROUP BY users.id, users.email, users.is_admin, users.created_time
-ORDER BY users.created_time ASC;
+LEFT JOIN user_sync_items ON users.id = user_sync_items.user_id
+GROUP BY users.id, users.email, users.is_admin, users.created_at
+ORDER BY users.created_at ASC;
 
 -- name: InsertShareTombstonesForDeletedUser :exec
-INSERT INTO changes_2 (
-  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+INSERT INTO delta_events (
+  event_uuid, joplin_id, user_id, file_name, previous_share_id, item_type, event_type, created_at, updated_at
 )
 SELECT 
   lower(hex(randomblob(16))),
-  items.id,
+  sync_items.id,
   user_shares.user_id,
-  items.name,
-  items.jop_share_id,
-  items.jop_type,
+  sync_items.file_name,
+  sync_items.share_id,
+  sync_items.item_type,
   3,
   ?,
   ?
-FROM items
-JOIN shares ON items.jop_share_id = shares.id
+FROM sync_items
+JOIN shares ON sync_items.share_id = shares.id
 JOIN user_shares ON shares.id = user_shares.share_id
 WHERE shares.owner_id = ?;
 
 -- name: CreateShare :one
 INSERT INTO shares (
-  id, owner_id, folder_id, created_time, updated_time
+  id, owner_id, folder_id, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?
 )
@@ -179,7 +178,7 @@ RETURNING *;
 
 -- name: CreateUserShare :one
 INSERT INTO user_shares (
-  share_id, user_id, status, created_time, updated_time
+  share_id, user_id, status, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?
 )

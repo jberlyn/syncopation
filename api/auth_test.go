@@ -49,10 +49,10 @@ func seedUser(t *testing.T, queries *db.Queries, email, password string) db.User
 	user, err := queries.CreateUser(context.Background(), db.CreateUserParams{
 		ID:          uuid.New().String(),
 		Email:       email,
-		Password:    string(hashedPassword),
+		PasswordHash:    string(hashedPassword),
 		IsAdmin:     0,
-		CreatedTime: now,
-		UpdatedTime: now,
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to seed user: %v", err)

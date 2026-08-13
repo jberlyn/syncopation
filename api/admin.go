@@ -132,12 +132,12 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UnixMilli()
 
 	user, err := h.Queries.CreateUser(r.Context(), db.CreateUserParams{
-		ID:          id,
-		Email:       email,
-		Password:    string(hashedPassword),
-		IsAdmin:     1,
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:           id,
+		Email:        email,
+		PasswordHash: string(hashedPassword),
+		IsAdmin:      1,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	})
 	if err != nil {
 		slog.Error("Failed to create admin user during setup", "error", err)
@@ -148,11 +148,11 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 	// Auto-login the user after setup
 	sessionID := strings.ReplaceAll(uuid.New().String(), "-", "")
 	_, err = h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
-		ID:          sessionID,
-		UserID:      user.ID,
-		AuthCode:    "",
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:        sessionID,
+		UserID:    user.ID,
+		AuthCode:  "",
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -194,7 +194,7 @@ func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
 		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]string{"Error": "Invalid credentials or not an admin"})
 		return
 	}
@@ -202,11 +202,11 @@ func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 	sessionID := strings.ReplaceAll(uuid.New().String(), "-", "")
 	now := time.Now().UnixMilli()
 	_, err = h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
-		ID:          sessionID,
-		UserID:      user.ID,
-		AuthCode:    "",
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:        sessionID,
+		UserID:    user.ID,
+		AuthCode:  "",
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -279,12 +279,12 @@ func (h *AdminHandler) HandleUsersPost(w http.ResponseWriter, r *http.Request) {
 			if err == nil {
 				now := time.Now().UnixMilli()
 				_, err = h.Queries.CreateUser(r.Context(), db.CreateUserParams{
-					ID:          uuid.New().String(),
-					Email:       email,
-					Password:    string(hashedPassword),
-					IsAdmin:     0,
-					CreatedTime: now,
-					UpdatedTime: now,
+					ID:           uuid.New().String(),
+					Email:        email,
+					PasswordHash: string(hashedPassword),
+					IsAdmin:      0,
+					CreatedAt:    now,
+					UpdatedAt:    now,
 				})
 				if err != nil {
 					errMsg = "Failed to create user"
@@ -335,9 +335,9 @@ func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request)
 	if err == nil && user.IsAdmin == 0 {
 		now := time.Now().UnixMilli()
 		err := h.Queries.InsertShareTombstonesForDeletedUser(r.Context(), db.InsertShareTombstonesForDeletedUserParams{
-			CreatedTime: now,
-			UpdatedTime: now,
-			OwnerID:     id,
+			CreatedAt: now,
+			UpdatedAt: now,
+			OwnerID:   id,
 		})
 		if err != nil {
 			slog.Error("Failed to insert share tombstones", "error", err)

@@ -22,19 +22,19 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 
 const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (
-  id, user_id, auth_code, created_time, updated_time
+  id, user_id, auth_code, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?
 )
-RETURNING id, user_id, auth_code, created_time, updated_time
+RETURNING id, user_id, auth_code, created_at, updated_at
 `
 
 type CreateSessionParams struct {
-	ID          string `json:"id"`
-	UserID      string `json:"user_id"`
-	AuthCode    string `json:"auth_code"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ID        string `json:"id"`
+	UserID    string `json:"user_id"`
+	AuthCode  string `json:"auth_code"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
@@ -42,35 +42,35 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 		arg.ID,
 		arg.UserID,
 		arg.AuthCode,
-		arg.CreatedTime,
-		arg.UpdatedTime,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 	var i Session
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.AuthCode,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const createShare = `-- name: CreateShare :one
 INSERT INTO shares (
-  id, owner_id, folder_id, created_time, updated_time
+  id, owner_id, folder_id, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?
 )
-RETURNING id, owner_id, folder_id, created_time, updated_time
+RETURNING id, owner_id, folder_id, created_at, updated_at
 `
 
 type CreateShareParams struct {
-	ID          string `json:"id"`
-	OwnerID     string `json:"owner_id"`
-	FolderID    string `json:"folder_id"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ID        string `json:"id"`
+	OwnerID   string `json:"owner_id"`
+	FolderID  string `json:"folder_id"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
 func (q *Queries) CreateShare(ctx context.Context, arg CreateShareParams) (Share, error) {
@@ -78,74 +78,74 @@ func (q *Queries) CreateShare(ctx context.Context, arg CreateShareParams) (Share
 		arg.ID,
 		arg.OwnerID,
 		arg.FolderID,
-		arg.CreatedTime,
-		arg.UpdatedTime,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 	var i Share
 	err := row.Scan(
 		&i.ID,
 		&i.OwnerID,
 		&i.FolderID,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  id, email, password, is_admin, created_time, updated_time
+  id, email, password_hash, is_admin, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?, ?
 )
-RETURNING id, email, password, is_admin, created_time, updated_time
+RETURNING id, email, password_hash, is_admin, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	ID          string `json:"id"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	IsAdmin     int64  `json:"is_admin"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	IsAdmin      int64  `json:"is_admin"`
+	CreatedAt    int64  `json:"created_at"`
+	UpdatedAt    int64  `json:"updated_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.ID,
 		arg.Email,
-		arg.Password,
+		arg.PasswordHash,
 		arg.IsAdmin,
-		arg.CreatedTime,
-		arg.UpdatedTime,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
-		&i.Password,
+		&i.PasswordHash,
 		&i.IsAdmin,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const createUserShare = `-- name: CreateUserShare :one
 INSERT INTO user_shares (
-  share_id, user_id, status, created_time, updated_time
+  share_id, user_id, status, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?
 )
-RETURNING id, share_id, user_id, status, created_time, updated_time
+RETURNING id, share_id, user_id, status, created_at, updated_at
 `
 
 type CreateUserShareParams struct {
-	ShareID     string `json:"share_id"`
-	UserID      string `json:"user_id"`
-	Status      int64  `json:"status"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+	ShareID   string `json:"share_id"`
+	UserID    string `json:"user_id"`
+	Status    int64  `json:"status"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
 func (q *Queries) CreateUserShare(ctx context.Context, arg CreateUserShareParams) (UserShare, error) {
@@ -153,8 +153,8 @@ func (q *Queries) CreateUserShare(ctx context.Context, arg CreateUserShareParams
 		arg.ShareID,
 		arg.UserID,
 		arg.Status,
-		arg.CreatedTime,
-		arg.UpdatedTime,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 	var i UserShare
 	err := row.Scan(
@@ -162,37 +162,10 @@ func (q *Queries) CreateUserShare(ctx context.Context, arg CreateUserShareParams
 		&i.ShareID,
 		&i.UserID,
 		&i.Status,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const deleteItemByNameAndUser = `-- name: DeleteItemByNameAndUser :exec
-DELETE FROM items
-WHERE name = ? AND id IN (
-  SELECT item_id FROM user_items WHERE user_id = ?
-)
-`
-
-type DeleteItemByNameAndUserParams struct {
-	Name   string `json:"name"`
-	UserID string `json:"user_id"`
-}
-
-func (q *Queries) DeleteItemByNameAndUser(ctx context.Context, arg DeleteItemByNameAndUserParams) error {
-	_, err := q.db.ExecContext(ctx, deleteItemByNameAndUser, arg.Name, arg.UserID)
-	return err
-}
-
-const deleteKeyValue = `-- name: DeleteKeyValue :exec
-DELETE FROM key_values
-WHERE key = ?
-`
-
-func (q *Queries) DeleteKeyValue(ctx context.Context, key string) error {
-	_, err := q.db.ExecContext(ctx, deleteKeyValue, key)
-	return err
 }
 
 const deleteSession = `-- name: DeleteSession :exec
@@ -202,6 +175,33 @@ WHERE id = ?
 
 func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, deleteSession, id)
+	return err
+}
+
+const deleteSyncItemByFileNameAndUser = `-- name: DeleteSyncItemByFileNameAndUser :exec
+DELETE FROM sync_items
+WHERE file_name = ? AND id IN (
+  SELECT sync_item_id FROM user_sync_items WHERE user_id = ?
+)
+`
+
+type DeleteSyncItemByFileNameAndUserParams struct {
+	FileName string `json:"file_name"`
+	UserID   string `json:"user_id"`
+}
+
+func (q *Queries) DeleteSyncItemByFileNameAndUser(ctx context.Context, arg DeleteSyncItemByFileNameAndUserParams) error {
+	_, err := q.db.ExecContext(ctx, deleteSyncItemByFileNameAndUser, arg.FileName, arg.UserID)
+	return err
+}
+
+const deleteSyncLock = `-- name: DeleteSyncLock :exec
+DELETE FROM sync_locks
+WHERE lock_key = ?
+`
+
+func (q *Queries) DeleteSyncLock(ctx context.Context, lockKey string) error {
+	_, err := q.db.ExecContext(ctx, deleteSyncLock, lockKey)
 	return err
 }
 
@@ -215,54 +215,54 @@ func (q *Queries) DeleteUser(ctx context.Context, id string) error {
 	return err
 }
 
-const deleteUserItem = `-- name: DeleteUserItem :exec
-DELETE FROM user_items
-WHERE user_id = ? AND item_id = ?
+const deleteUserSyncItem = `-- name: DeleteUserSyncItem :exec
+DELETE FROM user_sync_items
+WHERE user_id = ? AND sync_item_id = ?
 `
 
-type DeleteUserItemParams struct {
-	UserID string `json:"user_id"`
-	ItemID string `json:"item_id"`
+type DeleteUserSyncItemParams struct {
+	UserID     string `json:"user_id"`
+	SyncItemID string `json:"sync_item_id"`
 }
 
-func (q *Queries) DeleteUserItem(ctx context.Context, arg DeleteUserItemParams) error {
-	_, err := q.db.ExecContext(ctx, deleteUserItem, arg.UserID, arg.ItemID)
+func (q *Queries) DeleteUserSyncItem(ctx context.Context, arg DeleteUserSyncItemParams) error {
+	_, err := q.db.ExecContext(ctx, deleteUserSyncItem, arg.UserID, arg.SyncItemID)
 	return err
 }
 
-const getChangesByUser = `-- name: GetChangesByUser :many
-SELECT counter, id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time FROM changes_2
-WHERE user_id = ? AND counter > ?
-ORDER BY counter ASC
+const getDeltaEventsByUser = `-- name: GetDeltaEventsByUser :many
+SELECT id, event_uuid, joplin_id, user_id, file_name, previous_share_id, item_type, event_type, created_at, updated_at FROM delta_events
+WHERE user_id = ? AND id > ?
+ORDER BY id ASC
 LIMIT ?
 `
 
-type GetChangesByUserParams struct {
-	UserID  string `json:"user_id"`
-	Counter int64  `json:"counter"`
-	Limit   int64  `json:"limit"`
+type GetDeltaEventsByUserParams struct {
+	UserID string `json:"user_id"`
+	ID     int64  `json:"id"`
+	Limit  int64  `json:"limit"`
 }
 
-func (q *Queries) GetChangesByUser(ctx context.Context, arg GetChangesByUserParams) ([]Changes2, error) {
-	rows, err := q.db.QueryContext(ctx, getChangesByUser, arg.UserID, arg.Counter, arg.Limit)
+func (q *Queries) GetDeltaEventsByUser(ctx context.Context, arg GetDeltaEventsByUserParams) ([]DeltaEvent, error) {
+	rows, err := q.db.QueryContext(ctx, getDeltaEventsByUser, arg.UserID, arg.ID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Changes2
+	var items []DeltaEvent
 	for rows.Next() {
-		var i Changes2
+		var i DeltaEvent
 		if err := rows.Scan(
-			&i.Counter,
 			&i.ID,
-			&i.ItemID,
+			&i.EventUuid,
+			&i.JoplinID,
 			&i.UserID,
-			&i.ItemName,
+			&i.FileName,
 			&i.PreviousShareID,
 			&i.ItemType,
-			&i.Type,
-			&i.CreatedTime,
-			&i.UpdatedTime,
+			&i.EventType,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -280,7 +280,7 @@ func (q *Queries) GetChangesByUser(ctx context.Context, arg GetChangesByUserPara
 const getInstanceStats = `-- name: GetInstanceStats :one
 SELECT 
   (SELECT COUNT(*) FROM users) as total_users,
-  (SELECT COUNT(*) FROM items) as total_items
+  (SELECT COUNT(*) FROM sync_items) as total_items
 `
 
 type GetInstanceStatsRow struct {
@@ -295,58 +295,8 @@ func (q *Queries) GetInstanceStats(ctx context.Context) (GetInstanceStatsRow, er
 	return i, err
 }
 
-const getItemByNameAndUser = `-- name: GetItemByNameAndUser :one
-SELECT items.id, items.name, items.mime_type, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
-JOIN user_items ON items.id = user_items.item_id
-WHERE items.name = ? AND user_items.user_id = ?
-LIMIT 1
-`
-
-type GetItemByNameAndUserParams struct {
-	Name   string `json:"name"`
-	UserID string `json:"user_id"`
-}
-
-func (q *Queries) GetItemByNameAndUser(ctx context.Context, arg GetItemByNameAndUserParams) (Item, error) {
-	row := q.db.QueryRowContext(ctx, getItemByNameAndUser, arg.Name, arg.UserID)
-	var i Item
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.MimeType,
-		&i.JopID,
-		&i.JopParentID,
-		&i.JopShareID,
-		&i.JopType,
-		&i.JopEncryptionApplied,
-		&i.JopUpdatedTime,
-		&i.OwnerID,
-		&i.ContentStorageID,
-		&i.CreatedTime,
-		&i.UpdatedTime,
-	)
-	return i, err
-}
-
-const getKeyValue = `-- name: GetKeyValue :one
-SELECT id, "key", type, value FROM key_values
-WHERE key = ? LIMIT 1
-`
-
-func (q *Queries) GetKeyValue(ctx context.Context, key string) (KeyValue, error) {
-	row := q.db.QueryRowContext(ctx, getKeyValue, key)
-	var i KeyValue
-	err := row.Scan(
-		&i.ID,
-		&i.Key,
-		&i.Type,
-		&i.Value,
-	)
-	return i, err
-}
-
 const getSession = `-- name: GetSession :one
-SELECT id, user_id, auth_code, created_time, updated_time FROM sessions
+SELECT id, user_id, auth_code, created_at, updated_at FROM sessions
 WHERE id = ? LIMIT 1
 `
 
@@ -357,14 +307,63 @@ func (q *Queries) GetSession(ctx context.Context, id string) (Session, error) {
 		&i.ID,
 		&i.UserID,
 		&i.AuthCode,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getSyncItemByFileNameAndUser = `-- name: GetSyncItemByFileNameAndUser :one
+SELECT sync_items.id, sync_items.file_name, sync_items.mime_type, sync_items.joplin_id, sync_items.parent_id, sync_items.share_id, sync_items.item_type, sync_items.is_encrypted, sync_items.client_updated_at, sync_items.owner_id, sync_items.created_at, sync_items.updated_at FROM sync_items
+JOIN user_sync_items ON sync_items.id = user_sync_items.sync_item_id
+WHERE sync_items.file_name = ? AND user_sync_items.user_id = ?
+LIMIT 1
+`
+
+type GetSyncItemByFileNameAndUserParams struct {
+	FileName string `json:"file_name"`
+	UserID   string `json:"user_id"`
+}
+
+func (q *Queries) GetSyncItemByFileNameAndUser(ctx context.Context, arg GetSyncItemByFileNameAndUserParams) (SyncItem, error) {
+	row := q.db.QueryRowContext(ctx, getSyncItemByFileNameAndUser, arg.FileName, arg.UserID)
+	var i SyncItem
+	err := row.Scan(
+		&i.ID,
+		&i.FileName,
+		&i.MimeType,
+		&i.JoplinID,
+		&i.ParentID,
+		&i.ShareID,
+		&i.ItemType,
+		&i.IsEncrypted,
+		&i.ClientUpdatedAt,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getSyncLock = `-- name: GetSyncLock :one
+SELECT id, lock_key, lock_type, lock_data FROM sync_locks
+WHERE lock_key = ? LIMIT 1
+`
+
+func (q *Queries) GetSyncLock(ctx context.Context, lockKey string) (SyncLock, error) {
+	row := q.db.QueryRowContext(ctx, getSyncLock, lockKey)
+	var i SyncLock
+	err := row.Scan(
+		&i.ID,
+		&i.LockKey,
+		&i.LockType,
+		&i.LockData,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, password, is_admin, created_time, updated_time FROM users
+SELECT id, email, password_hash, is_admin, created_at, updated_at FROM users
 WHERE id = ? LIMIT 1
 `
 
@@ -374,16 +373,16 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
-		&i.Password,
+		&i.PasswordHash,
 		&i.IsAdmin,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, is_admin, created_time, updated_time FROM users
+SELECT id, email, password_hash, is_admin, created_at, updated_at FROM users
 WHERE email = ? LIMIT 1
 `
 
@@ -393,10 +392,10 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
-		&i.Password,
+		&i.PasswordHash,
 		&i.IsAdmin,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -406,20 +405,20 @@ SELECT
   users.id as user_id, 
   users.email,
   users.is_admin,
-  users.created_time,
-  COUNT(user_items.item_id) as total_items
+  users.created_at,
+  COUNT(user_sync_items.sync_item_id) as total_items
 FROM users
-LEFT JOIN user_items ON users.id = user_items.user_id
-GROUP BY users.id, users.email, users.is_admin, users.created_time
-ORDER BY users.created_time ASC
+LEFT JOIN user_sync_items ON users.id = user_sync_items.user_id
+GROUP BY users.id, users.email, users.is_admin, users.created_at
+ORDER BY users.created_at ASC
 `
 
 type GetUserStatsRow struct {
-	UserID      string `json:"user_id"`
-	Email       string `json:"email"`
-	IsAdmin     int64  `json:"is_admin"`
-	CreatedTime int64  `json:"created_time"`
-	TotalItems  int64  `json:"total_items"`
+	UserID     string `json:"user_id"`
+	Email      string `json:"email"`
+	IsAdmin    int64  `json:"is_admin"`
+	CreatedAt  int64  `json:"created_at"`
+	TotalItems int64  `json:"total_items"`
 }
 
 func (q *Queries) GetUserStats(ctx context.Context) ([]GetUserStatsRow, error) {
@@ -435,7 +434,7 @@ func (q *Queries) GetUserStats(ctx context.Context) ([]GetUserStatsRow, error) {
 			&i.UserID,
 			&i.Email,
 			&i.IsAdmin,
-			&i.CreatedTime,
+			&i.CreatedAt,
 			&i.TotalItems,
 		); err != nil {
 			return nil, err
@@ -451,123 +450,122 @@ func (q *Queries) GetUserStats(ctx context.Context) ([]GetUserStatsRow, error) {
 	return items, nil
 }
 
-const insertChange = `-- name: InsertChange :one
-INSERT INTO changes_2 (
-  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+const insertDeltaEvent = `-- name: InsertDeltaEvent :one
+INSERT INTO delta_events (
+  event_uuid, joplin_id, user_id, file_name, previous_share_id, item_type, event_type, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
-RETURNING counter, id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+RETURNING id, event_uuid, joplin_id, user_id, file_name, previous_share_id, item_type, event_type, created_at, updated_at
 `
 
-type InsertChangeParams struct {
-	ID              string `json:"id"`
-	ItemID          string `json:"item_id"`
+type InsertDeltaEventParams struct {
+	EventUuid       string `json:"event_uuid"`
+	JoplinID        string `json:"joplin_id"`
 	UserID          string `json:"user_id"`
-	ItemName        string `json:"item_name"`
+	FileName        string `json:"file_name"`
 	PreviousShareID string `json:"previous_share_id"`
 	ItemType        int64  `json:"item_type"`
-	Type            int64  `json:"type"`
-	CreatedTime     int64  `json:"created_time"`
-	UpdatedTime     int64  `json:"updated_time"`
+	EventType       int64  `json:"event_type"`
+	CreatedAt       int64  `json:"created_at"`
+	UpdatedAt       int64  `json:"updated_at"`
 }
 
-func (q *Queries) InsertChange(ctx context.Context, arg InsertChangeParams) (Changes2, error) {
-	row := q.db.QueryRowContext(ctx, insertChange,
-		arg.ID,
-		arg.ItemID,
+func (q *Queries) InsertDeltaEvent(ctx context.Context, arg InsertDeltaEventParams) (DeltaEvent, error) {
+	row := q.db.QueryRowContext(ctx, insertDeltaEvent,
+		arg.EventUuid,
+		arg.JoplinID,
 		arg.UserID,
-		arg.ItemName,
+		arg.FileName,
 		arg.PreviousShareID,
 		arg.ItemType,
-		arg.Type,
-		arg.CreatedTime,
-		arg.UpdatedTime,
+		arg.EventType,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
-	var i Changes2
+	var i DeltaEvent
 	err := row.Scan(
-		&i.Counter,
 		&i.ID,
-		&i.ItemID,
+		&i.EventUuid,
+		&i.JoplinID,
 		&i.UserID,
-		&i.ItemName,
+		&i.FileName,
 		&i.PreviousShareID,
 		&i.ItemType,
-		&i.Type,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.EventType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const insertShareTombstonesForDeletedUser = `-- name: InsertShareTombstonesForDeletedUser :exec
-INSERT INTO changes_2 (
-  id, item_id, user_id, item_name, previous_share_id, item_type, type, created_time, updated_time
+INSERT INTO delta_events (
+  event_uuid, joplin_id, user_id, file_name, previous_share_id, item_type, event_type, created_at, updated_at
 )
 SELECT 
   lower(hex(randomblob(16))),
-  items.id,
+  sync_items.id,
   user_shares.user_id,
-  items.name,
-  items.jop_share_id,
-  items.jop_type,
+  sync_items.file_name,
+  sync_items.share_id,
+  sync_items.item_type,
   3,
   ?,
   ?
-FROM items
-JOIN shares ON items.jop_share_id = shares.id
+FROM sync_items
+JOIN shares ON sync_items.share_id = shares.id
 JOIN user_shares ON shares.id = user_shares.share_id
 WHERE shares.owner_id = ?
 `
 
 type InsertShareTombstonesForDeletedUserParams struct {
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
-	OwnerID     string `json:"owner_id"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
+	OwnerID   string `json:"owner_id"`
 }
 
 func (q *Queries) InsertShareTombstonesForDeletedUser(ctx context.Context, arg InsertShareTombstonesForDeletedUserParams) error {
-	_, err := q.db.ExecContext(ctx, insertShareTombstonesForDeletedUser, arg.CreatedTime, arg.UpdatedTime, arg.OwnerID)
+	_, err := q.db.ExecContext(ctx, insertShareTombstonesForDeletedUser, arg.CreatedAt, arg.UpdatedAt, arg.OwnerID)
 	return err
 }
 
-const listItemsByUser = `-- name: ListItemsByUser :many
-SELECT items.id, items.name, items.mime_type, items.jop_id, items.jop_parent_id, items.jop_share_id, items.jop_type, items.jop_encryption_applied, items.jop_updated_time, items.owner_id, items.content_storage_id, items.created_time, items.updated_time FROM items
-JOIN user_items ON items.id = user_items.item_id
-WHERE user_items.user_id = ?
-ORDER BY items.updated_time ASC
+const listSyncItemsByUser = `-- name: ListSyncItemsByUser :many
+SELECT sync_items.id, sync_items.file_name, sync_items.mime_type, sync_items.joplin_id, sync_items.parent_id, sync_items.share_id, sync_items.item_type, sync_items.is_encrypted, sync_items.client_updated_at, sync_items.owner_id, sync_items.created_at, sync_items.updated_at FROM sync_items
+JOIN user_sync_items ON sync_items.id = user_sync_items.sync_item_id
+WHERE user_sync_items.user_id = ?
+ORDER BY sync_items.updated_at ASC
 LIMIT ? OFFSET ?
 `
 
-type ListItemsByUserParams struct {
+type ListSyncItemsByUserParams struct {
 	UserID string `json:"user_id"`
 	Limit  int64  `json:"limit"`
 	Offset int64  `json:"offset"`
 }
 
-func (q *Queries) ListItemsByUser(ctx context.Context, arg ListItemsByUserParams) ([]Item, error) {
-	rows, err := q.db.QueryContext(ctx, listItemsByUser, arg.UserID, arg.Limit, arg.Offset)
+func (q *Queries) ListSyncItemsByUser(ctx context.Context, arg ListSyncItemsByUserParams) ([]SyncItem, error) {
+	rows, err := q.db.QueryContext(ctx, listSyncItemsByUser, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Item
+	var items []SyncItem
 	for rows.Next() {
-		var i Item
+		var i SyncItem
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
+			&i.FileName,
 			&i.MimeType,
-			&i.JopID,
-			&i.JopParentID,
-			&i.JopShareID,
-			&i.JopType,
-			&i.JopEncryptionApplied,
-			&i.JopUpdatedTime,
+			&i.JoplinID,
+			&i.ParentID,
+			&i.ShareID,
+			&i.ItemType,
+			&i.IsEncrypted,
+			&i.ClientUpdatedAt,
 			&i.OwnerID,
-			&i.ContentStorageID,
-			&i.CreatedTime,
-			&i.UpdatedTime,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -582,25 +580,25 @@ func (q *Queries) ListItemsByUser(ctx context.Context, arg ListItemsByUserParams
 	return items, nil
 }
 
-const listKeyValuesByType = `-- name: ListKeyValuesByType :many
-SELECT id, "key", type, value FROM key_values
-WHERE type = ?
+const listSyncLocksByType = `-- name: ListSyncLocksByType :many
+SELECT id, lock_key, lock_type, lock_data FROM sync_locks
+WHERE lock_type = ?
 `
 
-func (q *Queries) ListKeyValuesByType(ctx context.Context, type_ int64) ([]KeyValue, error) {
-	rows, err := q.db.QueryContext(ctx, listKeyValuesByType, type_)
+func (q *Queries) ListSyncLocksByType(ctx context.Context, lockType int64) ([]SyncLock, error) {
+	rows, err := q.db.QueryContext(ctx, listSyncLocksByType, lockType)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []KeyValue
+	var items []SyncLock
 	for rows.Next() {
-		var i KeyValue
+		var i SyncLock
 		if err := rows.Scan(
 			&i.ID,
-			&i.Key,
-			&i.Type,
-			&i.Value,
+			&i.LockKey,
+			&i.LockType,
+			&i.LockData,
 		); err != nil {
 			return nil, err
 		}
@@ -616,8 +614,8 @@ func (q *Queries) ListKeyValuesByType(ctx context.Context, type_ int64) ([]KeyVa
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, email, password, is_admin, created_time, updated_time FROM users
-ORDER BY created_time ASC
+SELECT id, email, password_hash, is_admin, created_at, updated_at FROM users
+ORDER BY created_at ASC
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
@@ -632,10 +630,10 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Email,
-			&i.Password,
+			&i.PasswordHash,
 			&i.IsAdmin,
-			&i.CreatedTime,
-			&i.UpdatedTime,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -650,142 +648,138 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
-const setKeyValue = `-- name: SetKeyValue :one
-INSERT INTO key_values (
-  key, type, value
+const setSyncLock = `-- name: SetSyncLock :one
+INSERT INTO sync_locks (
+  lock_key, lock_type, lock_data
 ) VALUES (
   ?, ?, ?
 )
-ON CONFLICT(key) DO UPDATE SET
-  type = excluded.type,
-  value = excluded.value
-RETURNING id, "key", type, value
+ON CONFLICT(lock_key) DO UPDATE SET
+  lock_type = excluded.lock_type,
+  lock_data = excluded.lock_data
+RETURNING id, lock_key, lock_type, lock_data
 `
 
-type SetKeyValueParams struct {
-	Key   string `json:"key"`
-	Type  int64  `json:"type"`
-	Value string `json:"value"`
+type SetSyncLockParams struct {
+	LockKey  string `json:"lock_key"`
+	LockType int64  `json:"lock_type"`
+	LockData string `json:"lock_data"`
 }
 
-func (q *Queries) SetKeyValue(ctx context.Context, arg SetKeyValueParams) (KeyValue, error) {
-	row := q.db.QueryRowContext(ctx, setKeyValue, arg.Key, arg.Type, arg.Value)
-	var i KeyValue
+func (q *Queries) SetSyncLock(ctx context.Context, arg SetSyncLockParams) (SyncLock, error) {
+	row := q.db.QueryRowContext(ctx, setSyncLock, arg.LockKey, arg.LockType, arg.LockData)
+	var i SyncLock
 	err := row.Scan(
 		&i.ID,
-		&i.Key,
-		&i.Type,
-		&i.Value,
+		&i.LockKey,
+		&i.LockType,
+		&i.LockData,
 	)
 	return i, err
 }
 
-const upsertItem = `-- name: UpsertItem :one
-INSERT INTO items (
-  id, name, mime_type, jop_id, jop_parent_id, jop_share_id,
-  jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id,
-  created_time, updated_time
+const upsertSyncItem = `-- name: UpsertSyncItem :one
+INSERT INTO sync_items (
+  id, file_name, mime_type, joplin_id, parent_id, share_id,
+  item_type, is_encrypted, client_updated_at, owner_id,
+  created_at, updated_at
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 ON CONFLICT(id) DO UPDATE SET
-  name = excluded.name,
+  file_name = excluded.file_name,
   mime_type = excluded.mime_type,
-  jop_id = excluded.jop_id,
-  jop_parent_id = excluded.jop_parent_id,
-  jop_share_id = excluded.jop_share_id,
-  jop_type = excluded.jop_type,
-  jop_encryption_applied = excluded.jop_encryption_applied,
-  jop_updated_time = excluded.jop_updated_time,
+  joplin_id = excluded.joplin_id,
+  parent_id = excluded.parent_id,
+  share_id = excluded.share_id,
+  item_type = excluded.item_type,
+  is_encrypted = excluded.is_encrypted,
+  client_updated_at = excluded.client_updated_at,
   owner_id = excluded.owner_id,
-  content_storage_id = excluded.content_storage_id,
-  updated_time = excluded.updated_time
-RETURNING id, name, mime_type, jop_id, jop_parent_id, jop_share_id, jop_type, jop_encryption_applied, jop_updated_time, owner_id, content_storage_id, created_time, updated_time
+  updated_at = excluded.updated_at
+RETURNING id, file_name, mime_type, joplin_id, parent_id, share_id, item_type, is_encrypted, client_updated_at, owner_id, created_at, updated_at
 `
 
-type UpsertItemParams struct {
-	ID                   string `json:"id"`
-	Name                 string `json:"name"`
-	MimeType             string `json:"mime_type"`
-	JopID                string `json:"jop_id"`
-	JopParentID          string `json:"jop_parent_id"`
-	JopShareID           string `json:"jop_share_id"`
-	JopType              int64  `json:"jop_type"`
-	JopEncryptionApplied int64  `json:"jop_encryption_applied"`
-	JopUpdatedTime       int64  `json:"jop_updated_time"`
-	OwnerID              string `json:"owner_id"`
-	ContentStorageID     int64  `json:"content_storage_id"`
-	CreatedTime          int64  `json:"created_time"`
-	UpdatedTime          int64  `json:"updated_time"`
+type UpsertSyncItemParams struct {
+	ID              string `json:"id"`
+	FileName        string `json:"file_name"`
+	MimeType        string `json:"mime_type"`
+	JoplinID        string `json:"joplin_id"`
+	ParentID        string `json:"parent_id"`
+	ShareID         string `json:"share_id"`
+	ItemType        int64  `json:"item_type"`
+	IsEncrypted     int64  `json:"is_encrypted"`
+	ClientUpdatedAt int64  `json:"client_updated_at"`
+	OwnerID         string `json:"owner_id"`
+	CreatedAt       int64  `json:"created_at"`
+	UpdatedAt       int64  `json:"updated_at"`
 }
 
-func (q *Queries) UpsertItem(ctx context.Context, arg UpsertItemParams) (Item, error) {
-	row := q.db.QueryRowContext(ctx, upsertItem,
+func (q *Queries) UpsertSyncItem(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error) {
+	row := q.db.QueryRowContext(ctx, upsertSyncItem,
 		arg.ID,
-		arg.Name,
+		arg.FileName,
 		arg.MimeType,
-		arg.JopID,
-		arg.JopParentID,
-		arg.JopShareID,
-		arg.JopType,
-		arg.JopEncryptionApplied,
-		arg.JopUpdatedTime,
+		arg.JoplinID,
+		arg.ParentID,
+		arg.ShareID,
+		arg.ItemType,
+		arg.IsEncrypted,
+		arg.ClientUpdatedAt,
 		arg.OwnerID,
-		arg.ContentStorageID,
-		arg.CreatedTime,
-		arg.UpdatedTime,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
-	var i Item
+	var i SyncItem
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
+		&i.FileName,
 		&i.MimeType,
-		&i.JopID,
-		&i.JopParentID,
-		&i.JopShareID,
-		&i.JopType,
-		&i.JopEncryptionApplied,
-		&i.JopUpdatedTime,
+		&i.JoplinID,
+		&i.ParentID,
+		&i.ShareID,
+		&i.ItemType,
+		&i.IsEncrypted,
+		&i.ClientUpdatedAt,
 		&i.OwnerID,
-		&i.ContentStorageID,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
-const upsertUserItem = `-- name: UpsertUserItem :one
-INSERT INTO user_items (
-  user_id, item_id, created_time, updated_time
+const upsertUserSyncItem = `-- name: UpsertUserSyncItem :one
+INSERT INTO user_sync_items (
+  user_id, sync_item_id, created_at, updated_at
 ) VALUES (
   ?, ?, ?, ?
 )
-ON CONFLICT(user_id, item_id) DO UPDATE SET
-  updated_time = excluded.updated_time
-RETURNING id, user_id, item_id, created_time, updated_time
+ON CONFLICT(user_id, sync_item_id) DO UPDATE SET
+  updated_at = excluded.updated_at
+RETURNING id, user_id, sync_item_id, created_at, updated_at
 `
 
-type UpsertUserItemParams struct {
-	UserID      string `json:"user_id"`
-	ItemID      string `json:"item_id"`
-	CreatedTime int64  `json:"created_time"`
-	UpdatedTime int64  `json:"updated_time"`
+type UpsertUserSyncItemParams struct {
+	UserID     string `json:"user_id"`
+	SyncItemID string `json:"sync_item_id"`
+	CreatedAt  int64  `json:"created_at"`
+	UpdatedAt  int64  `json:"updated_at"`
 }
 
-func (q *Queries) UpsertUserItem(ctx context.Context, arg UpsertUserItemParams) (UserItem, error) {
-	row := q.db.QueryRowContext(ctx, upsertUserItem,
+func (q *Queries) UpsertUserSyncItem(ctx context.Context, arg UpsertUserSyncItemParams) (UserSyncItem, error) {
+	row := q.db.QueryRowContext(ctx, upsertUserSyncItem,
 		arg.UserID,
-		arg.ItemID,
-		arg.CreatedTime,
-		arg.UpdatedTime,
+		arg.SyncItemID,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
-	var i UserItem
+	var i UserSyncItem
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.ItemID,
-		&i.CreatedTime,
-		&i.UpdatedTime,
+		&i.SyncItemID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

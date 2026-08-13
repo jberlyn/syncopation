@@ -28,12 +28,12 @@ func TestUserDeletionCascade(t *testing.T) {
 	// 1. Create Admin
 	adminID := uuid.New().String()
 	admin, err := queries.CreateUser(ctx, db.CreateUserParams{
-		ID:          adminID,
-		Email:       "admin@example.com",
-		Password:    "hashed",
-		IsAdmin:     1,
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:           adminID,
+		Email:        "admin@example.com",
+		PasswordHash: "hashed",
+		IsAdmin:      1,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create admin: %v", err)
@@ -42,12 +42,12 @@ func TestUserDeletionCascade(t *testing.T) {
 	// 2. Create User A
 	userAID := uuid.New().String()
 	_, err = queries.CreateUser(ctx, db.CreateUserParams{
-		ID:          userAID,
-		Email:       "usera@example.com",
-		Password:    "hashed",
-		IsAdmin:     0,
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:           userAID,
+		Email:        "usera@example.com",
+		PasswordHash: "hashed",
+		IsAdmin:      0,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create User A: %v", err)
@@ -56,12 +56,12 @@ func TestUserDeletionCascade(t *testing.T) {
 	// 3. Create User B
 	userBID := uuid.New().String()
 	_, err = queries.CreateUser(ctx, db.CreateUserParams{
-		ID:          userBID,
-		Email:       "userb@example.com",
-		Password:    "hashed",
-		IsAdmin:     0,
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:           userBID,
+		Email:        "userb@example.com",
+		PasswordHash: "hashed",
+		IsAdmin:      0,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create User B: %v", err)
@@ -69,11 +69,11 @@ func TestUserDeletionCascade(t *testing.T) {
 
 	// Create session for User A
 	_, err = queries.CreateSession(ctx, db.CreateSessionParams{
-		ID:          uuid.New().String(),
-		UserID:      userAID,
-		AuthCode:    "",
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:        uuid.New().String(),
+		UserID:    userAID,
+		AuthCode:  "",
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create session for User A: %v", err)
@@ -81,29 +81,28 @@ func TestUserDeletionCascade(t *testing.T) {
 
 	// Create item for User A
 	itemID := uuid.New().String()
-	_, err = queries.UpsertItem(ctx, db.UpsertItemParams{
-		ID:                   itemID,
-		Name:                 "test_item.md",
-		MimeType:             "text/markdown",
-		JopID:                itemID,
-		JopParentID:          "",
-		JopShareID:           "share1",
-		JopType:              1,
-		JopEncryptionApplied: 0,
-		JopUpdatedTime:       now,
-		OwnerID:              userAID,
-		ContentStorageID:     1,
-		CreatedTime:          now,
-		UpdatedTime:          now,
+	_, err = queries.UpsertSyncItem(ctx, db.UpsertSyncItemParams{
+		ID:              itemID,
+		FileName:        "test_item.md",
+		MimeType:        "text/markdown",
+		JoplinID:        itemID,
+		ParentID:        "",
+		ShareID:         "share1",
+		ItemType:        1,
+		IsEncrypted:     0,
+		ClientUpdatedAt: now,
+		OwnerID:         userAID,
+		CreatedAt:       now,
+		UpdatedAt:       now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create item for User A: %v", err)
 	}
-	_, err = queries.UpsertUserItem(ctx, db.UpsertUserItemParams{
-		UserID:      userAID,
-		ItemID:      itemID,
-		CreatedTime: now,
-		UpdatedTime: now,
+	_, err = queries.UpsertUserSyncItem(ctx, db.UpsertUserSyncItemParams{
+		UserID:     userAID,
+		SyncItemID: itemID,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create user item for User A: %v", err)
@@ -118,11 +117,11 @@ func TestUserDeletionCascade(t *testing.T) {
 	// Create a share owned by User A
 	shareID := "share1"
 	_, err = queries.CreateShare(ctx, db.CreateShareParams{
-		ID:          shareID,
-		OwnerID:     userAID,
-		FolderID:    "folder1",
-		CreatedTime: now,
-		UpdatedTime: now,
+		ID:        shareID,
+		OwnerID:   userAID,
+		FolderID:  "folder1",
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create share: %v", err)
@@ -130,11 +129,11 @@ func TestUserDeletionCascade(t *testing.T) {
 
 	// Add User B to the share
 	_, err = queries.CreateUserShare(ctx, db.CreateUserShareParams{
-		ShareID:     shareID,
-		UserID:      userBID,
-		Status:      1,
-		CreatedTime: now,
-		UpdatedTime: now,
+		ShareID:   shareID,
+		UserID:    userBID,
+		Status:    1,
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create user_share: %v", err)
@@ -159,7 +158,7 @@ func TestUserDeletionCascade(t *testing.T) {
 	}
 
 	// Verify items are deleted
-	items, err := queries.ListItemsByUser(ctx, db.ListItemsByUserParams{
+	items, err := queries.ListSyncItemsByUser(ctx, db.ListSyncItemsByUserParams{
 		UserID: userAID,
 		Limit:  10,
 		Offset: 0,
@@ -169,10 +168,10 @@ func TestUserDeletionCascade(t *testing.T) {
 	}
 
 	// Verify tombstone for User B (tombstone for shared item)
-	changes, err := queries.GetChangesByUser(ctx, db.GetChangesByUserParams{
-		UserID:  userBID,
-		Counter: 0,
-		Limit:   10,
+	changes, err := queries.GetDeltaEventsByUser(ctx, db.GetDeltaEventsByUserParams{
+		UserID: userBID,
+		ID:     0,
+		Limit:  10,
 	})
 	if err != nil || len(changes) == 0 {
 		t.Fatalf("Expected tombstone change for User B")
@@ -180,7 +179,7 @@ func TestUserDeletionCascade(t *testing.T) {
 
 	foundTombstone := false
 	for _, c := range changes {
-		if c.ItemID == itemID && c.Type == 3 {
+		if c.JoplinID == itemID && c.EventType == 3 {
 			foundTombstone = true
 			break
 		}

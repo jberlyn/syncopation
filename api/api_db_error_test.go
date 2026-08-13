@@ -65,11 +65,11 @@ func TestAPIDBErrors(t *testing.T) {
 	sess2, _ := queries2.CreateSession(context.Background(), db.CreateSessionParams{
 		ID: "err-sess2", UserID: "err-user2",
 	})
-	_, _ = queries2.UpsertItem(context.Background(), db.UpsertItemParams{
-		ID: "item-3", Name: "item-3",
+	_, _ = queries2.UpsertSyncItem(context.Background(), db.UpsertSyncItemParams{
+		ID: "item-3", FileName: "item-3",
 	})
-	_, _ = queries2.UpsertUserItem(context.Background(), db.UpsertUserItemParams{
-		UserID: sess2.UserID, ItemID: "item-3",
+	_, _ = queries2.UpsertUserSyncItem(context.Background(), db.UpsertUserSyncItemParams{
+		UserID: sess2.UserID, SyncItemID: "item-3",
 	})
 
 	server2 := httptest.NewServer(mux2)

@@ -56,14 +56,14 @@ func (h *LockHandler) getActiveLocks(ctx context.Context) ([]LockItem, error) {
 	now := time.Now().UnixMilli()
 
 	for _, lockType := range []int{LockTypeSync, LockTypeExclusive} {
-		records, err := h.Queries.ListKeyValuesByType(ctx, int64(lockType))
+		records, err := h.Queries.ListSyncLocksByType(ctx, int64(lockType))
 		if err != nil && err != sql.ErrNoRows {
 			return nil, err
 		}
 
 		for _, rec := range records {
 			var lock LockItem
-			if err := json.Unmarshal([]byte(rec.Value), &lock); err != nil {
+			if err := json.Unmarshal([]byte(rec.LockData), &lock); err != nil {
 				continue // Skip malformed locks
 			}
 
@@ -71,7 +71,7 @@ func (h *LockHandler) getActiveLocks(ctx context.Context) ([]LockItem, error) {
 			expirationTime := lock.UpdatedTime + LockTTL.Milliseconds()
 			if now > expirationTime {
 				// Lock has expired, clean it up
-				_ = h.Queries.DeleteKeyValue(ctx, rec.Key)
+				_ = h.Queries.DeleteSyncLock(ctx, rec.LockKey)
 				continue
 			}
 			activeLocks = append(activeLocks, lock)
@@ -142,10 +142,10 @@ func (h *LockHandler) AcquireLock(w http.ResponseWriter, r *http.Request) {
 	valBytes, _ := json.Marshal(lockItem)
 	key := buildLockKey(req)
 
-	_, err = h.Queries.SetKeyValue(ctx, db.SetKeyValueParams{
-		Key:   key,
-		Type:  int64(req.Type),
-		Value: string(valBytes),
+	_, err = h.Queries.SetSyncLock(ctx, db.SetSyncLockParams{
+		LockKey:  key,
+		LockType: int64(req.Type),
+		LockData: string(valBytes),
 	})
 	if err != nil {
 		http.Error(w, "Failed to acquire lock", http.StatusInternalServerError)
@@ -166,7 +166,7 @@ func (h *LockHandler) ReleaseLock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	key := "lock_" + id
-	err := h.Queries.DeleteKeyValue(r.Context(), key)
+	err := h.Queries.DeleteSyncLock(r.Context(), key)
 	if err != nil {
 		http.Error(w, "Failed to release lock", http.StatusInternalServerError)
 		return

@@ -37,12 +37,12 @@ func TestQueries(t *testing.T) {
 	// 1. Users
 	userID := uuid.New().String()
 	user, err := queries.CreateUser(ctx, CreateUserParams{
-		ID:          userID,
-		Email:       "test@example.com",
-		Password:    "password123",
-		IsAdmin:     0,
-		CreatedTime: time.Now().UnixMilli(),
-		UpdatedTime: time.Now().UnixMilli(),
+		ID:           userID,
+		Email:        "test@example.com",
+		PasswordHash: "password123",
+		IsAdmin:      0,
+		CreatedAt:    time.Now().UnixMilli(),
+		UpdatedAt:    time.Now().UnixMilli(),
 	})
 	if err != nil {
 		t.Fatalf("CreateUser failed: %v", err)
@@ -58,123 +58,123 @@ func TestQueries(t *testing.T) {
 
 	// 2. Items
 	itemID := uuid.New().String()
-	item, err := queries.UpsertItem(ctx, UpsertItemParams{
-		ID:                   itemID,
-		Name:                 "item1",
-		MimeType:             "",
-		JopID:                "jop1",
-		JopParentID:          "",
-		JopShareID:           "",
-		JopType:              1,
-		JopEncryptionApplied: 0,
-		JopUpdatedTime:       100,
-		OwnerID:              userID,
-		UpdatedTime:          100,
-		CreatedTime:          100,
+	item, err := queries.UpsertSyncItem(ctx, UpsertSyncItemParams{
+		ID:              itemID,
+		FileName:        "item1",
+		MimeType:        "",
+		JoplinID:        "jop1",
+		ParentID:        "",
+		ShareID:         "",
+		ItemType:        1,
+		IsEncrypted:     0,
+		ClientUpdatedAt: 100,
+		OwnerID:         userID,
+		UpdatedAt:       100,
+		CreatedAt:       100,
 	})
 	if err != nil {
-		t.Fatalf("UpsertItem failed: %v", err)
+		t.Fatalf("UpsertSyncItem failed: %v", err)
 	}
 	if item.ID != itemID {
-		t.Fatalf("UpsertItem returned wrong ID")
+		t.Fatalf("UpsertSyncItem returned wrong ID")
 	}
 
-	_, err = queries.UpsertUserItem(ctx, UpsertUserItemParams{
-		UserID: userID,
-		ItemID: itemID,
+	_, err = queries.UpsertUserSyncItem(ctx, UpsertUserSyncItemParams{
+		UserID:     userID,
+		SyncItemID: itemID,
 	})
 	if err != nil {
-		t.Fatalf("UpsertUserItem failed: %v", err)
+		t.Fatalf("UpsertUserSyncItem failed: %v", err)
 	}
 
 	// Get item
-	fetchedItem, err := queries.GetItemByNameAndUser(ctx, GetItemByNameAndUserParams{
-		Name:   "item1",
-		UserID: userID,
+	fetchedItem, err := queries.GetSyncItemByFileNameAndUser(ctx, GetSyncItemByFileNameAndUserParams{
+		FileName: "item1",
+		UserID:   userID,
 	})
 	if err != nil || fetchedItem.ID != itemID {
-		t.Fatalf("GetItemByNameAndUser failed: %v", err)
+		t.Fatalf("GetSyncItemByFileNameAndUser failed: %v", err)
 	}
 
-	// ListItemsByUser
-	items, err := queries.ListItemsByUser(ctx, ListItemsByUserParams{
+	items, err := queries.ListSyncItemsByUser(ctx, ListSyncItemsByUserParams{
 		UserID: userID,
 		Limit:  10,
 		Offset: 0,
 	})
 	if err != nil || len(items) != 1 {
-		t.Fatalf("ListItemsByUser failed: %v", err)
+		t.Fatalf("ListSyncItemsByUser failed: %v", err)
 	}
 
-	_, err = queries.InsertChange(ctx, InsertChangeParams{
-		UserID:      userID,
-		ItemName:    "item1",
-		ItemType:    1,
-		Type:        1,
-		UpdatedTime: 100,
+	_, err = queries.InsertDeltaEvent(ctx, InsertDeltaEventParams{
+		UserID:          userID,
+		EventUuid:       "event-1",
+		JoplinID:        "jop1",
+		FileName:        "item1",
+		ItemType:        1,
+		EventType:       1,
+		UpdatedAt:       100,
+		CreatedAt:       100,
+		PreviousShareID: "",
 	})
 	if err != nil {
-		t.Fatalf("InsertChange failed: %v", err)
+		t.Fatalf("InsertDeltaEvent failed: %v", err)
 	}
 
-	// GetChangesByUser
-	changes, err := queries.GetChangesByUser(ctx, GetChangesByUserParams{
-		UserID:  userID,
-		Counter: 0,
-		Limit:   10,
+	changes, err := queries.GetDeltaEventsByUser(ctx, GetDeltaEventsByUserParams{
+		UserID: userID,
+		ID:     0,
+		Limit:  10,
 	})
 	if err != nil || len(changes) != 1 {
-		t.Fatalf("GetChangesByUser failed: %v", err)
+		t.Fatalf("GetDeltaEventsByUser failed: %v", err)
 	}
 
-	// Delete item
-	err = queries.DeleteUserItem(ctx, DeleteUserItemParams{
-		UserID: userID,
-		ItemID: itemID,
+	err = queries.DeleteUserSyncItem(ctx, DeleteUserSyncItemParams{
+		UserID:     userID,
+		SyncItemID: itemID,
 	})
 	if err != nil {
-		t.Fatalf("DeleteUserItem failed: %v", err)
+		t.Fatalf("DeleteUserSyncItem failed: %v", err)
 	}
-	err = queries.DeleteItemByNameAndUser(ctx, DeleteItemByNameAndUserParams{
-		Name:   "item1",
-		UserID: userID,
+	err = queries.DeleteSyncItemByFileNameAndUser(ctx, DeleteSyncItemByFileNameAndUserParams{
+		FileName: "item1",
+		UserID:   userID,
 	})
 	if err != nil {
-		t.Fatalf("DeleteItemByNameAndUser failed: %v", err)
+		t.Fatalf("DeleteSyncItemByFileNameAndUser failed: %v", err)
 	}
 
-	// 3. KeyValue
-	_, err = queries.SetKeyValue(ctx, SetKeyValueParams{
-		Key:   "lock_1",
-		Value: "data",
-		Type:  1,
+	_, err = queries.SetSyncLock(ctx, SetSyncLockParams{
+		LockKey:  "lock_1",
+		LockData: "data",
+		LockType: 1,
 	})
 	if err != nil {
-		t.Fatalf("SetKeyValue failed: %v", err)
+		t.Fatalf("SetSyncLock failed: %v", err)
 	}
 
-	val, err := queries.GetKeyValue(ctx, "lock_1")
-	if err != nil || val.Value != "data" {
-		t.Fatalf("GetKeyValue failed: %v", err)
+	val, err := queries.GetSyncLock(ctx, "lock_1")
+	if err != nil || val.LockData != "data" {
+		t.Fatalf("GetSyncLock failed: %v", err)
 	}
 
-	kvs, err := queries.ListKeyValuesByType(ctx, 1)
+	kvs, err := queries.ListSyncLocksByType(ctx, 1)
 	if err != nil || len(kvs) != 1 {
-		t.Fatalf("ListKeyValuesByType failed: %v", err)
+		t.Fatalf("ListSyncLocksByType failed: %v", err)
 	}
 
-	err = queries.DeleteKeyValue(ctx, "lock_1")
+	err = queries.DeleteSyncLock(ctx, "lock_1")
 	if err != nil {
-		t.Fatalf("DeleteKeyValue failed: %v", err)
+		t.Fatalf("DeleteSyncLock failed: %v", err)
 	}
 
 	// 4. Session
 	sessionID := uuid.New().String()
 	_, err = queries.CreateSession(ctx, CreateSessionParams{
-		ID:          sessionID,
-		UserID:      userID,
-		CreatedTime: time.Now().UnixMilli(),
-		UpdatedTime: time.Now().UnixMilli(),
+		ID:        sessionID,
+		UserID:    userID,
+		CreatedAt: time.Now().UnixMilli(),
+		UpdatedAt: time.Now().UnixMilli(),
 	})
 	if err != nil {
 		t.Fatalf("CreateSession failed: %v", err)
