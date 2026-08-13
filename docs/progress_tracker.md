@@ -127,17 +127,15 @@ This document tracks the progress of the custom Joplin Sync Server implementatio
 
 ---
 
-## 🚀 Current Focus
-
-### [ ] Slice 9: CI/CD & Image Building
-- [ ] Implement a `.github/workflows/docker-publish.yml` file.
-- [ ] Trigger workflow on Git version tags (e.g., `v*.*.*`).
-- [ ] Build and push Docker image with both the version tag and `:latest` tag.
-- [ ] Verify pushing a version tag successfully triggers the image build.
+### [x] Slice 9: CI/CD & Image Building
+- [x] Implement a `.github/workflows/docker-publish.yml` file.
+- [x] Trigger workflow on Git version tags (e.g., `v*.*.*`).
+- [x] Build and push Docker image with both the version tag and `:latest` tag.
+- [x] Verify pushing a version tag successfully triggers the image build.
 
 ---
 
-## ⏳ Upcoming Slices
+## 🚀 Current Focus
 
 ### [ ] Slice 10: Documentation Cleanup & Self-Hosted Guide
 - [ ] Migrate all planning and ADR documents into a slimmed `README.md` and `CLAUDE.md`.
