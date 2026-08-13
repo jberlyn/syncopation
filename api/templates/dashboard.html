@@ -25,23 +25,27 @@
     </div>
 
     <div class="card">
-        <h2>User Management</h2>
-        
-        <form hx-post="/admin/users" hx-target="#user-list" hx-swap="outerHTML" style="margin-top: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-end;">
-            <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div style="margin-bottom: 0;">
-                <button type="submit" style="width: auto; padding-left: 1.5rem; padding-right: 1.5rem;">Add User</button>
-            </div>
-        </form>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="margin: 0;">User Management</h2>
+            <button onclick="document.getElementById('add-user-modal').showModal()" style="width: auto; padding: 0.5rem 1rem;">Add User</button>
+        </div>
 
         {{template "user-list" .}}
     </div>
 </main>
+
+<dialog id="add-user-modal" style="border: none; border-radius: 8px; padding: 2rem; background: var(--surface); color: var(--text-color); box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0;">Add New User</h3>
+        <button onclick="document.getElementById('add-user-modal').close()" style="background: none; color: var(--text-muted); border: none; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; width: auto;">&times;</button>
+    </div>
+    
+    {{template "add-user-form" .}}
+</dialog>
+
+<script>
+    document.body.addEventListener('closeAddUserModal', function() {
+        document.getElementById('add-user-modal').close();
+    });
+</script>
 {{end}}

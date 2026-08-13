@@ -23,8 +23,9 @@ func init() {
 	layout := template.Must(template.ParseFS(templatesFS, "templates/layout.html"))
 	templates["setup.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/setup.html"))
 	templates["login.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/login.html"))
-	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html", "templates/user_list.html"))
+	templates["dashboard.html"] = template.Must(template.Must(layout.Clone()).ParseFS(templatesFS, "templates/dashboard.html", "templates/user_list.html", "templates/add_user_form.html"))
 	templates["user_list.html"] = template.Must(template.ParseFS(templatesFS, "templates/user_list.html"))
+	templates["add_user_form.html"] = template.Must(template.ParseFS(templatesFS, "templates/add_user_form.html"))
 }
 
 type AdminHandler struct {
@@ -262,25 +263,51 @@ func (h *AdminHandler) HandleUsersPost(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	if email != "" && password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	var errMsg string
+	var success bool
+	if email == "" || password == "" {
+		errMsg = "Email and password are required"
+	} else {
+		_, err := h.Queries.GetUserByEmail(r.Context(), email)
 		if err == nil {
-			now := time.Now().UnixMilli()
-			_, _ = h.Queries.CreateUser(r.Context(), db.CreateUserParams{
-				ID:          uuid.New().String(),
-				Email:       email,
-				Password:    string(hashedPassword),
-				IsAdmin:     0,
-				CreatedTime: now,
-				UpdatedTime: now,
-			})
+			errMsg = "User with this email already exists"
+		} else {
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+			if err == nil {
+				now := time.Now().UnixMilli()
+				_, err = h.Queries.CreateUser(r.Context(), db.CreateUserParams{
+					ID:          uuid.New().String(),
+					Email:       email,
+					Password:    string(hashedPassword),
+					IsAdmin:     0,
+					CreatedTime: now,
+					UpdatedTime: now,
+				})
+				if err != nil {
+					errMsg = "Failed to create user"
+				} else {
+					success = true
+				}
+			} else {
+				errMsg = "Failed to hash password"
+			}
 		}
 	}
 
-	userStats, _ := h.Queries.GetUserStats(r.Context())
-	_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
-		"UserStats": userStats,
-	})
+	if success {
+		w.Header().Set("HX-Trigger", "closeAddUserModal")
+		_ = templates["add_user_form.html"].ExecuteTemplate(w, "add-user-form", map[string]interface{}{})
+		userStats, _ := h.Queries.GetUserStats(r.Context())
+		_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
+			"UserStats": userStats,
+			"OOB":       true,
+		})
+	} else {
+		_ = templates["add_user_form.html"].ExecuteTemplate(w, "add-user-form", map[string]interface{}{
+			"Error": errMsg,
+			"Email": email,
+		})
+	}
 }
 
 func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request) {

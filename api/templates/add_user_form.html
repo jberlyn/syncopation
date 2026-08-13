@@ -1,0 +1,29 @@
+{{define "add-user-form"}}
+<form id="add-user-form" hx-post="/admin/users" hx-swap="outerHTML">
+    {{if .Error}}
+    <div class="error-message" style="margin-bottom: 1rem;">{{.Error}}</div>
+    {{end}}
+    
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required {{if .Email}}value="{{.Email}}"{{end}}>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+        <button type="button" onclick="document.getElementById('add-user-modal').close()" style="background: transparent; color: var(--text-color); border: 1px solid var(--border-color); width: auto;">Cancel</button>
+        <button type="submit" style="width: auto;">
+            <span class="btn-text">Add User</span>
+            <span class="htmx-indicator" style="display: none;">Saving...</span>
+        </button>
+    </div>
+    <style>
+        form.htmx-request .btn-text { display: none; }
+        form.htmx-request .htmx-indicator { display: inline; }
+        form.htmx-request button { opacity: 0.7; pointer-events: none; }
+        dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+    </style>
+</form>
+{{end}}
