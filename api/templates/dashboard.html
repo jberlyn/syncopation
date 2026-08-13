@@ -38,5 +38,16 @@
     document.body.addEventListener('closeAddUserModal', function() {
         document.getElementById('add-user-modal').close();
     });
+
+    document.getElementById('add-user-modal').addEventListener('close', function() {
+        const form = document.getElementById('add-user-form');
+        if (form) {
+            form.reset();
+            const errorMsg = form.querySelector('.error-message');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+    });
 </script>
 {{end}}
