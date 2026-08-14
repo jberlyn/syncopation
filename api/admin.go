@@ -7,12 +7,9 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/db"
-	"github.com/jberlyn/syncopation/storage"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/jberlyn/syncopation/services"
 )
 
 //go:embed templates/*
@@ -31,9 +28,8 @@ func init() {
 }
 
 type AdminHandler struct {
-	Queries *db.Queries
-	Storage storage.Storage
-	Version string
+	AdminService *services.AdminService
+	Version      string
 }
 
 type UserContextKey string
@@ -43,13 +39,13 @@ const AdminUserKey UserContextKey = "admin_user"
 func (h *AdminHandler) AdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 1. Check if zero-user onboarding is needed
-		count, err := h.Queries.CountUsers(r.Context())
+		needed, err := h.AdminService.CheckSetupNeeded(r.Context())
 		if err != nil {
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
 		}
 
-		if count == 0 {
+		if needed {
 			if r.URL.Path != "/setup" {
 				http.Redirect(w, r, "/setup", http.StatusFound)
 				return
@@ -77,21 +73,18 @@ func (h *AdminHandler) AdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		// 3. Validate session
-		session, err := h.Queries.GetSession(r.Context(), cookie.Value)
+		user, err := h.AdminService.ValidateAdminSession(r.Context(), cookie.Value)
 		if err != nil {
 			http.SetCookie(w, &http.Cookie{Name: "admin_session", Value: "", MaxAge: -1, Path: "/"})
-			http.Redirect(w, r, "/login", http.StatusFound)
+			if err == services.ErrForbidden {
+				http.Redirect(w, r, "/login", http.StatusFound)
+			} else {
+				http.Redirect(w, r, "/login", http.StatusFound)
+			}
 			return
 		}
 
-		// 4. Validate user is admin
-		user, err := h.Queries.GetUser(r.Context(), session.UserID)
-		if err != nil || user.IsAdmin != 1 {
-			http.Error(w, "Forbidden: Admin access required", http.StatusForbidden)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), AdminUserKey, user)
+		ctx := context.WithValue(r.Context(), AdminUserKey, *user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -123,40 +116,10 @@ func (h *AdminHandler) HandleSetupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		http.Error(w, "Internal error", http.StatusInternalServerError)
-		return
-	}
-
-	id := uuid.New().String()
-	now := time.Now().UnixMilli()
-
-	user, err := h.Queries.CreateUser(r.Context(), db.CreateUserParams{
-		ID:           id,
-		Email:        email,
-		PasswordHash: string(hashedPassword),
-		IsAdmin:      1,
-		CreatedAt:    now,
-		UpdatedAt:    now,
-	})
+	sessionID, err := h.AdminService.SetupFirstAdmin(r.Context(), email, password)
 	if err != nil {
 		slog.Error("Failed to create admin user during setup", "error", err)
 		_ = templates["setup.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Failed to create account", "Version": h.Version})
-		return
-	}
-
-	// Auto-login the user after setup
-	sessionID := strings.ReplaceAll(uuid.New().String(), "-", "")
-	_, err = h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
-		ID:        sessionID,
-		UserID:    user.ID,
-		AuthCode:  "",
-		CreatedAt: now,
-		UpdatedAt: now,
-	})
-	if err != nil {
-		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
 
@@ -189,27 +152,12 @@ func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	user, err := h.Queries.GetUserByEmail(r.Context(), email)
-	if err != nil || user.IsAdmin != 1 {
-		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Invalid credentials or not an admin", "Version": h.Version})
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Invalid credentials or not an admin", "Version": h.Version})
-		return
-	}
-
-	sessionID := strings.ReplaceAll(uuid.New().String(), "-", "")
-	now := time.Now().UnixMilli()
-	_, err = h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
-		ID:        sessionID,
-		UserID:    user.ID,
-		AuthCode:  "",
-		CreatedAt: now,
-		UpdatedAt: now,
-	})
+	sessionID, err := h.AdminService.AdminLogin(r.Context(), email, password)
 	if err != nil {
+		if err == services.ErrInvalidCredentials {
+			_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Error": "Invalid credentials or not an admin", "Version": h.Version})
+			return
+		}
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
@@ -228,7 +176,7 @@ func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 func (h *AdminHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("admin_session")
 	if err == nil && cookie.Value != "" {
-		_ = h.Queries.DeleteSession(r.Context(), cookie.Value)
+		_ = h.AdminService.AdminLogout(r.Context(), cookie.Value)
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -248,8 +196,7 @@ func (h *AdminHandler) HandleDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 	user := r.Context().Value(AdminUserKey).(db.User)
 
-	stats, _ := h.Queries.GetInstanceStats(r.Context())
-	userStats, _ := h.Queries.GetUserStats(r.Context())
+	stats, userStats, _ := h.AdminService.GetDashboardStats(r.Context())
 
 	_ = templates["dashboard.html"].ExecuteTemplate(w, "base", map[string]interface{}{
 		"User":      user,
@@ -273,41 +220,26 @@ func (h *AdminHandler) HandleUsersPost(w http.ResponseWriter, r *http.Request) {
 	if email == "" || password == "" {
 		errMsg = "Email and password are required"
 	} else {
-		_, err := h.Queries.GetUserByEmail(r.Context(), email)
-		if err == nil {
-			errMsg = "User with this email already exists"
-		} else {
-			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-			if err == nil {
-				now := time.Now().UnixMilli()
-				_, err = h.Queries.CreateUser(r.Context(), db.CreateUserParams{
-					ID:           uuid.New().String(),
-					Email:        email,
-					PasswordHash: string(hashedPassword),
-					IsAdmin:      0,
-					CreatedAt:    now,
-					UpdatedAt:    now,
-				})
-				if err != nil {
-					errMsg = "Failed to create user"
-				} else {
-					success = true
-				}
+		err := h.AdminService.CreateUser(r.Context(), email, password)
+		if err != nil {
+			if err == services.ErrUserExists {
+				errMsg = "User with this email already exists"
 			} else {
-				errMsg = "Failed to hash password"
+				errMsg = "Failed to create user"
 			}
+		} else {
+			success = true
 		}
 	}
 
 	if success {
 		w.Header().Set("HX-Trigger", "closeAddUserModal")
 		_ = templates["add_user_form.html"].ExecuteTemplate(w, "add-user-form", map[string]interface{}{})
-		userStats, _ := h.Queries.GetUserStats(r.Context())
+		stats, userStats, _ := h.AdminService.GetDashboardStats(r.Context())
 		_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
 			"UserStats": userStats,
 			"OOB":       true,
 		})
-		stats, _ := h.Queries.GetInstanceStats(r.Context())
 		_ = templates["stats.html"].ExecuteTemplate(w, "stats", map[string]interface{}{
 			"Stats": stats,
 			"OOB":   true,
@@ -338,35 +270,16 @@ func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	user, err := h.Queries.GetUser(r.Context(), id)
-	if err == nil && user.IsAdmin == 0 {
-		now := time.Now().UnixMilli()
-		err := h.Queries.InsertShareTombstonesForDeletedUser(r.Context(), db.InsertShareTombstonesForDeletedUserParams{
-			CreatedAt: now,
-			UpdatedAt: now,
-			OwnerID:   id,
-		})
-		if err != nil {
-			slog.Error("Failed to insert share tombstones", "error", err)
-		}
-		err = h.Queries.DeleteUser(r.Context(), id)
-		if err != nil {
-			slog.Error("Failed to delete user", "error", err)
-		}
-		if h.Storage != nil {
-			err = h.Storage.DeleteUser(r.Context(), id)
-			if err != nil {
-				slog.Error("Failed to delete user storage", "error", err)
-			}
-		}
+	err := h.AdminService.DeleteUser(r.Context(), id)
+	if err != nil {
+		slog.Error("Failed to delete user", "error", err)
 	}
 
-	userStats, _ := h.Queries.GetUserStats(r.Context())
+	stats, userStats, _ := h.AdminService.GetDashboardStats(r.Context())
 	_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
 		"UserStats": userStats,
 	})
 
-	stats, _ := h.Queries.GetInstanceStats(r.Context())
 	_ = templates["stats.html"].ExecuteTemplate(w, "stats", map[string]interface{}{
 		"Stats": stats,
 		"OOB":   true,

@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/api"
 	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/services"
 	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
 )
@@ -62,7 +63,9 @@ func seedUser(t *testing.T, queries *db.Queries, email, password string) db.User
 
 func TestAuthFlow(t *testing.T) {
 	queries := setupTestDB(t)
-	authHandler := &api.AuthHandler{Queries: queries}
+	authService := services.NewAuthService(queries)
+	authHandler := &api.AuthHandler{AuthService: authService}
+
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /api/sessions", authHandler.Login)

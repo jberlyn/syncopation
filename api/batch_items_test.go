@@ -12,13 +12,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/api"
 	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/services"
 	"github.com/jberlyn/syncopation/storage"
 )
 
 func TestBatchOperations(t *testing.T) {
 	dbConn, queries := setupTestDBConn(t)
 	localFS := storage.NewLocalFS(t.TempDir())
-	authHandler := &api.AuthHandler{Queries: queries}
+	authService := services.NewAuthService(queries)
+	authHandler := &api.AuthHandler{AuthService: authService}
+
 	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn, Storage: localFS}
 
 	mux := http.NewServeMux()

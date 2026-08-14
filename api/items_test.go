@@ -44,7 +44,8 @@ func TestParseItemPath(t *testing.T) {
 func TestItemCRUD(t *testing.T) {
 	queries := setupTestDB(t)
 	localFS := storage.NewLocalFS(t.TempDir())
-	authHandler := &api.AuthHandler{Queries: queries}
+	authService := services.NewAuthService(queries)
+	authHandler := &api.AuthHandler{AuthService: authService}
 	itemService := services.NewItemService(queries, localFS)
 	itemHandler := &api.ItemHandler{ItemService: itemService}
 
@@ -162,7 +163,8 @@ func TestItemCRUD(t *testing.T) {
 func TestDeltaSync(t *testing.T) {
 	queries := setupTestDB(t)
 	localFS := storage.NewLocalFS(t.TempDir())
-	authHandler := &api.AuthHandler{Queries: queries}
+	authService := services.NewAuthService(queries)
+	authHandler := &api.AuthHandler{AuthService: authService}
 	itemService := services.NewItemService(queries, localFS)
 	itemHandler := &api.ItemHandler{ItemService: itemService}
 
@@ -271,7 +273,8 @@ func TestDeltaSync(t *testing.T) {
 func TestDirectoryChildren(t *testing.T) {
 	queries := setupTestDB(t)
 	localFS := storage.NewLocalFS(t.TempDir())
-	authHandler := &api.AuthHandler{Queries: queries}
+	authService := services.NewAuthService(queries)
+	authHandler := &api.AuthHandler{AuthService: authService}
 	itemService := services.NewItemService(queries, localFS)
 	itemHandler := &api.ItemHandler{ItemService: itemService}
 

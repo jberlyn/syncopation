@@ -85,7 +85,9 @@ func main() {
 func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	authHandler := &api.AuthHandler{Queries: queries}
+	authService := services.NewAuthService(queries)
+	authHandler := &api.AuthHandler{AuthService: authService}
+
 
 	// GET /api/health
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +112,9 @@ func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *ht
 	mux.Handle("/api/batch_items", authHandler.RequireAuth(http.HandlerFunc(batchItemHandler.HandleBatchItems)))
 
 	// Admin UI Routes (served at root level)
-	adminHandler := &api.AdminHandler{Queries: queries, Storage: localFS, Version: Version}
+	adminService := services.NewAdminService(queries, localFS)
+	adminHandler := &api.AdminHandler{AdminService: adminService, Version: Version}
+
 
 	mux.Handle("GET /setup", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleSetupGet)))
 	mux.Handle("POST /setup", adminHandler.AdminMiddleware(http.HandlerFunc(adminHandler.HandleSetupPost)))

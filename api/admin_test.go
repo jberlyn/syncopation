@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/api"
 	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/services"
 	"github.com/jberlyn/syncopation/storage"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,7 +21,8 @@ func TestAdminUI(t *testing.T) {
 	queries := setupTestDB(t)
 
 	store := storage.NewLocalFS(t.TempDir())
-	adminHandler := &api.AdminHandler{Queries: queries, Storage: store}
+	adminService := services.NewAdminService(queries, store)
+	adminHandler := &api.AdminHandler{AdminService: adminService, Version: "test"}
 
 	// Setup mux
 	mux := http.NewServeMux()

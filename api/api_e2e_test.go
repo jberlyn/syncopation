@@ -44,7 +44,9 @@ func setupTestApp(t *testing.T) (*http.ServeMux, *db.Queries, *sql.DB, *storage.
 
 	mux := http.NewServeMux()
 
-	authHandler := &AuthHandler{Queries: queries}
+	authService := services.NewAuthService(queries)
+	authHandler := &AuthHandler{AuthService: authService}
+
 	mux.HandleFunc("POST /api/sessions", authHandler.Login)
 	mux.HandleFunc("DELETE /api/sessions/{id}", authHandler.Logout)
 

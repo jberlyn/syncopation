@@ -4,16 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"strings"
-	"time"
 
-	"github.com/google/uuid"
-	"github.com/jberlyn/syncopation/db"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/jberlyn/syncopation/services"
 )
 
 type AuthHandler struct {
-	Queries *db.Queries
+	AuthService *services.AuthService
 }
 
 type LoginRequest struct {
@@ -33,29 +29,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.Queries.GetUserByEmail(r.Context(), req.Email)
+	session, err := h.AuthService.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized) // 401 is typically for bad login
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-		return
-	}
-
-	// Generate 32-character hex UUID for session ID
-	sessionID := strings.ReplaceAll(uuid.New().String(), "-", "")
-	now := time.Now().UnixMilli()
-
-	session, err := h.Queries.CreateSession(r.Context(), db.CreateSessionParams{
-		ID:        sessionID,
-		UserID:    user.ID,
-		AuthCode:  "",
-		CreatedAt: now,
-		UpdatedAt: now,
-	})
-	if err != nil {
+		if err == services.ErrInvalidCredentials {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -76,7 +55,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Queries.DeleteSession(r.Context(), id)
+	err := h.AuthService.Logout(r.Context(), id)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -98,7 +77,7 @@ func (h *AuthHandler) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		session, err := h.Queries.GetSession(r.Context(), token)
+		session, err := h.AuthService.ValidateSession(r.Context(), token)
 		if err != nil {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return

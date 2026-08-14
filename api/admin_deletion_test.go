@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/api"
 	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/services"
 	"github.com/jberlyn/syncopation/storage"
 )
 
@@ -20,7 +21,8 @@ func TestUserDeletionCascade(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := storage.NewLocalFS(tmpDir)
 
-	adminHandler := &api.AdminHandler{Queries: queries, Storage: store}
+	adminService := services.NewAdminService(queries, store)
+	adminHandler := &api.AdminHandler{AdminService: adminService, Version: "test"}
 
 	ctx := context.Background()
 	now := time.Now().UnixMilli()
