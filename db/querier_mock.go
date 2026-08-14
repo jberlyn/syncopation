@@ -5,7 +5,6 @@ package db
 
 import (
 	"context"
-	"github.com/jberlyn/syncopation/db"
 	"sync"
 )
 
@@ -22,22 +21,22 @@ var _ Querier = &QuerierMock{}
 //			CountUsersFunc: func(ctx context.Context) (int64, error) {
 //				panic("mock out the CountUsers method")
 //			},
-//			CreateSessionFunc: func(ctx context.Context, arg db.CreateSessionParams) (db.Session, error) {
+//			CreateSessionFunc: func(ctx context.Context, arg CreateSessionParams) (Session, error) {
 //				panic("mock out the CreateSession method")
 //			},
-//			CreateShareFunc: func(ctx context.Context, arg db.CreateShareParams) (db.Share, error) {
+//			CreateShareFunc: func(ctx context.Context, arg CreateShareParams) (Share, error) {
 //				panic("mock out the CreateShare method")
 //			},
-//			CreateUserFunc: func(ctx context.Context, arg db.CreateUserParams) (db.User, error) {
+//			CreateUserFunc: func(ctx context.Context, arg CreateUserParams) (User, error) {
 //				panic("mock out the CreateUser method")
 //			},
-//			CreateUserShareFunc: func(ctx context.Context, arg db.CreateUserShareParams) (db.UserShare, error) {
+//			CreateUserShareFunc: func(ctx context.Context, arg CreateUserShareParams) (UserShare, error) {
 //				panic("mock out the CreateUserShare method")
 //			},
 //			DeleteSessionFunc: func(ctx context.Context, id string) error {
 //				panic("mock out the DeleteSession method")
 //			},
-//			DeleteSyncItemByFileNameAndUserFunc: func(ctx context.Context, arg db.DeleteSyncItemByFileNameAndUserParams) error {
+//			DeleteSyncItemByFileNameAndUserFunc: func(ctx context.Context, arg DeleteSyncItemByFileNameAndUserParams) error {
 //				panic("mock out the DeleteSyncItemByFileNameAndUser method")
 //			},
 //			DeleteSyncLockFunc: func(ctx context.Context, lockKey string) error {
@@ -46,55 +45,55 @@ var _ Querier = &QuerierMock{}
 //			DeleteUserFunc: func(ctx context.Context, id string) error {
 //				panic("mock out the DeleteUser method")
 //			},
-//			DeleteUserSyncItemFunc: func(ctx context.Context, arg db.DeleteUserSyncItemParams) error {
+//			DeleteUserSyncItemFunc: func(ctx context.Context, arg DeleteUserSyncItemParams) error {
 //				panic("mock out the DeleteUserSyncItem method")
 //			},
-//			GetDeltaEventsByUserFunc: func(ctx context.Context, arg db.GetDeltaEventsByUserParams) ([]db.DeltaEvent, error) {
+//			GetDeltaEventsByUserFunc: func(ctx context.Context, arg GetDeltaEventsByUserParams) ([]DeltaEvent, error) {
 //				panic("mock out the GetDeltaEventsByUser method")
 //			},
-//			GetInstanceStatsFunc: func(ctx context.Context) (db.GetInstanceStatsRow, error) {
+//			GetInstanceStatsFunc: func(ctx context.Context) (GetInstanceStatsRow, error) {
 //				panic("mock out the GetInstanceStats method")
 //			},
-//			GetSessionFunc: func(ctx context.Context, id string) (db.Session, error) {
+//			GetSessionFunc: func(ctx context.Context, id string) (Session, error) {
 //				panic("mock out the GetSession method")
 //			},
-//			GetSyncItemByFileNameAndUserFunc: func(ctx context.Context, arg db.GetSyncItemByFileNameAndUserParams) (db.SyncItem, error) {
+//			GetSyncItemByFileNameAndUserFunc: func(ctx context.Context, arg GetSyncItemByFileNameAndUserParams) (SyncItem, error) {
 //				panic("mock out the GetSyncItemByFileNameAndUser method")
 //			},
-//			GetSyncLockFunc: func(ctx context.Context, lockKey string) (db.SyncLock, error) {
+//			GetSyncLockFunc: func(ctx context.Context, lockKey string) (SyncLock, error) {
 //				panic("mock out the GetSyncLock method")
 //			},
-//			GetUserFunc: func(ctx context.Context, id string) (db.User, error) {
+//			GetUserFunc: func(ctx context.Context, id string) (User, error) {
 //				panic("mock out the GetUser method")
 //			},
-//			GetUserByEmailFunc: func(ctx context.Context, email string) (db.User, error) {
+//			GetUserByEmailFunc: func(ctx context.Context, email string) (User, error) {
 //				panic("mock out the GetUserByEmail method")
 //			},
-//			GetUserStatsFunc: func(ctx context.Context) ([]db.GetUserStatsRow, error) {
+//			GetUserStatsFunc: func(ctx context.Context) ([]GetUserStatsRow, error) {
 //				panic("mock out the GetUserStats method")
 //			},
-//			InsertDeltaEventFunc: func(ctx context.Context, arg db.InsertDeltaEventParams) (db.DeltaEvent, error) {
+//			InsertDeltaEventFunc: func(ctx context.Context, arg InsertDeltaEventParams) (DeltaEvent, error) {
 //				panic("mock out the InsertDeltaEvent method")
 //			},
-//			InsertShareTombstonesForDeletedUserFunc: func(ctx context.Context, arg db.InsertShareTombstonesForDeletedUserParams) error {
+//			InsertShareTombstonesForDeletedUserFunc: func(ctx context.Context, arg InsertShareTombstonesForDeletedUserParams) error {
 //				panic("mock out the InsertShareTombstonesForDeletedUser method")
 //			},
-//			ListSyncItemsByUserFunc: func(ctx context.Context, arg db.ListSyncItemsByUserParams) ([]db.SyncItem, error) {
+//			ListSyncItemsByUserFunc: func(ctx context.Context, arg ListSyncItemsByUserParams) ([]SyncItem, error) {
 //				panic("mock out the ListSyncItemsByUser method")
 //			},
-//			ListSyncLocksByTypeFunc: func(ctx context.Context, lockType int64) ([]db.SyncLock, error) {
+//			ListSyncLocksByTypeFunc: func(ctx context.Context, lockType int64) ([]SyncLock, error) {
 //				panic("mock out the ListSyncLocksByType method")
 //			},
-//			ListUsersFunc: func(ctx context.Context) ([]db.User, error) {
+//			ListUsersFunc: func(ctx context.Context) ([]User, error) {
 //				panic("mock out the ListUsers method")
 //			},
-//			SetSyncLockFunc: func(ctx context.Context, arg db.SetSyncLockParams) (db.SyncLock, error) {
+//			SetSyncLockFunc: func(ctx context.Context, arg SetSyncLockParams) (SyncLock, error) {
 //				panic("mock out the SetSyncLock method")
 //			},
-//			UpsertSyncItemFunc: func(ctx context.Context, arg db.UpsertSyncItemParams) (db.SyncItem, error) {
+//			UpsertSyncItemFunc: func(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error) {
 //				panic("mock out the UpsertSyncItem method")
 //			},
-//			UpsertUserSyncItemFunc: func(ctx context.Context, arg db.UpsertUserSyncItemParams) (db.UserSyncItem, error) {
+//			UpsertUserSyncItemFunc: func(ctx context.Context, arg UpsertUserSyncItemParams) (UserSyncItem, error) {
 //				panic("mock out the UpsertUserSyncItem method")
 //			},
 //		}
@@ -108,22 +107,22 @@ type QuerierMock struct {
 	CountUsersFunc func(ctx context.Context) (int64, error)
 
 	// CreateSessionFunc mocks the CreateSession method.
-	CreateSessionFunc func(ctx context.Context, arg db.CreateSessionParams) (db.Session, error)
+	CreateSessionFunc func(ctx context.Context, arg CreateSessionParams) (Session, error)
 
 	// CreateShareFunc mocks the CreateShare method.
-	CreateShareFunc func(ctx context.Context, arg db.CreateShareParams) (db.Share, error)
+	CreateShareFunc func(ctx context.Context, arg CreateShareParams) (Share, error)
 
 	// CreateUserFunc mocks the CreateUser method.
-	CreateUserFunc func(ctx context.Context, arg db.CreateUserParams) (db.User, error)
+	CreateUserFunc func(ctx context.Context, arg CreateUserParams) (User, error)
 
 	// CreateUserShareFunc mocks the CreateUserShare method.
-	CreateUserShareFunc func(ctx context.Context, arg db.CreateUserShareParams) (db.UserShare, error)
+	CreateUserShareFunc func(ctx context.Context, arg CreateUserShareParams) (UserShare, error)
 
 	// DeleteSessionFunc mocks the DeleteSession method.
 	DeleteSessionFunc func(ctx context.Context, id string) error
 
 	// DeleteSyncItemByFileNameAndUserFunc mocks the DeleteSyncItemByFileNameAndUser method.
-	DeleteSyncItemByFileNameAndUserFunc func(ctx context.Context, arg db.DeleteSyncItemByFileNameAndUserParams) error
+	DeleteSyncItemByFileNameAndUserFunc func(ctx context.Context, arg DeleteSyncItemByFileNameAndUserParams) error
 
 	// DeleteSyncLockFunc mocks the DeleteSyncLock method.
 	DeleteSyncLockFunc func(ctx context.Context, lockKey string) error
@@ -132,55 +131,55 @@ type QuerierMock struct {
 	DeleteUserFunc func(ctx context.Context, id string) error
 
 	// DeleteUserSyncItemFunc mocks the DeleteUserSyncItem method.
-	DeleteUserSyncItemFunc func(ctx context.Context, arg db.DeleteUserSyncItemParams) error
+	DeleteUserSyncItemFunc func(ctx context.Context, arg DeleteUserSyncItemParams) error
 
 	// GetDeltaEventsByUserFunc mocks the GetDeltaEventsByUser method.
-	GetDeltaEventsByUserFunc func(ctx context.Context, arg db.GetDeltaEventsByUserParams) ([]db.DeltaEvent, error)
+	GetDeltaEventsByUserFunc func(ctx context.Context, arg GetDeltaEventsByUserParams) ([]DeltaEvent, error)
 
 	// GetInstanceStatsFunc mocks the GetInstanceStats method.
-	GetInstanceStatsFunc func(ctx context.Context) (db.GetInstanceStatsRow, error)
+	GetInstanceStatsFunc func(ctx context.Context) (GetInstanceStatsRow, error)
 
 	// GetSessionFunc mocks the GetSession method.
-	GetSessionFunc func(ctx context.Context, id string) (db.Session, error)
+	GetSessionFunc func(ctx context.Context, id string) (Session, error)
 
 	// GetSyncItemByFileNameAndUserFunc mocks the GetSyncItemByFileNameAndUser method.
-	GetSyncItemByFileNameAndUserFunc func(ctx context.Context, arg db.GetSyncItemByFileNameAndUserParams) (db.SyncItem, error)
+	GetSyncItemByFileNameAndUserFunc func(ctx context.Context, arg GetSyncItemByFileNameAndUserParams) (SyncItem, error)
 
 	// GetSyncLockFunc mocks the GetSyncLock method.
-	GetSyncLockFunc func(ctx context.Context, lockKey string) (db.SyncLock, error)
+	GetSyncLockFunc func(ctx context.Context, lockKey string) (SyncLock, error)
 
 	// GetUserFunc mocks the GetUser method.
-	GetUserFunc func(ctx context.Context, id string) (db.User, error)
+	GetUserFunc func(ctx context.Context, id string) (User, error)
 
 	// GetUserByEmailFunc mocks the GetUserByEmail method.
-	GetUserByEmailFunc func(ctx context.Context, email string) (db.User, error)
+	GetUserByEmailFunc func(ctx context.Context, email string) (User, error)
 
 	// GetUserStatsFunc mocks the GetUserStats method.
-	GetUserStatsFunc func(ctx context.Context) ([]db.GetUserStatsRow, error)
+	GetUserStatsFunc func(ctx context.Context) ([]GetUserStatsRow, error)
 
 	// InsertDeltaEventFunc mocks the InsertDeltaEvent method.
-	InsertDeltaEventFunc func(ctx context.Context, arg db.InsertDeltaEventParams) (db.DeltaEvent, error)
+	InsertDeltaEventFunc func(ctx context.Context, arg InsertDeltaEventParams) (DeltaEvent, error)
 
 	// InsertShareTombstonesForDeletedUserFunc mocks the InsertShareTombstonesForDeletedUser method.
-	InsertShareTombstonesForDeletedUserFunc func(ctx context.Context, arg db.InsertShareTombstonesForDeletedUserParams) error
+	InsertShareTombstonesForDeletedUserFunc func(ctx context.Context, arg InsertShareTombstonesForDeletedUserParams) error
 
 	// ListSyncItemsByUserFunc mocks the ListSyncItemsByUser method.
-	ListSyncItemsByUserFunc func(ctx context.Context, arg db.ListSyncItemsByUserParams) ([]db.SyncItem, error)
+	ListSyncItemsByUserFunc func(ctx context.Context, arg ListSyncItemsByUserParams) ([]SyncItem, error)
 
 	// ListSyncLocksByTypeFunc mocks the ListSyncLocksByType method.
-	ListSyncLocksByTypeFunc func(ctx context.Context, lockType int64) ([]db.SyncLock, error)
+	ListSyncLocksByTypeFunc func(ctx context.Context, lockType int64) ([]SyncLock, error)
 
 	// ListUsersFunc mocks the ListUsers method.
-	ListUsersFunc func(ctx context.Context) ([]db.User, error)
+	ListUsersFunc func(ctx context.Context) ([]User, error)
 
 	// SetSyncLockFunc mocks the SetSyncLock method.
-	SetSyncLockFunc func(ctx context.Context, arg db.SetSyncLockParams) (db.SyncLock, error)
+	SetSyncLockFunc func(ctx context.Context, arg SetSyncLockParams) (SyncLock, error)
 
 	// UpsertSyncItemFunc mocks the UpsertSyncItem method.
-	UpsertSyncItemFunc func(ctx context.Context, arg db.UpsertSyncItemParams) (db.SyncItem, error)
+	UpsertSyncItemFunc func(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error)
 
 	// UpsertUserSyncItemFunc mocks the UpsertUserSyncItem method.
-	UpsertUserSyncItemFunc func(ctx context.Context, arg db.UpsertUserSyncItemParams) (db.UserSyncItem, error)
+	UpsertUserSyncItemFunc func(ctx context.Context, arg UpsertUserSyncItemParams) (UserSyncItem, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -194,28 +193,28 @@ type QuerierMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.CreateSessionParams
+			Arg CreateSessionParams
 		}
 		// CreateShare holds details about calls to the CreateShare method.
 		CreateShare []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.CreateShareParams
+			Arg CreateShareParams
 		}
 		// CreateUser holds details about calls to the CreateUser method.
 		CreateUser []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.CreateUserParams
+			Arg CreateUserParams
 		}
 		// CreateUserShare holds details about calls to the CreateUserShare method.
 		CreateUserShare []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.CreateUserShareParams
+			Arg CreateUserShareParams
 		}
 		// DeleteSession holds details about calls to the DeleteSession method.
 		DeleteSession []struct {
@@ -229,7 +228,7 @@ type QuerierMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.DeleteSyncItemByFileNameAndUserParams
+			Arg DeleteSyncItemByFileNameAndUserParams
 		}
 		// DeleteSyncLock holds details about calls to the DeleteSyncLock method.
 		DeleteSyncLock []struct {
@@ -250,14 +249,14 @@ type QuerierMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.DeleteUserSyncItemParams
+			Arg DeleteUserSyncItemParams
 		}
 		// GetDeltaEventsByUser holds details about calls to the GetDeltaEventsByUser method.
 		GetDeltaEventsByUser []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.GetDeltaEventsByUserParams
+			Arg GetDeltaEventsByUserParams
 		}
 		// GetInstanceStats holds details about calls to the GetInstanceStats method.
 		GetInstanceStats []struct {
@@ -276,7 +275,7 @@ type QuerierMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.GetSyncItemByFileNameAndUserParams
+			Arg GetSyncItemByFileNameAndUserParams
 		}
 		// GetSyncLock holds details about calls to the GetSyncLock method.
 		GetSyncLock []struct {
@@ -309,21 +308,21 @@ type QuerierMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.InsertDeltaEventParams
+			Arg InsertDeltaEventParams
 		}
 		// InsertShareTombstonesForDeletedUser holds details about calls to the InsertShareTombstonesForDeletedUser method.
 		InsertShareTombstonesForDeletedUser []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.InsertShareTombstonesForDeletedUserParams
+			Arg InsertShareTombstonesForDeletedUserParams
 		}
 		// ListSyncItemsByUser holds details about calls to the ListSyncItemsByUser method.
 		ListSyncItemsByUser []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.ListSyncItemsByUserParams
+			Arg ListSyncItemsByUserParams
 		}
 		// ListSyncLocksByType holds details about calls to the ListSyncLocksByType method.
 		ListSyncLocksByType []struct {
@@ -342,21 +341,21 @@ type QuerierMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.SetSyncLockParams
+			Arg SetSyncLockParams
 		}
 		// UpsertSyncItem holds details about calls to the UpsertSyncItem method.
 		UpsertSyncItem []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.UpsertSyncItemParams
+			Arg UpsertSyncItemParams
 		}
 		// UpsertUserSyncItem holds details about calls to the UpsertUserSyncItem method.
 		UpsertUserSyncItem []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
-			Arg db.UpsertUserSyncItemParams
+			Arg UpsertUserSyncItemParams
 		}
 	}
 	lockCountUsers                          sync.RWMutex
@@ -420,13 +419,13 @@ func (mock *QuerierMock) CountUsersCalls() []struct {
 }
 
 // CreateSession calls CreateSessionFunc.
-func (mock *QuerierMock) CreateSession(ctx context.Context, arg db.CreateSessionParams) (db.Session, error) {
+func (mock *QuerierMock) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
 	if mock.CreateSessionFunc == nil {
 		panic("QuerierMock.CreateSessionFunc: method is nil but Querier.CreateSession was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.CreateSessionParams
+		Arg CreateSessionParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -443,11 +442,11 @@ func (mock *QuerierMock) CreateSession(ctx context.Context, arg db.CreateSession
 //	len(mockedQuerier.CreateSessionCalls())
 func (mock *QuerierMock) CreateSessionCalls() []struct {
 	Ctx context.Context
-	Arg db.CreateSessionParams
+	Arg CreateSessionParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.CreateSessionParams
+		Arg CreateSessionParams
 	}
 	mock.lockCreateSession.RLock()
 	calls = mock.calls.CreateSession
@@ -456,13 +455,13 @@ func (mock *QuerierMock) CreateSessionCalls() []struct {
 }
 
 // CreateShare calls CreateShareFunc.
-func (mock *QuerierMock) CreateShare(ctx context.Context, arg db.CreateShareParams) (db.Share, error) {
+func (mock *QuerierMock) CreateShare(ctx context.Context, arg CreateShareParams) (Share, error) {
 	if mock.CreateShareFunc == nil {
 		panic("QuerierMock.CreateShareFunc: method is nil but Querier.CreateShare was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.CreateShareParams
+		Arg CreateShareParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -479,11 +478,11 @@ func (mock *QuerierMock) CreateShare(ctx context.Context, arg db.CreateSharePara
 //	len(mockedQuerier.CreateShareCalls())
 func (mock *QuerierMock) CreateShareCalls() []struct {
 	Ctx context.Context
-	Arg db.CreateShareParams
+	Arg CreateShareParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.CreateShareParams
+		Arg CreateShareParams
 	}
 	mock.lockCreateShare.RLock()
 	calls = mock.calls.CreateShare
@@ -492,13 +491,13 @@ func (mock *QuerierMock) CreateShareCalls() []struct {
 }
 
 // CreateUser calls CreateUserFunc.
-func (mock *QuerierMock) CreateUser(ctx context.Context, arg db.CreateUserParams) (db.User, error) {
+func (mock *QuerierMock) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	if mock.CreateUserFunc == nil {
 		panic("QuerierMock.CreateUserFunc: method is nil but Querier.CreateUser was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.CreateUserParams
+		Arg CreateUserParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -515,11 +514,11 @@ func (mock *QuerierMock) CreateUser(ctx context.Context, arg db.CreateUserParams
 //	len(mockedQuerier.CreateUserCalls())
 func (mock *QuerierMock) CreateUserCalls() []struct {
 	Ctx context.Context
-	Arg db.CreateUserParams
+	Arg CreateUserParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.CreateUserParams
+		Arg CreateUserParams
 	}
 	mock.lockCreateUser.RLock()
 	calls = mock.calls.CreateUser
@@ -528,13 +527,13 @@ func (mock *QuerierMock) CreateUserCalls() []struct {
 }
 
 // CreateUserShare calls CreateUserShareFunc.
-func (mock *QuerierMock) CreateUserShare(ctx context.Context, arg db.CreateUserShareParams) (db.UserShare, error) {
+func (mock *QuerierMock) CreateUserShare(ctx context.Context, arg CreateUserShareParams) (UserShare, error) {
 	if mock.CreateUserShareFunc == nil {
 		panic("QuerierMock.CreateUserShareFunc: method is nil but Querier.CreateUserShare was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.CreateUserShareParams
+		Arg CreateUserShareParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -551,11 +550,11 @@ func (mock *QuerierMock) CreateUserShare(ctx context.Context, arg db.CreateUserS
 //	len(mockedQuerier.CreateUserShareCalls())
 func (mock *QuerierMock) CreateUserShareCalls() []struct {
 	Ctx context.Context
-	Arg db.CreateUserShareParams
+	Arg CreateUserShareParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.CreateUserShareParams
+		Arg CreateUserShareParams
 	}
 	mock.lockCreateUserShare.RLock()
 	calls = mock.calls.CreateUserShare
@@ -600,13 +599,13 @@ func (mock *QuerierMock) DeleteSessionCalls() []struct {
 }
 
 // DeleteSyncItemByFileNameAndUser calls DeleteSyncItemByFileNameAndUserFunc.
-func (mock *QuerierMock) DeleteSyncItemByFileNameAndUser(ctx context.Context, arg db.DeleteSyncItemByFileNameAndUserParams) error {
+func (mock *QuerierMock) DeleteSyncItemByFileNameAndUser(ctx context.Context, arg DeleteSyncItemByFileNameAndUserParams) error {
 	if mock.DeleteSyncItemByFileNameAndUserFunc == nil {
 		panic("QuerierMock.DeleteSyncItemByFileNameAndUserFunc: method is nil but Querier.DeleteSyncItemByFileNameAndUser was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.DeleteSyncItemByFileNameAndUserParams
+		Arg DeleteSyncItemByFileNameAndUserParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -623,11 +622,11 @@ func (mock *QuerierMock) DeleteSyncItemByFileNameAndUser(ctx context.Context, ar
 //	len(mockedQuerier.DeleteSyncItemByFileNameAndUserCalls())
 func (mock *QuerierMock) DeleteSyncItemByFileNameAndUserCalls() []struct {
 	Ctx context.Context
-	Arg db.DeleteSyncItemByFileNameAndUserParams
+	Arg DeleteSyncItemByFileNameAndUserParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.DeleteSyncItemByFileNameAndUserParams
+		Arg DeleteSyncItemByFileNameAndUserParams
 	}
 	mock.lockDeleteSyncItemByFileNameAndUser.RLock()
 	calls = mock.calls.DeleteSyncItemByFileNameAndUser
@@ -708,13 +707,13 @@ func (mock *QuerierMock) DeleteUserCalls() []struct {
 }
 
 // DeleteUserSyncItem calls DeleteUserSyncItemFunc.
-func (mock *QuerierMock) DeleteUserSyncItem(ctx context.Context, arg db.DeleteUserSyncItemParams) error {
+func (mock *QuerierMock) DeleteUserSyncItem(ctx context.Context, arg DeleteUserSyncItemParams) error {
 	if mock.DeleteUserSyncItemFunc == nil {
 		panic("QuerierMock.DeleteUserSyncItemFunc: method is nil but Querier.DeleteUserSyncItem was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.DeleteUserSyncItemParams
+		Arg DeleteUserSyncItemParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -731,11 +730,11 @@ func (mock *QuerierMock) DeleteUserSyncItem(ctx context.Context, arg db.DeleteUs
 //	len(mockedQuerier.DeleteUserSyncItemCalls())
 func (mock *QuerierMock) DeleteUserSyncItemCalls() []struct {
 	Ctx context.Context
-	Arg db.DeleteUserSyncItemParams
+	Arg DeleteUserSyncItemParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.DeleteUserSyncItemParams
+		Arg DeleteUserSyncItemParams
 	}
 	mock.lockDeleteUserSyncItem.RLock()
 	calls = mock.calls.DeleteUserSyncItem
@@ -744,13 +743,13 @@ func (mock *QuerierMock) DeleteUserSyncItemCalls() []struct {
 }
 
 // GetDeltaEventsByUser calls GetDeltaEventsByUserFunc.
-func (mock *QuerierMock) GetDeltaEventsByUser(ctx context.Context, arg db.GetDeltaEventsByUserParams) ([]db.DeltaEvent, error) {
+func (mock *QuerierMock) GetDeltaEventsByUser(ctx context.Context, arg GetDeltaEventsByUserParams) ([]DeltaEvent, error) {
 	if mock.GetDeltaEventsByUserFunc == nil {
 		panic("QuerierMock.GetDeltaEventsByUserFunc: method is nil but Querier.GetDeltaEventsByUser was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.GetDeltaEventsByUserParams
+		Arg GetDeltaEventsByUserParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -767,11 +766,11 @@ func (mock *QuerierMock) GetDeltaEventsByUser(ctx context.Context, arg db.GetDel
 //	len(mockedQuerier.GetDeltaEventsByUserCalls())
 func (mock *QuerierMock) GetDeltaEventsByUserCalls() []struct {
 	Ctx context.Context
-	Arg db.GetDeltaEventsByUserParams
+	Arg GetDeltaEventsByUserParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.GetDeltaEventsByUserParams
+		Arg GetDeltaEventsByUserParams
 	}
 	mock.lockGetDeltaEventsByUser.RLock()
 	calls = mock.calls.GetDeltaEventsByUser
@@ -780,7 +779,7 @@ func (mock *QuerierMock) GetDeltaEventsByUserCalls() []struct {
 }
 
 // GetInstanceStats calls GetInstanceStatsFunc.
-func (mock *QuerierMock) GetInstanceStats(ctx context.Context) (db.GetInstanceStatsRow, error) {
+func (mock *QuerierMock) GetInstanceStats(ctx context.Context) (GetInstanceStatsRow, error) {
 	if mock.GetInstanceStatsFunc == nil {
 		panic("QuerierMock.GetInstanceStatsFunc: method is nil but Querier.GetInstanceStats was just called")
 	}
@@ -812,7 +811,7 @@ func (mock *QuerierMock) GetInstanceStatsCalls() []struct {
 }
 
 // GetSession calls GetSessionFunc.
-func (mock *QuerierMock) GetSession(ctx context.Context, id string) (db.Session, error) {
+func (mock *QuerierMock) GetSession(ctx context.Context, id string) (Session, error) {
 	if mock.GetSessionFunc == nil {
 		panic("QuerierMock.GetSessionFunc: method is nil but Querier.GetSession was just called")
 	}
@@ -848,13 +847,13 @@ func (mock *QuerierMock) GetSessionCalls() []struct {
 }
 
 // GetSyncItemByFileNameAndUser calls GetSyncItemByFileNameAndUserFunc.
-func (mock *QuerierMock) GetSyncItemByFileNameAndUser(ctx context.Context, arg db.GetSyncItemByFileNameAndUserParams) (db.SyncItem, error) {
+func (mock *QuerierMock) GetSyncItemByFileNameAndUser(ctx context.Context, arg GetSyncItemByFileNameAndUserParams) (SyncItem, error) {
 	if mock.GetSyncItemByFileNameAndUserFunc == nil {
 		panic("QuerierMock.GetSyncItemByFileNameAndUserFunc: method is nil but Querier.GetSyncItemByFileNameAndUser was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.GetSyncItemByFileNameAndUserParams
+		Arg GetSyncItemByFileNameAndUserParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -871,11 +870,11 @@ func (mock *QuerierMock) GetSyncItemByFileNameAndUser(ctx context.Context, arg d
 //	len(mockedQuerier.GetSyncItemByFileNameAndUserCalls())
 func (mock *QuerierMock) GetSyncItemByFileNameAndUserCalls() []struct {
 	Ctx context.Context
-	Arg db.GetSyncItemByFileNameAndUserParams
+	Arg GetSyncItemByFileNameAndUserParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.GetSyncItemByFileNameAndUserParams
+		Arg GetSyncItemByFileNameAndUserParams
 	}
 	mock.lockGetSyncItemByFileNameAndUser.RLock()
 	calls = mock.calls.GetSyncItemByFileNameAndUser
@@ -884,7 +883,7 @@ func (mock *QuerierMock) GetSyncItemByFileNameAndUserCalls() []struct {
 }
 
 // GetSyncLock calls GetSyncLockFunc.
-func (mock *QuerierMock) GetSyncLock(ctx context.Context, lockKey string) (db.SyncLock, error) {
+func (mock *QuerierMock) GetSyncLock(ctx context.Context, lockKey string) (SyncLock, error) {
 	if mock.GetSyncLockFunc == nil {
 		panic("QuerierMock.GetSyncLockFunc: method is nil but Querier.GetSyncLock was just called")
 	}
@@ -920,7 +919,7 @@ func (mock *QuerierMock) GetSyncLockCalls() []struct {
 }
 
 // GetUser calls GetUserFunc.
-func (mock *QuerierMock) GetUser(ctx context.Context, id string) (db.User, error) {
+func (mock *QuerierMock) GetUser(ctx context.Context, id string) (User, error) {
 	if mock.GetUserFunc == nil {
 		panic("QuerierMock.GetUserFunc: method is nil but Querier.GetUser was just called")
 	}
@@ -956,7 +955,7 @@ func (mock *QuerierMock) GetUserCalls() []struct {
 }
 
 // GetUserByEmail calls GetUserByEmailFunc.
-func (mock *QuerierMock) GetUserByEmail(ctx context.Context, email string) (db.User, error) {
+func (mock *QuerierMock) GetUserByEmail(ctx context.Context, email string) (User, error) {
 	if mock.GetUserByEmailFunc == nil {
 		panic("QuerierMock.GetUserByEmailFunc: method is nil but Querier.GetUserByEmail was just called")
 	}
@@ -992,7 +991,7 @@ func (mock *QuerierMock) GetUserByEmailCalls() []struct {
 }
 
 // GetUserStats calls GetUserStatsFunc.
-func (mock *QuerierMock) GetUserStats(ctx context.Context) ([]db.GetUserStatsRow, error) {
+func (mock *QuerierMock) GetUserStats(ctx context.Context) ([]GetUserStatsRow, error) {
 	if mock.GetUserStatsFunc == nil {
 		panic("QuerierMock.GetUserStatsFunc: method is nil but Querier.GetUserStats was just called")
 	}
@@ -1024,13 +1023,13 @@ func (mock *QuerierMock) GetUserStatsCalls() []struct {
 }
 
 // InsertDeltaEvent calls InsertDeltaEventFunc.
-func (mock *QuerierMock) InsertDeltaEvent(ctx context.Context, arg db.InsertDeltaEventParams) (db.DeltaEvent, error) {
+func (mock *QuerierMock) InsertDeltaEvent(ctx context.Context, arg InsertDeltaEventParams) (DeltaEvent, error) {
 	if mock.InsertDeltaEventFunc == nil {
 		panic("QuerierMock.InsertDeltaEventFunc: method is nil but Querier.InsertDeltaEvent was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.InsertDeltaEventParams
+		Arg InsertDeltaEventParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -1047,11 +1046,11 @@ func (mock *QuerierMock) InsertDeltaEvent(ctx context.Context, arg db.InsertDelt
 //	len(mockedQuerier.InsertDeltaEventCalls())
 func (mock *QuerierMock) InsertDeltaEventCalls() []struct {
 	Ctx context.Context
-	Arg db.InsertDeltaEventParams
+	Arg InsertDeltaEventParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.InsertDeltaEventParams
+		Arg InsertDeltaEventParams
 	}
 	mock.lockInsertDeltaEvent.RLock()
 	calls = mock.calls.InsertDeltaEvent
@@ -1060,13 +1059,13 @@ func (mock *QuerierMock) InsertDeltaEventCalls() []struct {
 }
 
 // InsertShareTombstonesForDeletedUser calls InsertShareTombstonesForDeletedUserFunc.
-func (mock *QuerierMock) InsertShareTombstonesForDeletedUser(ctx context.Context, arg db.InsertShareTombstonesForDeletedUserParams) error {
+func (mock *QuerierMock) InsertShareTombstonesForDeletedUser(ctx context.Context, arg InsertShareTombstonesForDeletedUserParams) error {
 	if mock.InsertShareTombstonesForDeletedUserFunc == nil {
 		panic("QuerierMock.InsertShareTombstonesForDeletedUserFunc: method is nil but Querier.InsertShareTombstonesForDeletedUser was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.InsertShareTombstonesForDeletedUserParams
+		Arg InsertShareTombstonesForDeletedUserParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -1083,11 +1082,11 @@ func (mock *QuerierMock) InsertShareTombstonesForDeletedUser(ctx context.Context
 //	len(mockedQuerier.InsertShareTombstonesForDeletedUserCalls())
 func (mock *QuerierMock) InsertShareTombstonesForDeletedUserCalls() []struct {
 	Ctx context.Context
-	Arg db.InsertShareTombstonesForDeletedUserParams
+	Arg InsertShareTombstonesForDeletedUserParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.InsertShareTombstonesForDeletedUserParams
+		Arg InsertShareTombstonesForDeletedUserParams
 	}
 	mock.lockInsertShareTombstonesForDeletedUser.RLock()
 	calls = mock.calls.InsertShareTombstonesForDeletedUser
@@ -1096,13 +1095,13 @@ func (mock *QuerierMock) InsertShareTombstonesForDeletedUserCalls() []struct {
 }
 
 // ListSyncItemsByUser calls ListSyncItemsByUserFunc.
-func (mock *QuerierMock) ListSyncItemsByUser(ctx context.Context, arg db.ListSyncItemsByUserParams) ([]db.SyncItem, error) {
+func (mock *QuerierMock) ListSyncItemsByUser(ctx context.Context, arg ListSyncItemsByUserParams) ([]SyncItem, error) {
 	if mock.ListSyncItemsByUserFunc == nil {
 		panic("QuerierMock.ListSyncItemsByUserFunc: method is nil but Querier.ListSyncItemsByUser was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.ListSyncItemsByUserParams
+		Arg ListSyncItemsByUserParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -1119,11 +1118,11 @@ func (mock *QuerierMock) ListSyncItemsByUser(ctx context.Context, arg db.ListSyn
 //	len(mockedQuerier.ListSyncItemsByUserCalls())
 func (mock *QuerierMock) ListSyncItemsByUserCalls() []struct {
 	Ctx context.Context
-	Arg db.ListSyncItemsByUserParams
+	Arg ListSyncItemsByUserParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.ListSyncItemsByUserParams
+		Arg ListSyncItemsByUserParams
 	}
 	mock.lockListSyncItemsByUser.RLock()
 	calls = mock.calls.ListSyncItemsByUser
@@ -1132,7 +1131,7 @@ func (mock *QuerierMock) ListSyncItemsByUserCalls() []struct {
 }
 
 // ListSyncLocksByType calls ListSyncLocksByTypeFunc.
-func (mock *QuerierMock) ListSyncLocksByType(ctx context.Context, lockType int64) ([]db.SyncLock, error) {
+func (mock *QuerierMock) ListSyncLocksByType(ctx context.Context, lockType int64) ([]SyncLock, error) {
 	if mock.ListSyncLocksByTypeFunc == nil {
 		panic("QuerierMock.ListSyncLocksByTypeFunc: method is nil but Querier.ListSyncLocksByType was just called")
 	}
@@ -1168,7 +1167,7 @@ func (mock *QuerierMock) ListSyncLocksByTypeCalls() []struct {
 }
 
 // ListUsers calls ListUsersFunc.
-func (mock *QuerierMock) ListUsers(ctx context.Context) ([]db.User, error) {
+func (mock *QuerierMock) ListUsers(ctx context.Context) ([]User, error) {
 	if mock.ListUsersFunc == nil {
 		panic("QuerierMock.ListUsersFunc: method is nil but Querier.ListUsers was just called")
 	}
@@ -1200,13 +1199,13 @@ func (mock *QuerierMock) ListUsersCalls() []struct {
 }
 
 // SetSyncLock calls SetSyncLockFunc.
-func (mock *QuerierMock) SetSyncLock(ctx context.Context, arg db.SetSyncLockParams) (db.SyncLock, error) {
+func (mock *QuerierMock) SetSyncLock(ctx context.Context, arg SetSyncLockParams) (SyncLock, error) {
 	if mock.SetSyncLockFunc == nil {
 		panic("QuerierMock.SetSyncLockFunc: method is nil but Querier.SetSyncLock was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.SetSyncLockParams
+		Arg SetSyncLockParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -1223,11 +1222,11 @@ func (mock *QuerierMock) SetSyncLock(ctx context.Context, arg db.SetSyncLockPara
 //	len(mockedQuerier.SetSyncLockCalls())
 func (mock *QuerierMock) SetSyncLockCalls() []struct {
 	Ctx context.Context
-	Arg db.SetSyncLockParams
+	Arg SetSyncLockParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.SetSyncLockParams
+		Arg SetSyncLockParams
 	}
 	mock.lockSetSyncLock.RLock()
 	calls = mock.calls.SetSyncLock
@@ -1236,13 +1235,13 @@ func (mock *QuerierMock) SetSyncLockCalls() []struct {
 }
 
 // UpsertSyncItem calls UpsertSyncItemFunc.
-func (mock *QuerierMock) UpsertSyncItem(ctx context.Context, arg db.UpsertSyncItemParams) (db.SyncItem, error) {
+func (mock *QuerierMock) UpsertSyncItem(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error) {
 	if mock.UpsertSyncItemFunc == nil {
 		panic("QuerierMock.UpsertSyncItemFunc: method is nil but Querier.UpsertSyncItem was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.UpsertSyncItemParams
+		Arg UpsertSyncItemParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -1259,11 +1258,11 @@ func (mock *QuerierMock) UpsertSyncItem(ctx context.Context, arg db.UpsertSyncIt
 //	len(mockedQuerier.UpsertSyncItemCalls())
 func (mock *QuerierMock) UpsertSyncItemCalls() []struct {
 	Ctx context.Context
-	Arg db.UpsertSyncItemParams
+	Arg UpsertSyncItemParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.UpsertSyncItemParams
+		Arg UpsertSyncItemParams
 	}
 	mock.lockUpsertSyncItem.RLock()
 	calls = mock.calls.UpsertSyncItem
@@ -1272,13 +1271,13 @@ func (mock *QuerierMock) UpsertSyncItemCalls() []struct {
 }
 
 // UpsertUserSyncItem calls UpsertUserSyncItemFunc.
-func (mock *QuerierMock) UpsertUserSyncItem(ctx context.Context, arg db.UpsertUserSyncItemParams) (db.UserSyncItem, error) {
+func (mock *QuerierMock) UpsertUserSyncItem(ctx context.Context, arg UpsertUserSyncItemParams) (UserSyncItem, error) {
 	if mock.UpsertUserSyncItemFunc == nil {
 		panic("QuerierMock.UpsertUserSyncItemFunc: method is nil but Querier.UpsertUserSyncItem was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
-		Arg db.UpsertUserSyncItemParams
+		Arg UpsertUserSyncItemParams
 	}{
 		Ctx: ctx,
 		Arg: arg,
@@ -1295,11 +1294,11 @@ func (mock *QuerierMock) UpsertUserSyncItem(ctx context.Context, arg db.UpsertUs
 //	len(mockedQuerier.UpsertUserSyncItemCalls())
 func (mock *QuerierMock) UpsertUserSyncItemCalls() []struct {
 	Ctx context.Context
-	Arg db.UpsertUserSyncItemParams
+	Arg UpsertUserSyncItemParams
 } {
 	var calls []struct {
 		Ctx context.Context
-		Arg db.UpsertUserSyncItemParams
+		Arg UpsertUserSyncItemParams
 	}
 	mock.lockUpsertUserSyncItem.RLock()
 	calls = mock.calls.UpsertUserSyncItem
