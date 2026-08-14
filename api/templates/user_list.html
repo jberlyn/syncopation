@@ -21,7 +21,9 @@
                             hx-delete="/users/{{.UserID}}" 
                             hx-target="#user-list" 
                             hx-swap="outerHTML"
-                            hx-confirm="Are you sure you want to delete this user?">
+                            hx-confirm="true"
+                            data-email="{{.Email}}"
+                            data-items="{{.TotalItems}}">
                         <span class="btn-text">Delete</span>
                         <span class="htmx-indicator" style="display: none;">Wait...</span>
                     </button>
@@ -36,5 +38,87 @@
         .delete-btn.htmx-request .htmx-indicator { display: inline; }
         .delete-btn.htmx-request { opacity: 0.7; pointer-events: none; }
     </style>
+
+    <dialog id="delete-user-modal" style="border: none; border-radius: 8px; padding: 2rem; background: var(--surface); color: var(--text-color); box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto;">
+        <h3 style="margin: 0 0 0.5rem 0; color: var(--error);">Delete User</h3>
+        <p style="margin-bottom: 1rem;">
+            This action is irreversible. All <strong id="delete-modal-items">XX</strong> synced items for this user will be deleted.
+        </p>
+        <div class="form-group">
+            <label for="delete-email-confirm">Please type <strong id="delete-modal-email-target">email</strong> to confirm:</label>
+            <input type="text" id="delete-email-confirm" autocomplete="off" data-bwignore="true" data-lpignore="true" data-1p-ignore="true" spellcheck="false" />
+            <div id="delete-email-error" class="error-message" style="display: none; margin-top: 0.5rem; padding: 0.5rem;">
+                Email address does not match.
+            </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+            <button id="cancel-delete-btn" style="background: transparent; color: var(--text-color); border: 1px solid var(--border-color); width: auto;">Cancel</button>
+            <button id="confirm-delete-btn" style="background: var(--error); width: auto;">Confirm Delete</button>
+        </div>
+    </dialog>
+
+    <script>
+        (function() {
+            let currentIssueRequest = null;
+            let expectedEmail = "";
+
+            const modal = document.getElementById('delete-user-modal');
+            const itemsEl = document.getElementById('delete-modal-items');
+            const targetEmailEl = document.getElementById('delete-modal-email-target');
+            const inputEl = document.getElementById('delete-email-confirm');
+            const errorEl = document.getElementById('delete-email-error');
+            const cancelBtn = document.getElementById('cancel-delete-btn');
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+
+            function closeModal() {
+                modal.close();
+                inputEl.value = '';
+                errorEl.style.display = 'none';
+                currentIssueRequest = null;
+            }
+
+            document.body.addEventListener('htmx:confirm', function(e) {
+                const btn = e.target.closest('.delete-btn');
+                if (btn && btn.hasAttribute('hx-delete')) {
+                    e.preventDefault(); 
+                    
+                    expectedEmail = btn.getAttribute('data-email');
+                    const itemsCount = btn.getAttribute('data-items');
+                    
+                    itemsEl.textContent = itemsCount;
+                    targetEmailEl.textContent = expectedEmail;
+                    currentIssueRequest = e.detail.issueRequest;
+                    
+                    modal.showModal();
+                    // setTimeout is needed because the dialog might not be fully rendered yet to focus
+                    setTimeout(() => inputEl.focus(), 50);
+                }
+            });
+
+            cancelBtn.addEventListener('click', closeModal);
+            
+            confirmBtn.addEventListener('click', function() {
+                if (inputEl.value.trim() === expectedEmail) {
+                    if (currentIssueRequest) {
+                        currentIssueRequest(true); 
+                    }
+                    closeModal();
+                } else {
+                    errorEl.style.display = 'block';
+                    inputEl.focus();
+                }
+            });
+
+            inputEl.addEventListener('input', function() {
+                errorEl.style.display = 'none';
+            });
+            
+            modal.addEventListener('close', function() {
+                inputEl.value = '';
+                errorEl.style.display = 'none';
+                currentIssueRequest = null;
+            });
+        })();
+    </script>
 </div>
 {{end}}
