@@ -15,6 +15,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUserShare(ctx context.Context, arg CreateUserShareParams) (UserShare, error)
 	DeleteSession(ctx context.Context, id string) error
+	DeleteSessionsByUserId(ctx context.Context, userID string) error
 	DeleteSyncItemByFileNameAndUser(ctx context.Context, arg DeleteSyncItemByFileNameAndUserParams) error
 	DeleteSyncLock(ctx context.Context, lockKey string) error
 	DeleteUser(ctx context.Context, id string) error
@@ -32,6 +33,7 @@ type Querier interface {
 	ListSyncItemsByUser(ctx context.Context, arg ListSyncItemsByUserParams) ([]SyncItem, error)
 	ListSyncLocksByType(ctx context.Context, lockType int64) ([]SyncLock, error)
 	SetSyncLock(ctx context.Context, arg SetSyncLockParams) (SyncLock, error)
+	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error
 	UpsertSyncItem(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error)
 	UpsertUserSyncItem(ctx context.Context, arg UpsertUserSyncItemParams) (UserSyncItem, error)
 }

@@ -178,6 +178,16 @@ func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 	return err
 }
 
+const deleteSessionsByUserId = `-- name: DeleteSessionsByUserId :exec
+DELETE FROM sessions
+WHERE user_id = ?
+`
+
+func (q *Queries) DeleteSessionsByUserId(ctx context.Context, userID string) error {
+	_, err := q.db.ExecContext(ctx, deleteSessionsByUserId, userID)
+	return err
+}
+
 const deleteSyncItemByFileNameAndUser = `-- name: DeleteSyncItemByFileNameAndUser :exec
 DELETE FROM sync_items
 WHERE file_name = ? AND id IN (
@@ -641,6 +651,23 @@ func (q *Queries) SetSyncLock(ctx context.Context, arg SetSyncLockParams) (SyncL
 		&i.LockData,
 	)
 	return i, err
+}
+
+const updateUserPassword = `-- name: UpdateUserPassword :exec
+UPDATE users
+SET password_hash = ?, updated_at = ?
+WHERE id = ?
+`
+
+type UpdateUserPasswordParams struct {
+	PasswordHash string `json:"password_hash"`
+	UpdatedAt    int64  `json:"updated_at"`
+	ID           string `json:"id"`
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserPassword, arg.PasswordHash, arg.UpdatedAt, arg.ID)
+	return err
 }
 
 const upsertSyncItem = `-- name: UpsertSyncItem :one

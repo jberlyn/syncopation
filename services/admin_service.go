@@ -153,6 +153,26 @@ func (s *AdminService) CreateUser(ctx context.Context, email, password string) e
 	return err
 }
 
+func (s *AdminService) ChangeUserPassword(ctx context.Context, userID, newPassword string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now().UnixMilli()
+
+	err = s.repo.UpdateUserPassword(ctx, db.UpdateUserPasswordParams{
+		PasswordHash: string(hashedPassword),
+		UpdatedAt:    now,
+		ID:           userID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return s.repo.DeleteSessionsByUserId(ctx, userID)
+}
+
 func (s *AdminService) DeleteUser(ctx context.Context, userID string) error {
 	user, err := s.repo.GetUser(ctx, userID)
 	if err != nil {

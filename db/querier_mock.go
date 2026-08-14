@@ -5,6 +5,7 @@ package db
 
 import (
 	"context"
+	
 	"sync"
 )
 
@@ -35,6 +36,9 @@ var _ Querier = &QuerierMock{}
 //			},
 //			DeleteSessionFunc: func(ctx context.Context, id string) error {
 //				panic("mock out the DeleteSession method")
+//			},
+//			DeleteSessionsByUserIdFunc: func(ctx context.Context, userID string) error {
+//				panic("mock out the DeleteSessionsByUserId method")
 //			},
 //			DeleteSyncItemByFileNameAndUserFunc: func(ctx context.Context, arg DeleteSyncItemByFileNameAndUserParams) error {
 //				panic("mock out the DeleteSyncItemByFileNameAndUser method")
@@ -84,11 +88,11 @@ var _ Querier = &QuerierMock{}
 //			ListSyncLocksByTypeFunc: func(ctx context.Context, lockType int64) ([]SyncLock, error) {
 //				panic("mock out the ListSyncLocksByType method")
 //			},
-//			ListUsersFunc: func(ctx context.Context) ([]User, error) {
-//				panic("mock out the ListUsers method")
-//			},
 //			SetSyncLockFunc: func(ctx context.Context, arg SetSyncLockParams) (SyncLock, error) {
 //				panic("mock out the SetSyncLock method")
+//			},
+//			UpdateUserPasswordFunc: func(ctx context.Context, arg UpdateUserPasswordParams) error {
+//				panic("mock out the UpdateUserPassword method")
 //			},
 //			UpsertSyncItemFunc: func(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error) {
 //				panic("mock out the UpsertSyncItem method")
@@ -120,6 +124,9 @@ type QuerierMock struct {
 
 	// DeleteSessionFunc mocks the DeleteSession method.
 	DeleteSessionFunc func(ctx context.Context, id string) error
+
+	// DeleteSessionsByUserIdFunc mocks the DeleteSessionsByUserId method.
+	DeleteSessionsByUserIdFunc func(ctx context.Context, userID string) error
 
 	// DeleteSyncItemByFileNameAndUserFunc mocks the DeleteSyncItemByFileNameAndUser method.
 	DeleteSyncItemByFileNameAndUserFunc func(ctx context.Context, arg DeleteSyncItemByFileNameAndUserParams) error
@@ -169,11 +176,11 @@ type QuerierMock struct {
 	// ListSyncLocksByTypeFunc mocks the ListSyncLocksByType method.
 	ListSyncLocksByTypeFunc func(ctx context.Context, lockType int64) ([]SyncLock, error)
 
-	// ListUsersFunc mocks the ListUsers method.
-	ListUsersFunc func(ctx context.Context) ([]User, error)
-
 	// SetSyncLockFunc mocks the SetSyncLock method.
 	SetSyncLockFunc func(ctx context.Context, arg SetSyncLockParams) (SyncLock, error)
+
+	// UpdateUserPasswordFunc mocks the UpdateUserPassword method.
+	UpdateUserPasswordFunc func(ctx context.Context, arg UpdateUserPasswordParams) error
 
 	// UpsertSyncItemFunc mocks the UpsertSyncItem method.
 	UpsertSyncItemFunc func(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error)
@@ -222,6 +229,13 @@ type QuerierMock struct {
 			Ctx context.Context
 			// ID is the id argument value.
 			ID string
+		}
+		// DeleteSessionsByUserId holds details about calls to the DeleteSessionsByUserId method.
+		DeleteSessionsByUserId []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
+			UserID string
 		}
 		// DeleteSyncItemByFileNameAndUser holds details about calls to the DeleteSyncItemByFileNameAndUser method.
 		DeleteSyncItemByFileNameAndUser []struct {
@@ -331,17 +345,19 @@ type QuerierMock struct {
 			// LockType is the lockType argument value.
 			LockType int64
 		}
-		// ListUsers holds details about calls to the ListUsers method.
-		ListUsers []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-		}
 		// SetSyncLock holds details about calls to the SetSyncLock method.
 		SetSyncLock []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Arg is the arg argument value.
 			Arg SetSyncLockParams
+		}
+		// UpdateUserPassword holds details about calls to the UpdateUserPassword method.
+		UpdateUserPassword []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Arg is the arg argument value.
+			Arg UpdateUserPasswordParams
 		}
 		// UpsertSyncItem holds details about calls to the UpsertSyncItem method.
 		UpsertSyncItem []struct {
@@ -364,6 +380,7 @@ type QuerierMock struct {
 	lockCreateUser                          sync.RWMutex
 	lockCreateUserShare                     sync.RWMutex
 	lockDeleteSession                       sync.RWMutex
+	lockDeleteSessionsByUserId              sync.RWMutex
 	lockDeleteSyncItemByFileNameAndUser     sync.RWMutex
 	lockDeleteSyncLock                      sync.RWMutex
 	lockDeleteUser                          sync.RWMutex
@@ -380,8 +397,8 @@ type QuerierMock struct {
 	lockInsertShareTombstonesForDeletedUser sync.RWMutex
 	lockListSyncItemsByUser                 sync.RWMutex
 	lockListSyncLocksByType                 sync.RWMutex
-	lockListUsers                           sync.RWMutex
 	lockSetSyncLock                         sync.RWMutex
+	lockUpdateUserPassword                  sync.RWMutex
 	lockUpsertSyncItem                      sync.RWMutex
 	lockUpsertUserSyncItem                  sync.RWMutex
 }
@@ -595,6 +612,42 @@ func (mock *QuerierMock) DeleteSessionCalls() []struct {
 	mock.lockDeleteSession.RLock()
 	calls = mock.calls.DeleteSession
 	mock.lockDeleteSession.RUnlock()
+	return calls
+}
+
+// DeleteSessionsByUserId calls DeleteSessionsByUserIdFunc.
+func (mock *QuerierMock) DeleteSessionsByUserId(ctx context.Context, userID string) error {
+	if mock.DeleteSessionsByUserIdFunc == nil {
+		panic("QuerierMock.DeleteSessionsByUserIdFunc: method is nil but Querier.DeleteSessionsByUserId was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		UserID string
+	}{
+		Ctx:    ctx,
+		UserID: userID,
+	}
+	mock.lockDeleteSessionsByUserId.Lock()
+	mock.calls.DeleteSessionsByUserId = append(mock.calls.DeleteSessionsByUserId, callInfo)
+	mock.lockDeleteSessionsByUserId.Unlock()
+	return mock.DeleteSessionsByUserIdFunc(ctx, userID)
+}
+
+// DeleteSessionsByUserIdCalls gets all the calls that were made to DeleteSessionsByUserId.
+// Check the length with:
+//
+//	len(mockedQuerier.DeleteSessionsByUserIdCalls())
+func (mock *QuerierMock) DeleteSessionsByUserIdCalls() []struct {
+	Ctx    context.Context
+	UserID string
+} {
+	var calls []struct {
+		Ctx    context.Context
+		UserID string
+	}
+	mock.lockDeleteSessionsByUserId.RLock()
+	calls = mock.calls.DeleteSessionsByUserId
+	mock.lockDeleteSessionsByUserId.RUnlock()
 	return calls
 }
 
@@ -1166,38 +1219,6 @@ func (mock *QuerierMock) ListSyncLocksByTypeCalls() []struct {
 	return calls
 }
 
-// ListUsers calls ListUsersFunc.
-func (mock *QuerierMock) ListUsers(ctx context.Context) ([]User, error) {
-	if mock.ListUsersFunc == nil {
-		panic("QuerierMock.ListUsersFunc: method is nil but Querier.ListUsers was just called")
-	}
-	callInfo := struct {
-		Ctx context.Context
-	}{
-		Ctx: ctx,
-	}
-	mock.lockListUsers.Lock()
-	mock.calls.ListUsers = append(mock.calls.ListUsers, callInfo)
-	mock.lockListUsers.Unlock()
-	return mock.ListUsersFunc(ctx)
-}
-
-// ListUsersCalls gets all the calls that were made to ListUsers.
-// Check the length with:
-//
-//	len(mockedQuerier.ListUsersCalls())
-func (mock *QuerierMock) ListUsersCalls() []struct {
-	Ctx context.Context
-} {
-	var calls []struct {
-		Ctx context.Context
-	}
-	mock.lockListUsers.RLock()
-	calls = mock.calls.ListUsers
-	mock.lockListUsers.RUnlock()
-	return calls
-}
-
 // SetSyncLock calls SetSyncLockFunc.
 func (mock *QuerierMock) SetSyncLock(ctx context.Context, arg SetSyncLockParams) (SyncLock, error) {
 	if mock.SetSyncLockFunc == nil {
@@ -1231,6 +1252,42 @@ func (mock *QuerierMock) SetSyncLockCalls() []struct {
 	mock.lockSetSyncLock.RLock()
 	calls = mock.calls.SetSyncLock
 	mock.lockSetSyncLock.RUnlock()
+	return calls
+}
+
+// UpdateUserPassword calls UpdateUserPasswordFunc.
+func (mock *QuerierMock) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	if mock.UpdateUserPasswordFunc == nil {
+		panic("QuerierMock.UpdateUserPasswordFunc: method is nil but Querier.UpdateUserPassword was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		Arg UpdateUserPasswordParams
+	}{
+		Ctx: ctx,
+		Arg: arg,
+	}
+	mock.lockUpdateUserPassword.Lock()
+	mock.calls.UpdateUserPassword = append(mock.calls.UpdateUserPassword, callInfo)
+	mock.lockUpdateUserPassword.Unlock()
+	return mock.UpdateUserPasswordFunc(ctx, arg)
+}
+
+// UpdateUserPasswordCalls gets all the calls that were made to UpdateUserPassword.
+// Check the length with:
+//
+//	len(mockedQuerier.UpdateUserPasswordCalls())
+func (mock *QuerierMock) UpdateUserPasswordCalls() []struct {
+	Ctx context.Context
+	Arg UpdateUserPasswordParams
+} {
+	var calls []struct {
+		Ctx context.Context
+		Arg UpdateUserPasswordParams
+	}
+	mock.lockUpdateUserPassword.RLock()
+	calls = mock.calls.UpdateUserPassword
+	mock.lockUpdateUserPassword.RUnlock()
 	return calls
 }
 

@@ -6,7 +6,7 @@
                 <th style="padding: 0.75rem 0;">Email</th>
                 <th style="padding: 0.75rem 0;">Role</th>
                 <th style="padding: 0.75rem 0;">Items</th>
-                <th style="padding: 0.75rem 0;">Actions</th>
+                <th style="padding: 0.75rem 1.5rem 0.75rem 0; text-align: right;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -15,18 +15,22 @@
                 <td style="padding: 0.75rem 0;">{{.Email}}</td>
                 <td style="padding: 0.75rem 0;">{{if eq .IsAdmin 1}}Admin{{else}}User{{end}}</td>
                 <td style="padding: 0.75rem 0;">{{.TotalItems}}</td>
-                <td style="padding: 0.75rem 0;">
-                    {{if ne .IsAdmin 1}}
-                    <button class="delete-btn" style="background: var(--error); color: white; padding: 0.25rem 0.5rem; font-size: 0.875rem; border: none; border-radius: 4px; cursor: pointer; display: inline-block; width: auto;" 
-                            hx-delete="/users/{{.UserID}}" 
-                            hx-target="#user-list" 
-                            hx-swap="outerHTML"
-                            hx-confirm="true"
-                            data-email="{{.Email}}"
-                            data-items="{{.TotalItems}}">
-                        <span class="btn-text">Delete</span>
-                        <span class="htmx-indicator" style="display: none;">Wait...</span>
-                    </button>
+                <td style="padding: 0.75rem 1.5rem 0.75rem 0; text-align: right;">
+                    {{if ne .UserID $.User.ID}}
+                    <div class="kebab-menu" style="position: relative; display: inline-block;">
+                        <button class="kebab-btn" style="background: transparent; border: none; cursor: pointer; font-size: 1.25rem; padding: 0 0.5rem; color: var(--text-color);" onclick="toggleDropdown(this)">&#8942;</button>
+                        <div class="kebab-dropdown" style="display: none; position: absolute; right: 0; top: 100%; background: var(--surface); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; min-width: max-content; white-space: nowrap;">
+                            <button class="change-password-btn" style="display: block; width: 100%; text-align: left; background: transparent; border: none; padding: 0.5rem 1rem; cursor: pointer; color: var(--text-color);"
+                                data-userid="{{.UserID}}" data-email="{{.Email}}">Change Password</button>
+                            <button class="delete-btn" style="display: block; width: 100%; text-align: left; background: transparent; border: none; padding: 0.5rem 1rem; cursor: pointer; color: var(--error);" 
+                                hx-delete="/users/{{.UserID}}" 
+                                hx-target="#user-list" 
+                                hx-swap="outerHTML"
+                                hx-confirm="true"
+                                data-email="{{.Email}}"
+                                data-items="{{.TotalItems}}">Delete User <span class="htmx-indicator" style="display: none;">...</span></button>
+                        </div>
+                    </div>
                     {{end}}
                 </td>
             </tr>
@@ -37,11 +41,19 @@
         .delete-btn.htmx-request .btn-text { display: none; }
         .delete-btn.htmx-request .htmx-indicator { display: inline; }
         .delete-btn.htmx-request { opacity: 0.7; pointer-events: none; }
+        
+        .kebab-btn { border-radius: 4px; transition: background-color 0.2s ease; }
+        .kebab-btn:hover { background-color: var(--border-color) !important; }
+        .kebab-dropdown button { transition: background-color 0.2s ease; }
+        .kebab-dropdown button:hover { background-color: var(--border-color) !important; }
     </style>
 
     <dialog id="delete-user-modal" style="border: none; border-radius: 8px; padding: 2rem; background: var(--surface); color: var(--text-color); box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto;">
-        <h3 style="margin: 0 0 0.5rem 0; color: var(--error);">Delete User</h3>
-        <p style="margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; color: var(--text-color);">Delete User</h3>
+            <button id="close-delete-modal-btn" style="background: none; color: var(--text-muted); border: none; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; width: auto;">&times;</button>
+        </div>
+        <p style="margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted);">
             This action is irreversible. All <strong id="delete-modal-items">XX</strong> synced items for this user will be deleted.
         </p>
         <div class="form-group">
@@ -52,28 +64,75 @@
             </div>
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
-            <button id="cancel-delete-btn" style="background: transparent; color: var(--text-color); border: 1px solid var(--border-color); width: auto;">Cancel</button>
+            <button id="cancel-delete-btn" class="btn-cancel">Cancel</button>
             <button id="confirm-delete-btn" style="background: var(--error); width: auto;">Confirm Delete</button>
         </div>
     </dialog>
 
+    <dialog id="change-password-modal" style="border: none; border-radius: 8px; padding: 2rem; background: var(--surface); color: var(--text-color); box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; color: var(--text-color);">Change Password</h3>
+            <button id="close-cp-modal-btn" style="background: none; color: var(--text-muted); border: none; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; width: auto;">&times;</button>
+        </div>
+        <p style="margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted);">
+            Changing the password for <strong id="cp-modal-email"></strong> will invalidate their existing sessions. They will need to update their Joplin client sync settings with the new password to continue syncing.
+        </p>
+        <form id="change-password-form" hx-post="" hx-swap="none">
+            <div class="form-group">
+                <label for="new_password">New Password</label>
+                <input type="password" id="new_password" name="new_password" required data-bwignore="true" data-lpignore="true" data-1p-ignore="true" />
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required data-bwignore="true" data-lpignore="true" data-1p-ignore="true" />
+            </div>
+            <div id="change-password-error" class="error-message" style="display: none;"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" id="cancel-cp-btn" class="btn-cancel">Cancel</button>
+                <button type="submit" style="width: auto;">
+                    <span class="btn-text">Save</span>
+                    <span class="htmx-indicator" style="display: none;">Saving...</span>
+                </button>
+            </div>
+            <style>
+                form.htmx-request .btn-text { display: none !important; }
+                form.htmx-request .htmx-indicator { display: inline !important; }
+                form.htmx-request button[type="submit"] { opacity: 0.7; pointer-events: none; }
+            </style>
+        </form>
+    </dialog>
+
     <script>
+        function toggleDropdown(btn) {
+            const dropdown = btn.nextElementSibling;
+            const isVisible = dropdown.style.display === 'block';
+            document.querySelectorAll('.kebab-dropdown').forEach(d => d.style.display = 'none');
+            if (!isVisible) dropdown.style.display = 'block';
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.kebab-menu')) {
+                document.querySelectorAll('.kebab-dropdown').forEach(d => d.style.display = 'none');
+            }
+        });
+
         (function() {
+            // Delete User Logic
             let currentIssueRequest = null;
             let expectedEmail = "";
 
-            const modal = document.getElementById('delete-user-modal');
+            const deleteModal = document.getElementById('delete-user-modal');
             const itemsEl = document.getElementById('delete-modal-items');
             const targetEmailEl = document.getElementById('delete-modal-email-target');
             const inputEl = document.getElementById('delete-email-confirm');
-            const errorEl = document.getElementById('delete-email-error');
-            const cancelBtn = document.getElementById('cancel-delete-btn');
-            const confirmBtn = document.getElementById('confirm-delete-btn');
+            const deleteErrorEl = document.getElementById('delete-email-error');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const closeDeleteModalBtn = document.getElementById('close-delete-modal-btn');
 
-            function closeModal() {
-                modal.close();
+            function closeDeleteModal() {
+                deleteModal.close();
                 inputEl.value = '';
-                errorEl.style.display = 'none';
+                deleteErrorEl.style.display = 'none';
                 currentIssueRequest = null;
             }
 
@@ -89,34 +148,82 @@
                     targetEmailEl.textContent = expectedEmail;
                     currentIssueRequest = e.detail.issueRequest;
                     
-                    modal.showModal();
+                    deleteModal.showModal();
+                    document.querySelectorAll('.kebab-dropdown').forEach(d => d.style.display = 'none');
                     // setTimeout is needed because the dialog might not be fully rendered yet to focus
                     setTimeout(() => inputEl.focus(), 50);
                 }
             });
 
-            cancelBtn.addEventListener('click', closeModal);
+            cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+            closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
             
-            confirmBtn.addEventListener('click', function() {
+            confirmDeleteBtn.addEventListener('click', function() {
                 if (inputEl.value.trim() === expectedEmail) {
                     if (currentIssueRequest) {
                         currentIssueRequest(true); 
                     }
-                    closeModal();
+                    closeDeleteModal();
                 } else {
-                    errorEl.style.display = 'block';
+                    deleteErrorEl.style.display = 'block';
                     inputEl.focus();
                 }
             });
 
             inputEl.addEventListener('input', function() {
-                errorEl.style.display = 'none';
+                deleteErrorEl.style.display = 'none';
             });
             
-            modal.addEventListener('close', function() {
+            deleteModal.addEventListener('close', function() {
                 inputEl.value = '';
-                errorEl.style.display = 'none';
+                deleteErrorEl.style.display = 'none';
                 currentIssueRequest = null;
+            });
+
+            // Change Password Logic
+            const cpModal = document.getElementById('change-password-modal');
+            const cpForm = document.getElementById('change-password-form');
+            const cpEmailEl = document.getElementById('cp-modal-email');
+            const cpErrorEl = document.getElementById('change-password-error');
+            const cpCancelBtn = document.getElementById('cancel-cp-btn');
+            const cpCloseBtn = document.getElementById('close-cp-modal-btn');
+            
+            document.body.addEventListener('click', function(e) {
+                const btn = e.target.closest('.change-password-btn');
+                if (btn) {
+                    const userId = btn.getAttribute('data-userid');
+                    const email = btn.getAttribute('data-email');
+                    
+                    cpEmailEl.textContent = email;
+                    cpForm.setAttribute('hx-post', '/users/' + userId + '/password');
+                    if (window.htmx) {
+                        htmx.process(cpForm); 
+                    }
+                    
+                    cpModal.showModal();
+                    document.querySelectorAll('.kebab-dropdown').forEach(d => d.style.display = 'none');
+                }
+            });
+
+            cpCancelBtn.addEventListener('click', function() {
+                cpModal.close();
+            });
+
+            cpCloseBtn.addEventListener('click', function() {
+                cpModal.close();
+            });
+
+            document.body.addEventListener('closeChangePasswordModal', function() {
+                cpModal.close();
+            });
+
+            cpModal.addEventListener('close', function() {
+                cpForm.reset();
+                const currentError = document.getElementById('change-password-error');
+                if (currentError) {
+                    currentError.style.display = 'none';
+                    currentError.innerHTML = '';
+                }
             });
         })();
     </script>

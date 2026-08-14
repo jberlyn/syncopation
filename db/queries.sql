@@ -180,3 +180,12 @@ INSERT INTO user_shares (
   ?, ?, ?, ?, ?
 )
 RETURNING *;
+
+-- name: UpdateUserPassword :exec
+UPDATE users
+SET password_hash = ?, updated_at = ?
+WHERE id = ?;
+
+-- name: DeleteSessionsByUserId :exec
+DELETE FROM sessions
+WHERE user_id = ?;

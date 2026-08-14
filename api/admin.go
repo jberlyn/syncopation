@@ -237,6 +237,7 @@ func (h *AdminHandler) HandleUsersPost(w http.ResponseWriter, r *http.Request) {
 		_ = templates["add_user_form.html"].ExecuteTemplate(w, "add-user-form", map[string]interface{}{})
 		stats, userStats, _ := h.AdminService.GetDashboardStats(r.Context())
 		_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
+			"User":      r.Context().Value(AdminUserKey).(db.User),
 			"UserStats": userStats,
 			"OOB":       true,
 		})
@@ -244,6 +245,7 @@ func (h *AdminHandler) HandleUsersPost(w http.ResponseWriter, r *http.Request) {
 			"Stats": stats,
 			"OOB":   true,
 		})
+		w.Write([]byte(`<div id="toast-container" hx-swap-oob="beforeend"><div class="toast">User created successfully</div></div>`))
 	} else {
 		_ = templates["add_user_form.html"].ExecuteTemplate(w, "add-user-form", map[string]interface{}{
 			"Error": errMsg,
@@ -277,6 +279,7 @@ func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request)
 
 	stats, userStats, _ := h.AdminService.GetDashboardStats(r.Context())
 	_ = templates["user_list.html"].ExecuteTemplate(w, "user-list", map[string]interface{}{
+		"User":      r.Context().Value(AdminUserKey).(db.User),
 		"UserStats": userStats,
 	})
 
@@ -284,4 +287,52 @@ func (h *AdminHandler) HandleUsersDelete(w http.ResponseWriter, r *http.Request)
 		"Stats": stats,
 		"OOB":   true,
 	})
+	w.Write([]byte(`<div id="toast-container" hx-swap-oob="beforeend"><div class="toast" style="border-left-color: var(--error);">User deleted successfully</div></div>`))
+}
+
+func (h *AdminHandler) HandleUsersPasswordPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.PathValue("id")
+	if id == "" {
+		parts := strings.Split(r.URL.Path, "/")
+		if len(parts) > 1 {
+			id = parts[len(parts)-2] // /users/{id}/password
+		}
+	}
+	if id == "" {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	_ = r.ParseForm()
+	newPassword := r.FormValue("new_password")
+	confirmPassword := r.FormValue("confirm_password")
+
+	var errMsg string
+	if newPassword == "" || confirmPassword == "" {
+		errMsg = "Both password fields are required"
+	} else if newPassword != confirmPassword {
+		errMsg = "Passwords do not match"
+	} else {
+		err := h.AdminService.ChangeUserPassword(r.Context(), id, newPassword)
+		if err != nil {
+			slog.Error("Failed to update password", "error", err)
+			errMsg = "Failed to update password"
+		}
+	}
+
+	if errMsg != "" {
+		w.Header().Set("HX-Retarget", "#change-password-error")
+		w.Header().Set("HX-Reswap", "outerHTML")
+		// Output the error inside a styled div
+		w.Write([]byte(`<div id="change-password-error" class="error-message" style="margin-top: 0.5rem; padding: 0.5rem; display: block;">` + errMsg + `</div>`))
+	} else {
+		w.Header().Set("HX-Trigger", "closeChangePasswordModal")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`<div id="toast-container" hx-swap-oob="beforeend"><div class="toast">Password changed successfully</div></div>`))
+	}
 }
