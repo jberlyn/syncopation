@@ -52,7 +52,6 @@ func parseItemPath(p string) (string, string, bool) {
 		}
 		if strings.HasSuffix(rest, "*:/children") {
 			// e.g. path/*:/children -> path. But for root:/*:/children, rest is *:/children -> empty path.
-			// Actually, let's just strip the suffix. If there's a trailing slash, strip it.
 			path := rest[:len(rest)-len("*:/children")]
 			path = strings.TrimSuffix(path, "/")
 			return path, "children", true

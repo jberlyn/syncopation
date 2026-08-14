@@ -240,7 +240,6 @@ func TestAPIE2EFlow(t *testing.T) {
 
 	// 7. Trigger DB Errors
 	// Login again to get a valid token before we break the DB
-	// wait, we can just use another token or seed a new one
 	seedTestUser(t, queries, "db-error@example.com", "pass")
 	resp, _ = doReq("POST", "/api/sessions", strings.NewReader(`{"email": "db-error@example.com", "password": "pass"}`))
 	var newSess LoginResponse

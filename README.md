@@ -62,7 +62,7 @@ docker compose up -d
 ```
 
 Visit the Admin UI at `http://localhost:22300/` in your browser. 
-Since this is a fresh install, you will be presented with a **Zero-User Onboarding Flow** to create your initial administrator account.
+Since this is a fresh install, you will be presented with a short wizard to create your initial administrator account. All accounts can be used to sync with Joplin, but only admin accounts can be used to login to the Admin UI.
 
 ### 4. Reverse Proxy Recommendations
 

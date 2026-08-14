@@ -111,7 +111,6 @@ func TestLocksFlow(t *testing.T) {
 			t.Errorf("Expected 409 Conflict for exclusive lock, got %d", rrExclusive.Code)
 		}
 
-		// Wait, can the SAME client acquire it again? Yes, it overwrites/refreshes.
 		rrRefresh := acquireLock(api.LockTypeExclusive, 1, "client3")
 		if rrRefresh.Code != http.StatusOK {
 			t.Errorf("Expected 200 OK for refreshing own exclusive lock, got %d", rrRefresh.Code)

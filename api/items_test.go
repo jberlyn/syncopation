@@ -36,7 +36,6 @@ func TestParseItemPath(t *testing.T) {
 		// We use a small hack here since parseItemPath is unexported,
 		// we test the handler behavior indirectly or just test the handler with these paths.
 		// Since we want to test parseItemPath itself, we can export it or copy it here for testing.
-		// Wait, let's test the endpoint behavior directly.
 		_ = req
 	}
 }

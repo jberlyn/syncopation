@@ -48,9 +48,6 @@ func buildLockKey(req LockRequest) string {
 }
 
 func (h *LockHandler) getActiveLocks(ctx context.Context) ([]LockItem, error) {
-	// Let's get both sync and exclusive locks
-	// The DB query doesn't give us a "Get everything matching a prefix",
-	// but we added ListKeyValuesByType to queries.sql!
 	var activeLocks []LockItem
 
 	now := time.Now().UnixMilli()
