@@ -139,7 +139,14 @@ func (h *AdminHandler) HandleLoginGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{"Version": h.Version})
+	toastMsg := ""
+	if r.URL.Query().Get("logged_out") == "1" {
+		toastMsg = "You have been signed out"
+	}
+	_ = templates["login.html"].ExecuteTemplate(w, "base", map[string]interface{}{
+		"Version":      h.Version,
+		"ToastMessage": toastMsg,
+	})
 }
 
 func (h *AdminHandler) HandleLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -186,7 +193,7 @@ func (h *AdminHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-	http.Redirect(w, r, "/login", http.StatusFound)
+	http.Redirect(w, r, "/login?logged_out=1", http.StatusFound)
 }
 
 func (h *AdminHandler) HandleDashboard(w http.ResponseWriter, r *http.Request) {

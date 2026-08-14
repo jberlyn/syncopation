@@ -314,7 +314,11 @@
 
     {{template "content" .}}
 
-    <div id="toast-container"></div>
+    <div id="toast-container">
+        {{if .ToastMessage}}
+        <div class="toast">{{.ToastMessage}}</div>
+        {{end}}
+    </div>
     <script>
         document.body.addEventListener('animationend', function(e) {
             if (e.target.classList.contains('toast') && e.animationName === 'fadeOut') {

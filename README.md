@@ -100,6 +100,18 @@ go build -o syncopation .
 ./syncopation
 ```
 
+### Hot Reloading (Recommended)
+For local development, the Go ecosystem standard [Air](https://github.com/air-verse/air) is used for hot reloading. It automatically recompiles the binary and restarts the server whenever you modify `.go` or `.html` template files.
+
+1. Install `air` globally:
+```bash
+go install github.com/air-verse/air@latest
+```
+2. Start the development server (make sure `~/go/bin` is in your `$PATH`):
+```bash
+air
+```
+
 ### Testing
 Syncopation uses Go's standard `testing` package.
 - **Unit & Integration Tests**: Run with `go test ./...`
