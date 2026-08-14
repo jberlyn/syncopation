@@ -1,3 +1,4 @@
 /data/
 coverage.out
 coverage.html
+coverage*.out
