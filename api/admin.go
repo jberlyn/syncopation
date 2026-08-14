@@ -75,10 +75,10 @@ func (h *AdminHandler) AdminMiddleware(next http.Handler) http.Handler {
 		// 3. Validate session
 		user, err := h.AdminService.ValidateAdminSession(r.Context(), cookie.Value)
 		if err != nil {
-			http.SetCookie(w, &http.Cookie{Name: "admin_session", Value: "", MaxAge: -1, Path: "/"})
 			if err == services.ErrForbidden {
-				http.Redirect(w, r, "/login", http.StatusFound)
+				http.Error(w, "Forbidden: Admin access required", http.StatusForbidden)
 			} else {
+				http.SetCookie(w, &http.Cookie{Name: "admin_session", Value: "", MaxAge: -1, Path: "/"})
 				http.Redirect(w, r, "/login", http.StatusFound)
 			}
 			return

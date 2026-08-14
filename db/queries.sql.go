@@ -613,41 +613,6 @@ func (q *Queries) ListSyncLocksByType(ctx context.Context, lockType int64) ([]Sy
 	return items, nil
 }
 
-const listUsers = `-- name: ListUsers :many
-SELECT id, email, password_hash, is_admin, created_at, updated_at FROM users
-ORDER BY created_at ASC
-`
-
-func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Email,
-			&i.PasswordHash,
-			&i.IsAdmin,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const setSyncLock = `-- name: SetSyncLock :one
 INSERT INTO sync_locks (
   lock_key, lock_type, lock_data

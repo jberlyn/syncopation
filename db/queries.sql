@@ -124,9 +124,6 @@ SELECT COUNT(*) FROM users;
 SELECT * FROM users
 WHERE id = ? LIMIT 1;
 
--- name: ListUsers :many
-SELECT * FROM users
-ORDER BY created_at ASC;
 
 -- name: DeleteUser :exec
 DELETE FROM users

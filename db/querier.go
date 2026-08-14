@@ -31,7 +31,6 @@ type Querier interface {
 	InsertShareTombstonesForDeletedUser(ctx context.Context, arg InsertShareTombstonesForDeletedUserParams) error
 	ListSyncItemsByUser(ctx context.Context, arg ListSyncItemsByUserParams) ([]SyncItem, error)
 	ListSyncLocksByType(ctx context.Context, lockType int64) ([]SyncLock, error)
-	ListUsers(ctx context.Context) ([]User, error)
 	SetSyncLock(ctx context.Context, arg SetSyncLockParams) (SyncLock, error)
 	UpsertSyncItem(ctx context.Context, arg UpsertSyncItemParams) (SyncItem, error)
 	UpsertUserSyncItem(ctx context.Context, arg UpsertUserSyncItemParams) (UserSyncItem, error)
