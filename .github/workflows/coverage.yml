@@ -26,6 +26,8 @@ jobs:
       - name: Run tests with coverage
         run: |
           go test -coverpkg=./... -coverprofile=coverage.out ./...
+          grep -v "_mock.go" coverage.out > coverage_nomocks.out
+          mv coverage_nomocks.out coverage.out
 
       - name: Generate badge JSON files to temp directory
         run: |
