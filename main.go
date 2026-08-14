@@ -16,6 +16,7 @@ import (
 	"github.com/jberlyn/syncopation/api"
 	"github.com/jberlyn/syncopation/config"
 	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/services"
 	"github.com/jberlyn/syncopation/storage"
 	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
@@ -100,7 +101,9 @@ func setupMux(queries *db.Queries, dbConn *sql.DB, localFS *storage.LocalFS) *ht
 	mux.Handle("DELETE /api/locks/{id}", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ReleaseLock)))
 	mux.Handle("GET /api/locks", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ListLocks)))
 
-	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
+	itemService := services.NewItemService(queries, localFS)
+	itemHandler := &api.ItemHandler{ItemService: itemService}
+
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
 
 	batchItemHandler := &api.BatchItemHandler{Queries: queries, DB: dbConn, Storage: localFS}

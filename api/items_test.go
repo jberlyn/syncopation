@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/api"
 	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/services"
 	"github.com/jberlyn/syncopation/storage"
 )
 
@@ -44,7 +45,8 @@ func TestItemCRUD(t *testing.T) {
 	queries := setupTestDB(t)
 	localFS := storage.NewLocalFS(t.TempDir())
 	authHandler := &api.AuthHandler{Queries: queries}
-	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
+	itemService := services.NewItemService(queries, localFS)
+	itemHandler := &api.ItemHandler{ItemService: itemService}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
@@ -161,7 +163,8 @@ func TestDeltaSync(t *testing.T) {
 	queries := setupTestDB(t)
 	localFS := storage.NewLocalFS(t.TempDir())
 	authHandler := &api.AuthHandler{Queries: queries}
-	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
+	itemService := services.NewItemService(queries, localFS)
+	itemHandler := &api.ItemHandler{ItemService: itemService}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
@@ -269,7 +272,8 @@ func TestDirectoryChildren(t *testing.T) {
 	queries := setupTestDB(t)
 	localFS := storage.NewLocalFS(t.TempDir())
 	authHandler := &api.AuthHandler{Queries: queries}
-	itemHandler := &api.ItemHandler{Queries: queries, Storage: localFS}
+	itemService := services.NewItemService(queries, localFS)
+	itemHandler := &api.ItemHandler{ItemService: itemService}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))

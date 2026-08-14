@@ -17,6 +17,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jberlyn/syncopation/db"
+	"github.com/jberlyn/syncopation/services"
 	"github.com/jberlyn/syncopation/storage"
 	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
@@ -52,7 +53,8 @@ func setupTestApp(t *testing.T) (*http.ServeMux, *db.Queries, *sql.DB, *storage.
 	mux.Handle("DELETE /api/locks/{id}", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ReleaseLock)))
 	mux.Handle("GET /api/locks", authHandler.RequireAuth(http.HandlerFunc(lockHandler.ListLocks)))
 
-	itemHandler := &ItemHandler{Queries: queries, Storage: localFS}
+	itemService := services.NewItemService(queries, localFS)
+	itemHandler := &ItemHandler{ItemService: itemService}
 	mux.Handle("/api/items/root:/", authHandler.RequireAuth(http.HandlerFunc(itemHandler.HandleItems)))
 
 	batchItemHandler := &BatchItemHandler{Queries: queries, DB: dbConn, Storage: localFS}

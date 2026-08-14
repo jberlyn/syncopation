@@ -7,16 +7,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/google/uuid"
-	"github.com/jberlyn/syncopation/db"
-	"github.com/jberlyn/syncopation/storage"
+	"github.com/jberlyn/syncopation/services"
 )
 
 type ItemHandler struct {
-	Queries *db.Queries
-	Storage storage.Storage
+	ItemService *services.ItemService
 }
 
 type ItemMetadataResponse struct {
@@ -116,11 +112,7 @@ func (h *ItemHandler) HandleItems(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ItemHandler) handleGetStat(w http.ResponseWriter, r *http.Request, userID, itemName string) {
-	item, err := h.Queries.GetSyncItemByFileNameAndUser(r.Context(), db.GetSyncItemByFileNameAndUserParams{
-		FileName: itemName,
-		UserID:   userID,
-	})
-
+	item, err := h.ItemService.GetStat(r.Context(), userID, itemName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Not found", http.StatusNotFound)
@@ -143,23 +135,13 @@ func (h *ItemHandler) handleGetStat(w http.ResponseWriter, r *http.Request, user
 }
 
 func (h *ItemHandler) handleGetContent(w http.ResponseWriter, r *http.Request, userID, itemName string) {
-	item, err := h.Queries.GetSyncItemByFileNameAndUser(r.Context(), db.GetSyncItemByFileNameAndUserParams{
-		FileName: itemName,
-		UserID:   userID,
-	})
-
+	item, content, err := h.ItemService.GetContent(r.Context(), userID, itemName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	content, err := h.Storage.ReadItem(r.Context(), userID, itemName)
-	if err != nil {
-		http.Error(w, "Failed to read content", http.StatusInternalServerError)
 		return
 	}
 
@@ -179,24 +161,13 @@ func (h *ItemHandler) handleGetDelta(w http.ResponseWriter, r *http.Request, use
 
 	limit := int64(100)
 
-	changes, err := h.Queries.GetDeltaEventsByUser(r.Context(), db.GetDeltaEventsByUserParams{
-		UserID: userID,
-		ID:     cursor,
-		Limit:  limit + 1,
-	})
+	changes, hasMore, lastCursor, err := h.ItemService.GetDelta(r.Context(), userID, cursor, limit)
 	if err != nil {
 		http.Error(w, "Failed to fetch changes", http.StatusInternalServerError)
 		return
 	}
 
-	hasMore := false
-	if len(changes) > int(limit) {
-		hasMore = true
-		changes = changes[:limit]
-	}
-
 	deltaItems := make([]DeltaItem, 0, len(changes))
-	lastCursor := cursor
 	for _, c := range changes {
 		item := DeltaItem{
 			ItemName:    c.FileName,
@@ -205,7 +176,6 @@ func (h *ItemHandler) handleGetDelta(w http.ResponseWriter, r *http.Request, use
 			UpdatedTime: c.UpdatedAt,
 		}
 		deltaItems = append(deltaItems, item)
-		lastCursor = c.ID
 	}
 
 	resp := DeltaResponse{
@@ -230,20 +200,10 @@ func (h *ItemHandler) handleGetChildren(w http.ResponseWriter, r *http.Request, 
 
 	limit := int64(100)
 
-	items, err := h.Queries.ListSyncItemsByUser(r.Context(), db.ListSyncItemsByUserParams{
-		UserID: userID,
-		Limit:  limit + 1,
-		Offset: cursor,
-	})
+	items, hasMore, nextCursor, err := h.ItemService.GetChildren(r.Context(), userID, cursor, limit)
 	if err != nil {
 		http.Error(w, "Failed to fetch items", http.StatusInternalServerError)
 		return
-	}
-
-	hasMore := false
-	if len(items) > int(limit) {
-		hasMore = true
-		items = items[:limit]
 	}
 
 	childrenItems := make([]ItemMetadataResponse, 0, len(items))
@@ -264,7 +224,7 @@ func (h *ItemHandler) handleGetChildren(w http.ResponseWriter, r *http.Request, 
 	}{
 		Items:   childrenItems,
 		HasMore: hasMore,
-		Cursor:  strconv.FormatInt(cursor+limit, 10),
+		Cursor:  strconv.FormatInt(nextCursor, 10),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -278,83 +238,14 @@ func (h *ItemHandler) handlePutContent(w http.ResponseWriter, r *http.Request, u
 		return
 	}
 
-	now := time.Now().UnixMilli()
-
-	existing, err := h.Queries.GetSyncItemByFileNameAndUser(r.Context(), db.GetSyncItemByFileNameAndUserParams{
-		FileName: itemName,
-		UserID:   userID,
-	})
-
-	var itemID string
-	var createdTime int64
-	var changeType int64
-
-	if err == sql.ErrNoRows {
-		itemID = uuid.New().String()
-		createdTime = now
-		changeType = 1 // Create
-	} else if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	} else {
-		itemID = existing.ID
-		createdTime = existing.CreatedAt
-		changeType = 2 // Update
-	}
-
 	contentType := r.Header.Get("Content-Type")
 	if contentType == "" {
 		contentType = "application/octet-stream"
 	}
 
-	if err := h.Storage.WriteItem(r.Context(), userID, itemName, content); err != nil {
-		http.Error(w, "Failed to save item content", http.StatusInternalServerError)
-		return
-	}
-
-	item, err := h.Queries.UpsertSyncItem(r.Context(), db.UpsertSyncItemParams{
-		ID:              itemID,
-		FileName:        itemName,
-		MimeType:        contentType,
-		JoplinID:        "",
-		ParentID:        "",
-		ShareID:         "",
-		ItemType:        1,
-		IsEncrypted:     0,
-		ClientUpdatedAt: now,
-		OwnerID:         userID,
-		CreatedAt:       createdTime,
-		UpdatedAt:       now,
-	})
+	item, err := h.ItemService.PutContent(r.Context(), userID, itemName, content, contentType)
 	if err != nil {
 		http.Error(w, "Failed to save item", http.StatusInternalServerError)
-		return
-	}
-
-	_, err = h.Queries.UpsertUserSyncItem(r.Context(), db.UpsertUserSyncItemParams{
-		UserID:     userID,
-		SyncItemID: itemID,
-		CreatedAt:  createdTime,
-		UpdatedAt:  now,
-	})
-	if err != nil {
-		http.Error(w, "Failed to map item to user", http.StatusInternalServerError)
-		return
-	}
-
-	_, err = h.Queries.InsertDeltaEvent(r.Context(), db.InsertDeltaEventParams{
-		EventUuid:       uuid.New().String(),
-		JoplinID:        itemID,
-		UserID:          userID,
-		FileName:        itemName,
-		PreviousShareID: "",
-		ItemType:        1,
-		EventType:       changeType,
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	})
-	if err != nil {
-		http.Error(w, "Failed to log change", http.StatusInternalServerError)
 		return
 	}
 
@@ -371,56 +262,11 @@ func (h *ItemHandler) handlePutContent(w http.ResponseWriter, r *http.Request, u
 }
 
 func (h *ItemHandler) handleDelete(w http.ResponseWriter, r *http.Request, userID, itemName string) {
-	existing, err := h.Queries.GetSyncItemByFileNameAndUser(r.Context(), db.GetSyncItemByFileNameAndUserParams{
-		FileName: itemName,
-		UserID:   userID,
-	})
-	if err != nil {
-		if err == sql.ErrNoRows {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	err = h.Queries.DeleteSyncItemByFileNameAndUser(r.Context(), db.DeleteSyncItemByFileNameAndUserParams{
-		FileName: itemName,
-		UserID:   userID,
-	})
+	err := h.ItemService.DeleteItem(r.Context(), userID, itemName)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	err = h.Queries.DeleteUserSyncItem(r.Context(), db.DeleteUserSyncItemParams{
-		UserID:     userID,
-		SyncItemID: existing.ID,
-	})
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	now := time.Now().UnixMilli()
-
-	_, err = h.Queries.InsertDeltaEvent(r.Context(), db.InsertDeltaEventParams{
-		EventUuid:       uuid.New().String(),
-		JoplinID:        existing.ID,
-		UserID:          userID,
-		FileName:        itemName,
-		PreviousShareID: "",
-		ItemType:        1,
-		EventType:       3, // Delete
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	})
-	if err != nil {
-		http.Error(w, "Failed to log change", http.StatusInternalServerError)
-		return
-	}
-
-	_ = h.Storage.DeleteItem(r.Context(), userID, itemName)
 
 	w.WriteHeader(http.StatusOK)
 }
